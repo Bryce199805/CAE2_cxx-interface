@@ -28,6 +28,31 @@ DamengDB::DamengDB(char* dm_server, char* dm_user, char* dm_pwd) {
     printf("dpi: connect to server success!\n");
 }
 
+DamengDB::~DamengDB() {
+    this->m_rt = dpi_logout(this->m_hcon);
+    if(!DSQL_SUCCEEDED(this->m_rt)){
+        this->dpiErrorMsgPrint(DSQL_HANDLE_DBC, this->m_hcon);
+        exit(-1);
+    }
+    printf( "dpi: disconnect from server success!\n" );
+
+    // 释放连接句柄和环境句柄
+    this->m_rt = dpi_free_con(this->m_hcon);
+    this->m_rt = dpi_free_env(this->m_henv);
+}
+
+bool DamengDB::Query() {
+}
+
+bool DamengDB::Delete() {
+}
+
+bool DamengDB::Update() {
+}
+
+bool DamengDB::Insert() {
+}
+
 void DamengDB::dpiErrorMsgPrint(sdint2 hndl_type, dhandle hndl) {
     sdint4 err_code;
     sdint2 msg_len;

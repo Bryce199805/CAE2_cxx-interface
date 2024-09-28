@@ -26,7 +26,13 @@ private:
 
 public:
     DamengDB(char* dm_server, char* dm_user, char* dm_pwd);
+    ~DamengDB();
     void connectTest();
+
+    bool Query();
+    bool Delete();
+    bool Update();
+    bool Insert();
 
 };
 
