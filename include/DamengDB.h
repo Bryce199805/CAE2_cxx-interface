@@ -24,16 +24,24 @@ private:
 
     void dpiErrorMsgPrint(sdint2 hndl_type, dhandle hndl);
 
+#ifdef USE_FILESYSTEM
+    // 定义文件系统私有成员
+
+#endif
+
 public:
-    DamengDB(char* dm_server, char* dm_user, char* dm_pwd);
+    DamengDB(const std::string &file_path);
     ~DamengDB();
     void connectTest();
 
-    bool Query();
-    bool Delete();
-    bool Update();
-    bool Insert();
+    bool Query(std::string &sql_str);
+    bool Delete(std::string &sql_str);
+    bool Update(std::string &sql_str);
+    bool Insert(std::string &sql_str);
 
+#ifdef USE_FILESYSTEM
+    void FileTest();
+#endif
 };
 
 #endif //DAMENGDB_H

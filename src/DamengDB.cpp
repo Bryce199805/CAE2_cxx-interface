@@ -6,7 +6,15 @@
 #include "DamengDB.h"
 #include "yaml-cpp/yaml.h"
 
-DamengDB::DamengDB(char* dm_server, char* dm_user, char* dm_pwd) {
+
+DamengDB::DamengDB(const std::string &file_path) {
+    // 读取yaml文件
+    YAML::Node data_config = YAML::LoadFile(file_path);
+    if(!data_config) {
+        std::cout << "Open config File:" << file_path << " failed.";
+        exit(1);
+    }
+
     // 申请环境句柄
     this->m_rt = dpi_alloc_env(&this->m_henv);
 
@@ -15,9 +23,9 @@ DamengDB::DamengDB(char* dm_server, char* dm_user, char* dm_pwd) {
 
     // 连接数据库
     this->m_rt = dpi_login(this->m_hcon,
-        reinterpret_cast<signed char*>(dm_server),
-        reinterpret_cast<signed char*>(dm_user),
-        reinterpret_cast<signed char*>(dm_pwd)
+        reinterpret_cast<sdbyte*>(data_config["database"]["server"].as<std::string>().data()),
+        reinterpret_cast<sdbyte*>(data_config["database"]["username"].as<std::string>().data()),
+        reinterpret_cast<sdbyte*>(data_config["database"]["passwd"].as<std::string>().data())
     );
 
     // 测试
@@ -42,16 +50,93 @@ DamengDB::~DamengDB() {
     this->m_rt = dpi_free_env(this->m_henv);
 }
 
-bool DamengDB::Query() {
+bool DamengDB::Query(std::string &sql_str) {
+    sdbyte* _sql = reinterpret_cast<sdbyte*>(sql_str.data());
+    // 申请语句句柄
+    this->m_rt = dpi_alloc_stmt(this->m_hcon, &this->m_hstmt);
+
+    // 执行sql语句
+    this->m_rt = dpi_exec_direct(this->m_hstmt, _sql);
+
+    //todo 添加日志写入部分
+
+    if(!DSQL_SUCCEEDED(this->m_rt)) {
+        std::cout << "query error" << std::endl;
+        this->dpiErrorMsgPrint(DSQL_HANDLE_STMT, this->m_hstmt);
+        this->m_rt = dpi_free_stmt(this->m_hstmt);
+        return false;
+    }
+    std::cout << "query success." << std::endl;
+    ulength* temp;
+    sdint4* aaa;
+    this->m_rt = dpi_get_stmt_attr(this->m_hstmt, DSQL_ATTR_ROW_STATUS_PTR, temp, 10, aaa);
+    std::cout<< *aaa << std::endl;
+    this->m_rt = dpi_free_stmt(this->m_hstmt);
+    return true;
 }
 
-bool DamengDB::Delete() {
+bool DamengDB::Delete(std::string &sql_str) {
+    sdbyte* _sql = reinterpret_cast<sdbyte*>(sql_str.data());
+    // 申请语句句柄
+    this->m_rt = dpi_alloc_stmt(this->m_hcon, &this->m_hstmt);
+
+    // 执行sql语句
+    this->m_rt = dpi_exec_direct(this->m_hstmt, _sql);
+
+    //todo 添加日志写入部分
+
+    if(!DSQL_SUCCEEDED(this->m_rt)) {
+        std::cout << "delete error" << std::endl;
+        this->dpiErrorMsgPrint(DSQL_HANDLE_STMT, this->m_hstmt);
+        this->m_rt = dpi_free_stmt(this->m_hstmt);
+        return false;
+    }
+    std::cout << "delete success." << std::endl;
+    this->m_rt = dpi_free_stmt(this->m_hstmt);
+    return true;
 }
 
-bool DamengDB::Update() {
+bool DamengDB::Update(std::string &sql_str) {
+    sdbyte* _sql = reinterpret_cast<sdbyte*>(sql_str.data());
+    // 申请语句句柄
+    this->m_rt = dpi_alloc_stmt(this->m_hcon, &this->m_hstmt);
+
+    // 执行sql语句
+    this->m_rt = dpi_exec_direct(this->m_hstmt, _sql);
+
+    //todo 添加日志写入部分
+
+    if(!DSQL_SUCCEEDED(this->m_rt)) {
+        std::cout << "update error" << std::endl;
+        this->dpiErrorMsgPrint(DSQL_HANDLE_STMT, this->m_hstmt);
+        this->m_rt = dpi_free_stmt(this->m_hstmt);
+        return false;
+    }
+    std::cout << "update success." << std::endl;
+    this->m_rt = dpi_free_stmt(this->m_hstmt);
+    return true;
 }
 
-bool DamengDB::Insert() {
+bool DamengDB::Insert(std::string &sql_str) {
+
+    sdbyte* _sql = reinterpret_cast<sdbyte*>(sql_str.data());
+    // 申请语句句柄
+    this->m_rt = dpi_alloc_stmt(this->m_hcon, &this->m_hstmt);
+
+    // 执行sql语句
+    this->m_rt = dpi_exec_direct(this->m_hstmt, _sql);
+
+    //todo 添加日志写入部分
+
+    if(!DSQL_SUCCEEDED(this->m_rt)) {
+        std::cout << "insert error" << std::endl;
+        this->dpiErrorMsgPrint(DSQL_HANDLE_STMT, this->m_hstmt);
+        this->m_rt = dpi_free_stmt(this->m_hstmt);
+        return false;
+    }
+    std::cout << "insert success." << std::endl;
+    this->m_rt = dpi_free_stmt(this->m_hstmt);
+    return true;
 }
 
 void DamengDB::dpiErrorMsgPrint(sdint2 hndl_type, dhandle hndl) {
@@ -73,5 +158,10 @@ void DamengDB::connectTest() {
     }
 
     std::cout << config["database"]["host"] << std::endl;
-
 }
+
+#ifdef USE_FILESYSTEM
+void DamengDB::FileTest() {
+    std::cout<< "use file system" <<std::endl;
+}
+#endif
