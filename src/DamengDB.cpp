@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include "DamengDB.h"
+#include "yaml-cpp/yaml.h"
 
 DamengDB::DamengDB(char* dm_server, char* dm_user, char* dm_pwd) {
     // 申请环境句柄
@@ -64,5 +65,13 @@ void DamengDB::dpiErrorMsgPrint(sdint2 hndl_type, dhandle hndl) {
 }
 
 void DamengDB::connectTest() {
-    std::cout << "connectTest" << std::endl;
+    // std::cout << "connectTest" << std::endl;
+    YAML::Node config = YAML::LoadFile("../config.yaml");
+
+    if (!config) {
+        std::cout << "Open config File:" << "test " << " failed.";
+    }
+
+    std::cout << config["database"]["host"] << std::endl;
+
 }
