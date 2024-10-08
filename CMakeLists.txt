@@ -3,6 +3,16 @@ project(CAE2)
 
 set(CMAKE_CXX_STANDARD 17)
 
+option(USE_FILESYSTEM "Enable file system support" OFF)
+
+set(SRC_LIST
+        src/DamengDB.cpp
+)
+
+set(HEAD_LIST
+        include/DamengDB.h
+)
+
 include_directories(./include)
 
 # DAMENG dataset env
@@ -13,20 +23,19 @@ link_directories(pkg/dm_driver/bin)
 include_directories(pkg/yaml-cxx/include)
 link_directories(pkg/yaml-cxx/bin)
 
-add_library(CAE2 STATIC
-        include/DamengDB.h
-        src/DamengDB.cpp
-        src/main.cpp
-)
-
-add_executable(CAE2Test
-        include/DamengDB.h
-        src/DamengDB.cpp
-        src/main.cpp)
+add_library(CAE2 STATIC ${SRC_LIST} ${HEAD_LIST})
+add_executable(CAE2Test ${SRC_LIST} ${HEAD_LIST} src/main.cpp)
 
 target_link_libraries(CAE2 PUBLIC dmdpi yaml-cpp)
 target_link_libraries(CAE2Test PUBLIC dmdpi yaml-cpp)
 
+if (USE_FILESYSTEM)
+     target_compile_definitions(CAE2 PRIVATE USE_FILESYSTEM)
+     target_compile_definitions(CAE2Test PRIVATE USE_FILESYSTEM)
+     message(STATUS "File system support enabled")
+else()
+     message(STATUS "File system support disabled")
+endif ()
 
 # 安装目标
 install(TARGETS CAE2 ARCHIVE DESTINATION lib)
