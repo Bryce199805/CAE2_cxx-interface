@@ -6,6 +6,10 @@
 #include "DamengDB.h"
 
 int main() {
-    DamengDB obj("192.168.8.201:5236","SYSDBA","SYSDBA");
-    obj.connectTest();
+    DamengDB obj("../config.yaml");
+    std::string query_sql = "select * from TEST.USERS";
+    obj.Query(query_sql);
+    std::string insert_sql = "insert into TEST.USERS values (5, 'aaa', 12344, 708, 'aaa', 'aaa', 1)";
+    obj.Insert(insert_sql);
+
 }
