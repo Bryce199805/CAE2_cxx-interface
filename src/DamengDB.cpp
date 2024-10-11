@@ -4,31 +4,34 @@
 
 #include <iostream>
 #include "DamengDB.h"
+
+#include <any>
+
 #include "yaml-cpp/yaml.h"
 
 
 DamengDB::DamengDB(const std::string &file_path) {
-    // è¯»å–yamlæ–‡ä»¶
+    // ¶ÁÈ¡yamlÎÄ¼ş
     YAML::Node data_config = YAML::LoadFile(file_path);
     if(!data_config) {
         std::cout << "Open config File:" << file_path << " failed.";
         exit(1);
     }
 
-    // ç”³è¯·ç¯å¢ƒå¥æŸ„
+    // ÉêÇë»·¾³¾ä±ú
     this->m_rt = dpi_alloc_env(&this->m_henv);
 
-    // ç”³è¯·è¿æ¥å¥æŸ„
+    // ÉêÇëÁ¬½Ó¾ä±ú
     this->m_rt = dpi_alloc_con(this->m_henv, &this->m_hcon);
 
-    // è¿æ¥æ•°æ®åº“
+    // Á¬½ÓÊı¾İ¿â
     this->m_rt = dpi_login(this->m_hcon,
         reinterpret_cast<sdbyte*>(data_config["database"]["server"].as<std::string>().data()),
         reinterpret_cast<sdbyte*>(data_config["database"]["username"].as<std::string>().data()),
         reinterpret_cast<sdbyte*>(data_config["database"]["passwd"].as<std::string>().data())
     );
 
-    // æµ‹è¯•
+    // ²âÊÔ
     if(!DSQL_SUCCEEDED(this->m_rt)) {
         dpiErrorMsgPrint(DSQL_HANDLE_DBC, this->m_hcon);
 	    exit(-1);
@@ -39,51 +42,92 @@ DamengDB::DamengDB(const std::string &file_path) {
 
 DamengDB::~DamengDB() {
     this->m_rt = dpi_logout(this->m_hcon);
+
     if(!DSQL_SUCCEEDED(this->m_rt)){
         this->dpiErrorMsgPrint(DSQL_HANDLE_DBC, this->m_hcon);
         exit(-1);
     }
     printf( "dpi: disconnect from server success!\n" );
 
-    // é‡Šæ”¾è¿æ¥å¥æŸ„å’Œç¯å¢ƒå¥æŸ„
+    // ÊÍ·ÅÁ¬½Ó¾ä±úºÍ»·¾³¾ä±ú
     this->m_rt = dpi_free_con(this->m_hcon);
     this->m_rt = dpi_free_env(this->m_henv);
+
 }
 
 bool DamengDB::Query(std::string &sql_str) {
+    ulength row_num;
     sdbyte* _sql = reinterpret_cast<sdbyte*>(sql_str.data());
-    // ç”³è¯·è¯­å¥å¥æŸ„
+    // ÉêÇëÓï¾ä¾ä±ú
     this->m_rt = dpi_alloc_stmt(this->m_hcon, &this->m_hstmt);
 
-    // æ‰§è¡Œsqlè¯­å¥
+    // Ö´ĞĞsqlÓï¾ä
     this->m_rt = dpi_exec_direct(this->m_hstmt, _sql);
 
-    //todo æ·»åŠ æ—¥å¿—å†™å…¥éƒ¨åˆ†
+    sdint2 temp;
+    this->m_rt = dpi_number_columns(this->m_hstmt, &temp);
+
+    int col_number = static_cast<int>(temp);
+
+    std::unique_ptr<char> ptr[col_number];
+
+    sdbyte* name = new sdbyte[20];
+    sdint2 name_len, sql_type, dec_digits, nullable;
+    ulength col_sz;
+    slength out_ind = 0;
+
+    for (int i=1;i<=col_number;i++) {
+        this->m_rt = dpi_desc_column(
+            this->m_hstmt, static_cast<sdint2>(i), name, 20, &name_len, &sql_type, &col_sz, &dec_digits, &nullable);
+        // std::cout << "name " << name << " name_len " << name_len << " sqltype " << sql_type << " col_sz " << col_sz << " dec_digits " << dec_digits << " nullable " << nullable<< std::endl;
+
+        ptr[i-1] = std::make_unique<char>(col_sz+1);
+        this->m_rt = dpi_bind_col(this->m_hstmt, i, DSQL_C_NCHAR, static_cast<void*>(ptr[i-1].get()), col_sz+1, &out_ind);
+
+        // switch (sql_type) {
+        // case 7:
+        //     dpi_bind_col(this->m_hstmt, i, DSQL_C_SLONG, static_cast<void*>(ptr[i-1].get()), col_sz+1, &out_ind);
+        //     break;
+        // case 2:
+        //     dpi_bind_col(this->m_hstmt, i, DSQL_C_NCHAR, static_cast<void*>(ptr[i-1].get()), col_sz+1, &out_ind);
+        //     break;
+        // }
+
+    }
+
+    delete[] name;
+    while(dpi_fetch(this->m_hstmt, &row_num) != DSQL_NO_DATA) {
+        std::cout << reinterpret_cast<char*>(ptr[0].get()) << " " << reinterpret_cast<char*>(ptr[1].get()) << " ";
+        std::cout << reinterpret_cast<char*>(ptr[2].get()) << " " << reinterpret_cast<char*>(ptr[3].get()) << " ";
+        std::cout << reinterpret_cast<char*>(ptr[4].get()) << " " << reinterpret_cast<char*>(ptr[5].get()) << " ";
+        std::cout << reinterpret_cast<char*>(ptr[6].get()) << std::endl;
+    }
+
+    //todo Ìí¼ÓÈÕÖ¾Ğ´Èë²¿·Ö
 
     if(!DSQL_SUCCEEDED(this->m_rt)) {
         std::cout << "query error" << std::endl;
         this->dpiErrorMsgPrint(DSQL_HANDLE_STMT, this->m_hstmt);
         this->m_rt = dpi_free_stmt(this->m_hstmt);
+
         return false;
     }
     std::cout << "query success." << std::endl;
-    ulength* temp;
-    sdint4* aaa;
-    this->m_rt = dpi_get_stmt_attr(this->m_hstmt, DSQL_ATTR_ROW_STATUS_PTR, temp, 10, aaa);
-    std::cout<< *aaa << std::endl;
+
+    // ÊÍ·ÅÓï¾ä¾ä±ú
     this->m_rt = dpi_free_stmt(this->m_hstmt);
     return true;
 }
 
 bool DamengDB::Delete(std::string &sql_str) {
     sdbyte* _sql = reinterpret_cast<sdbyte*>(sql_str.data());
-    // ç”³è¯·è¯­å¥å¥æŸ„
+    // ÉêÇëÓï¾ä¾ä±ú
     this->m_rt = dpi_alloc_stmt(this->m_hcon, &this->m_hstmt);
 
-    // æ‰§è¡Œsqlè¯­å¥
+    // Ö´ĞĞsqlÓï¾ä
     this->m_rt = dpi_exec_direct(this->m_hstmt, _sql);
 
-    //todo æ·»åŠ æ—¥å¿—å†™å…¥éƒ¨åˆ†
+    //todo Ìí¼ÓÈÕÖ¾Ğ´Èë²¿·Ö
 
     if(!DSQL_SUCCEEDED(this->m_rt)) {
         std::cout << "delete error" << std::endl;
@@ -92,19 +136,20 @@ bool DamengDB::Delete(std::string &sql_str) {
         return false;
     }
     std::cout << "delete success." << std::endl;
+    // ÊÍ·ÅÓï¾ä¾ä±ú
     this->m_rt = dpi_free_stmt(this->m_hstmt);
     return true;
 }
 
 bool DamengDB::Update(std::string &sql_str) {
     sdbyte* _sql = reinterpret_cast<sdbyte*>(sql_str.data());
-    // ç”³è¯·è¯­å¥å¥æŸ„
+    // ÉêÇëÓï¾ä¾ä±ú
     this->m_rt = dpi_alloc_stmt(this->m_hcon, &this->m_hstmt);
 
-    // æ‰§è¡Œsqlè¯­å¥
+    // Ö´ĞĞsqlÓï¾ä
     this->m_rt = dpi_exec_direct(this->m_hstmt, _sql);
 
-    //todo æ·»åŠ æ—¥å¿—å†™å…¥éƒ¨åˆ†
+    //todo Ìí¼ÓÈÕÖ¾Ğ´Èë²¿·Ö
 
     if(!DSQL_SUCCEEDED(this->m_rt)) {
         std::cout << "update error" << std::endl;
@@ -113,6 +158,7 @@ bool DamengDB::Update(std::string &sql_str) {
         return false;
     }
     std::cout << "update success." << std::endl;
+    // ÊÍ·ÅÓï¾ä¾ä±ú
     this->m_rt = dpi_free_stmt(this->m_hstmt);
     return true;
 }
@@ -120,13 +166,13 @@ bool DamengDB::Update(std::string &sql_str) {
 bool DamengDB::Insert(std::string &sql_str) {
 
     sdbyte* _sql = reinterpret_cast<sdbyte*>(sql_str.data());
-    // ç”³è¯·è¯­å¥å¥æŸ„
+    // ÉêÇëÓï¾ä¾ä±ú
     this->m_rt = dpi_alloc_stmt(this->m_hcon, &this->m_hstmt);
 
-    // æ‰§è¡Œsqlè¯­å¥
+    // Ö´ĞĞsqlÓï¾ä
     this->m_rt = dpi_exec_direct(this->m_hstmt, _sql);
 
-    //todo æ·»åŠ æ—¥å¿—å†™å…¥éƒ¨åˆ†
+    //todo Ìí¼ÓÈÕÖ¾Ğ´Èë²¿·Ö
 
     if(!DSQL_SUCCEEDED(this->m_rt)) {
         std::cout << "insert error" << std::endl;
@@ -135,6 +181,7 @@ bool DamengDB::Insert(std::string &sql_str) {
         return false;
     }
     std::cout << "insert success." << std::endl;
+    // ÊÍ·ÅÓï¾ä¾ä±ú
     this->m_rt = dpi_free_stmt(this->m_hstmt);
     return true;
 }
@@ -144,7 +191,7 @@ void DamengDB::dpiErrorMsgPrint(sdint2 hndl_type, dhandle hndl) {
     sdint2 msg_len;
     sdbyte err_msg[SDBYTE_MAX];
 
-    /* è·å–é”™è¯¯ä¿¡æ¯é›†åˆ */
+    /* »ñÈ¡´íÎóĞÅÏ¢¼¯ºÏ */
     dpi_get_diag_rec(hndl_type, hndl, 1, &err_code, err_msg, sizeof(err_msg), &msg_len);
     std::cout << "err_msg = " << err_msg << ", err_code = " << err_code << std::endl;
 }
