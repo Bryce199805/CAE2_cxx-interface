@@ -6,4 +6,4 @@ make
 make install
 ```
 ## ATTENTION!!
-×Ö·û±àÂëÉèÖÃÎªgb18030
+Character encoding set as gb18030.
