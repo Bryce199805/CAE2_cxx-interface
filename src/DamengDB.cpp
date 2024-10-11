@@ -37,7 +37,7 @@ DamengDB::DamengDB(const std::string &file_path) {
 	    exit(-1);
     }
 
-    printf("dpi: connect to server success!\n");
+    printf("========== dpi: connect to server success! ==========\n");
 }
 
 DamengDB::~DamengDB() {
@@ -47,55 +47,73 @@ DamengDB::~DamengDB() {
         this->dpiErrorMsgPrint(DSQL_HANDLE_DBC, this->m_hcon);
         exit(-1);
     }
-    printf( "dpi: disconnect from server success!\n" );
+    printf( "========== dpi: disconnect from server success! ==========\n" );
 
     // 释放连接句柄和环境句柄
     this->m_rt = dpi_free_con(this->m_hcon);
     this->m_rt = dpi_free_env(this->m_henv);
-
 }
 
 bool DamengDB::Query(std::string &sql_str) {
-    ulength row_num;
+    std::cout << "---------- Query ----------" << std::endl;
+    // ========== 初始化判断 ==========
+    // 判断sql是否以select开头
+    if(!this->isValidSQLCommand(sql_str, "select")) {
+        std::cout << "illegal statement." << std::endl;
+        return false;
+    }
+
+    // ========== sql语句准备与查询 ==========
+    // sql语句类型转换为DM类型
     sdbyte* _sql = reinterpret_cast<sdbyte*>(sql_str.data());
     // 申请语句句柄
     this->m_rt = dpi_alloc_stmt(this->m_hcon, &this->m_hstmt);
-
     // 执行sql语句
     this->m_rt = dpi_exec_direct(this->m_hstmt, _sql);
 
-    sdint2 temp;
-    this->m_rt = dpi_number_columns(this->m_hstmt, &temp);
-
-    int col_number = static_cast<int>(temp);
-
-    std::unique_ptr<char> ptr[col_number];
-
-    sdbyte* name = new sdbyte[20];
-    sdint2 name_len, sql_type, dec_digits, nullable;
-    ulength col_sz;
-    slength out_ind = 0;
-
-    for (int i=1;i<=col_number;i++) {
-        this->m_rt = dpi_desc_column(
-            this->m_hstmt, static_cast<sdint2>(i), name, 20, &name_len, &sql_type, &col_sz, &dec_digits, &nullable);
-        // std::cout << "name " << name << " name_len " << name_len << " sqltype " << sql_type << " col_sz " << col_sz << " dec_digits " << dec_digits << " nullable " << nullable<< std::endl;
-
-        ptr[i-1] = std::make_unique<char>(col_sz+1);
-        this->m_rt = dpi_bind_col(this->m_hstmt, i, DSQL_C_NCHAR, static_cast<void*>(ptr[i-1].get()), col_sz+1, &out_ind);
-
-        // switch (sql_type) {
-        // case 7:
-        //     dpi_bind_col(this->m_hstmt, i, DSQL_C_SLONG, static_cast<void*>(ptr[i-1].get()), col_sz+1, &out_ind);
-        //     break;
-        // case 2:
-        //     dpi_bind_col(this->m_hstmt, i, DSQL_C_NCHAR, static_cast<void*>(ptr[i-1].get()), col_sz+1, &out_ind);
-        //     break;
-        // }
-
+    // 判断查询结果
+    if(!DSQL_SUCCEEDED(this->m_rt)) {
+        std::cout << "query error!" << std::endl;
+        this->dpiErrorMsgPrint(DSQL_HANDLE_STMT, this->m_hstmt);
+        this->m_rt = dpi_free_stmt(this->m_hstmt);
+        return false;
     }
 
-    delete[] name;
+    // ========== 处理查询结果 ==========
+    // 获取查询结果列数
+    sdint2 temp;
+    this->m_rt = dpi_number_columns(this->m_hstmt, &temp);
+    int col_number = static_cast<int>(temp);
+
+    // 定义智能指针数据存储结果
+    std::unique_ptr<char> ptr[col_number];
+
+    // 定义绑定结果所需变量
+    const int col_buf_len = 30;
+    sdbyte* col_name = new sdbyte[col_buf_len];
+    sdint2 name_len, sql_type, dec_digits, nullable;
+    ulength col_sz, row_num;
+    slength out_length = 0;
+
+    // 处理绑定每一列数据
+    for (int i=1;i<=col_number;i++) {
+        // 查询每一列数据信息
+        this->m_rt = dpi_desc_column(this->m_hstmt, static_cast<sdint2>(i), col_name, col_buf_len, &name_len,
+            &sql_type, &col_sz, &dec_digits, &nullable);
+        // std::cout << "name " << col_name << " name_len " << name_len << " sqltype " << sql_type << " col_sz " << col_sz << " dec_digits " << dec_digits << " nullable " << nullable<< std::endl;
+
+        // 初始化列数组
+        ptr[i-1] = std::make_unique<char>(col_sz+1);
+        // 绑定数据到列
+        this->m_rt = dpi_bind_col(
+            this->m_hstmt, i, DSQL_C_NCHAR, static_cast<void*>(ptr[i-1].get()), col_sz+1, &out_length);
+    }
+    // 释放列名存储空间指针置空
+    delete[] col_name;
+    col_name = nullptr;
+
+    // todo 明确返回逻辑后完成
+    // 循环读出每一行记录
     while(dpi_fetch(this->m_hstmt, &row_num) != DSQL_NO_DATA) {
         std::cout << reinterpret_cast<char*>(ptr[0].get()) << " " << reinterpret_cast<char*>(ptr[1].get()) << " ";
         std::cout << reinterpret_cast<char*>(ptr[2].get()) << " " << reinterpret_cast<char*>(ptr[3].get()) << " ";
@@ -105,85 +123,119 @@ bool DamengDB::Query(std::string &sql_str) {
 
     //todo 添加日志写入部分
 
-    if(!DSQL_SUCCEEDED(this->m_rt)) {
-        std::cout << "query error" << std::endl;
-        this->dpiErrorMsgPrint(DSQL_HANDLE_STMT, this->m_hstmt);
-        this->m_rt = dpi_free_stmt(this->m_hstmt);
-
-        return false;
-    }
-    std::cout << "query success." << std::endl;
-
     // 释放语句句柄
     this->m_rt = dpi_free_stmt(this->m_hstmt);
+
+    std::cout << "query success!" << std::endl;
     return true;
 }
 
 bool DamengDB::Delete(std::string &sql_str) {
+    std::cout << "---------- Delete ----------" << std::endl;
+    // ========== 初始化判断 ==========
+    // 判断sql是否以delete开头
+    if(!this->isValidSQLCommand(sql_str, "delete")) {
+        std::cout << "illegal statement." << std::endl;
+        return false;
+    }
+
+    // ========== sql语句准备与执行 ==========
     sdbyte* _sql = reinterpret_cast<sdbyte*>(sql_str.data());
     // 申请语句句柄
     this->m_rt = dpi_alloc_stmt(this->m_hcon, &this->m_hstmt);
-
     // 执行sql语句
     this->m_rt = dpi_exec_direct(this->m_hstmt, _sql);
 
     //todo 添加日志写入部分
 
     if(!DSQL_SUCCEEDED(this->m_rt)) {
-        std::cout << "delete error" << std::endl;
+        std::cout << "delete error!" << std::endl;
         this->dpiErrorMsgPrint(DSQL_HANDLE_STMT, this->m_hstmt);
         this->m_rt = dpi_free_stmt(this->m_hstmt);
         return false;
     }
-    std::cout << "delete success." << std::endl;
+
     // 释放语句句柄
     this->m_rt = dpi_free_stmt(this->m_hstmt);
+    std::cout << "delete success!" << std::endl;
     return true;
 }
 
 bool DamengDB::Update(std::string &sql_str) {
+    std::cout << "---------- Update ----------" << std::endl;
+    // ========== 初始化判断 ==========
+    // 判断sql是否以update开头
+    if(!this->isValidSQLCommand(sql_str, "update")) {
+        std::cout << "illegal statement." << std::endl;
+        return false;
+    }
+
+    // ========== sql语句准备与执行 ==========
     sdbyte* _sql = reinterpret_cast<sdbyte*>(sql_str.data());
     // 申请语句句柄
     this->m_rt = dpi_alloc_stmt(this->m_hcon, &this->m_hstmt);
-
     // 执行sql语句
     this->m_rt = dpi_exec_direct(this->m_hstmt, _sql);
 
     //todo 添加日志写入部分
 
     if(!DSQL_SUCCEEDED(this->m_rt)) {
-        std::cout << "update error" << std::endl;
+        std::cout << "update error!" << std::endl;
         this->dpiErrorMsgPrint(DSQL_HANDLE_STMT, this->m_hstmt);
         this->m_rt = dpi_free_stmt(this->m_hstmt);
         return false;
     }
-    std::cout << "update success." << std::endl;
+
     // 释放语句句柄
     this->m_rt = dpi_free_stmt(this->m_hstmt);
+    std::cout << "update success!" << std::endl;
     return true;
 }
 
 bool DamengDB::Insert(std::string &sql_str) {
+    std::cout << "---------- Insert ----------" << std::endl;
+    // ========== 初始化判断 ==========
+    // 判断sql是否以insert开头
+    if(!this->isValidSQLCommand(sql_str, "insert")) {
+        std::cout << "illegal statement." << std::endl;
+        return false;
+    }
 
+    // ========== sql语句准备与执行 ==========
     sdbyte* _sql = reinterpret_cast<sdbyte*>(sql_str.data());
     // 申请语句句柄
     this->m_rt = dpi_alloc_stmt(this->m_hcon, &this->m_hstmt);
-
     // 执行sql语句
     this->m_rt = dpi_exec_direct(this->m_hstmt, _sql);
 
     //todo 添加日志写入部分
 
     if(!DSQL_SUCCEEDED(this->m_rt)) {
-        std::cout << "insert error" << std::endl;
+        std::cout << "insert error!" << std::endl;
         this->dpiErrorMsgPrint(DSQL_HANDLE_STMT, this->m_hstmt);
         this->m_rt = dpi_free_stmt(this->m_hstmt);
         return false;
     }
-    std::cout << "insert success." << std::endl;
+
     // 释放语句句柄
     this->m_rt = dpi_free_stmt(this->m_hstmt);
+    std::cout << "insert success!" << std::endl;
     return true;
+}
+
+bool DamengDB::isValidSQLCommand(const std::string &sql, const std::string type) {
+    std::string trimmedSQL = sql;
+    trimmedSQL.erase(0, trimmedSQL.find_first_not_of(" \t"));
+
+    // 找到第一个单词
+    size_t pos = trimmedSQL.find(' ');
+    std::string firstWord = (pos == std::string::npos) ? trimmedSQL : trimmedSQL.substr(0, pos);
+
+    // 转换为小写以进行不区分大小写比较
+    std::transform(firstWord.begin(), firstWord.end(), firstWord.begin(), ::tolower);
+
+    // 检查第一个单词
+    return firstWord == type;
 }
 
 void DamengDB::dpiErrorMsgPrint(sdint2 hndl_type, dhandle hndl) {
