@@ -22,6 +22,7 @@ private:
     dhdesc m_hdesc; // 描述符句柄
     DPIRETURN m_rt; // 函数返回值
 
+    bool isValidSQLCommand(const std::string &sql, const std::string type);
     void dpiErrorMsgPrint(sdint2 hndl_type, dhandle hndl);
 
 #ifdef USE_FILESYSTEM
@@ -42,6 +43,7 @@ public:
 #ifdef USE_FILESYSTEM
     void FileTest();
 #endif
+
 };
 
 #endif //DAMENGDB_H
