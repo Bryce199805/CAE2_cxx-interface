@@ -5,25 +5,25 @@
 #ifndef DAMENGDB_H
 #define DAMENGDB_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <string>
+#include <iostream>
+#include <any>
 
 #include "DPI.h"
 #include "DPIext.h"
 #include "DPItypes.h"
+#include "yaml-cpp/yaml.h"
 
 class DamengDB {
 private:
-    dhenv m_henv;   // 环境句柄
-    dhcon m_hcon;   // 连接句柄
-    dhstmt m_hstmt; // 语句句柄
-    dhdesc m_hdesc; // 描述符句柄
-    DPIRETURN m_rt; // 函数返回值
+    dhenv m_henv_;   // 环境句柄
+    dhcon m_hcon_;   // 连接句柄
+    dhstmt m_hstmt_; // 语句句柄
+    dhdesc m_hdesc_; // 描述符句柄
+    DPIRETURN m_rt_; // 函数返回值
 
-    bool isValidSQLCommand(const std::string &sql, const std::string type);
-    void dpiErrorMsgPrint(sdint2 hndl_type, dhandle hndl);
+    bool isValidSQLCommand_(const std::string &sql, const std::string type);
+    void dpiErrorMsgPrint_(sdint2 hndl_type, dhandle hndl);
 
 #ifdef USE_FILESYSTEM
     // 定义文件系统私有成员
