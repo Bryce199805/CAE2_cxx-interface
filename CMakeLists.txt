@@ -7,10 +7,12 @@ option(USE_FILESYSTEM "Enable file system support" OFF)
 
 set(SRC_LIST
         src/DamengDB.cpp
+        src/DBVariant.cpp
 )
 
 set(HEAD_LIST
         include/DamengDB.h
+        include/DBVariant.h
 )
 
 include_directories(./include)
