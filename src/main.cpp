@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include "DamengDB.h"
+#include "DBVariant.h"
 
 int main() {
 
@@ -12,7 +13,7 @@ int main() {
     // std::string query_sql = "select * FROM TEST.T_JSON_OBJECT WHERE JSON_VALUE(c1, '$.name') = '’≈»˝'";
     // ≤È—Ø≤‚ ‘
     std::vector<std::vector<std::string>> result1;
-    std::vector<std::vector<std::variant<std::string, int, double>>> result2;
+    std::vector<std::vector<DBVariant>> result2;
     std::vector<int> col_types;
     if(obj.Query(query_sql, result1)) {
         obj.printResult(result1);
