@@ -126,7 +126,7 @@ bool DamengDB::Query(std::string &sql_str, std::vector<std::vector<std::string>>
     return true;
 }
 
-bool DamengDB::Query(std::string &sql_str, std::vector<std::vector<std::variant<std::string, int, double>>> &res, std::vector<int> &col_types) {
+bool DamengDB::Query(std::string &sql_str, std::vector<std::vector<DBVariant>> &res, std::vector<int> &col_types) {
 
 std::cout << "---------- Query ----------" << std::endl;
     // ========== 初始化判断 ==========
@@ -188,7 +188,7 @@ std::cout << "---------- Query ----------" << std::endl;
 
     // 循环读出每一行记录
     while(dpi_fetch(this->m_hstmt_, &row_num) != DSQL_NO_DATA) {
-        std::vector<std::variant<std::string, int, double>> temp;
+        std::vector<DBVariant> temp;
         std::string str;
         for (int i=0;i<col_number;i++) {
             str = ptr[i].get();
@@ -203,10 +203,13 @@ std::cout << "---------- Query ----------" << std::endl;
                 col_types.push_back(1);
                 break;
             case 10:    // Float
+                temp.push_back(std::stof(str));
+                col_types.push_back(2);
+                break;
             case 11:    // Double
                 // all to double
                 temp.push_back(std::stod(str));
-                col_types.push_back(2);
+                col_types.push_back(3);
                 break;
             default:
                 // 2 varchar  14 date
@@ -330,19 +333,21 @@ void DamengDB::printResult(std::vector<std::vector<std::string>>& res) {
     }
 }
 
-void DamengDB::printResult(std::vector<std::vector<std::variant<std::string, int, double>>>& res, std::vector<int>& col_types) {
-
+void DamengDB::printResult(std::vector<std::vector<DBVariant>>& res, std::vector<int>& col_types) {
     for (auto row: res) {
         for (int i=0;i<row.size();i++) {
             switch (col_types[i]) {
             case 0:     //string
-                std::cout << std::get<std::string>(row[i]) << " ";
+                std::cout << row[i].asTypeString() << " ";
                 break;
             case 1:     //int
-                std::cout << std::get<int>(row[i]) << " ";
+                std::cout << row[i].asTypeInteger() << " ";
                 break;
-            case 2:     //double
-                std::cout << std::get<double>(row[i]) << " ";
+            case 2:     //float
+                std::cout << row[i].asTypeFloat() << " ";
+                break;
+            case 3:     //double
+                std::cout << row[i].asTypeDouble() << " ";
                 break;
             }
         }

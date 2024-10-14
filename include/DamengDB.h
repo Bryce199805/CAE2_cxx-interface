@@ -11,6 +11,7 @@
 #include <variant>
 
 
+#include "DBVariant.h"
 #include "DPI.h"
 #include "DPIext.h"
 #include "DPItypes.h"
@@ -38,16 +39,14 @@ public:
     void connectTest();
 
     bool Query(std::string &sql_str, std::vector<std::vector<std::string>> &res);
-    bool Query(std::string &sql_str,
-        std::vector<std::vector<std::variant<std::string, int, double>>> &res, std::vector<int> &col_types);
+    bool Query(std::string &sql_str,std::vector<std::vector<DBVariant>> &res, std::vector<int> &col_types);
 
     bool Delete(std::string &sql_str);
     bool Update(std::string &sql_str);
     bool Insert(std::string &sql_str);
 
     void printResult(std::vector<std::vector<std::string>> &res);
-    void printResult(
-        std::vector<std::vector<std::variant<std::string, int, double>>> &res, std::vector<int> &col_types);
+    void printResult(std::vector<std::vector<DBVariant>> &res, std::vector<int> &col_types);
 
 
 #ifdef USE_FILESYSTEM
