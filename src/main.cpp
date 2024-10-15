@@ -3,12 +3,12 @@
 //
 
 #include <iostream>
-#include "DamengDB.h"
+#include "CAE.h"
 #include "DBVariant.h"
 
 int main() {
 
-    DamengDB obj("../config.yaml");
+    CAE obj("../config.yaml");
     std::string query_sql = "select * from BASIC_SHIP_INFORMATION_DB.SHIP_DATA_INFO";
     // std::string query_sql = "select * FROM TEST.T_JSON_OBJECT WHERE JSON_VALUE(c1, '$.name') = '’≈»˝'";
     // ≤È—Ø≤‚ ‘
