@@ -6,12 +6,12 @@ set(CMAKE_CXX_STANDARD 17)
 option(USE_FILESYSTEM "Enable file system support" OFF)
 
 set(SRC_LIST
-        src/DamengDB.cpp
+        src/CAE.cpp
         src/DBVariant.cpp
 )
 
 set(HEAD_LIST
-        include/DamengDB.h
+        include/CAE.h
         include/DBVariant.h
 )
 

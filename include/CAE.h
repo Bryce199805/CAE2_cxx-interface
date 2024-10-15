@@ -2,8 +2,8 @@
 // Created by Bryce on 24-9-26.
 //
 
-#ifndef DAMENGDB_H
-#define DAMENGDB_H
+#ifndef CAE_H
+#define CAE_H
 
 #include <string>
 #include <iostream>
@@ -17,7 +17,7 @@
 #include "DPItypes.h"
 #include "yaml-cpp/yaml.h"
 
-class DamengDB {
+class CAE {
 private:
     dhenv m_henv_;   // 环境句柄
     dhcon m_hcon_;   // 连接句柄
@@ -34,19 +34,20 @@ private:
 #endif
 
 public:
-    DamengDB(const std::string &file_path);
-    ~DamengDB();
+    CAE(const std::string &file_path);
+    ~CAE();
     void connectTest();
 
-    bool Query(std::string &sql_str, std::vector<std::vector<std::string>> &res);
-    bool Query(std::string &sql_str,std::vector<std::vector<DBVariant>> &res, std::vector<int> &col_types);
+    bool Query(std::string &sql_str, std::vector<std::vector<std::string>>& res);
+    bool Query(std::string &sql_str, std::vector<std::vector<DBVariant>>& res);
+    bool Query(std::string &sql_str, std::vector<std::vector<DBVariant>>& res, std::vector<int>& col_types);
 
     bool Delete(std::string &sql_str);
     bool Update(std::string &sql_str);
     bool Insert(std::string &sql_str);
 
-    void printResult(std::vector<std::vector<std::string>> &res);
-    void printResult(std::vector<std::vector<DBVariant>> &res, std::vector<int> &col_types);
+    void printResult(std::vector<std::vector<std::string>>& res);
+    void printResult(std::vector<std::vector<DBVariant>>& res, std::vector<int>& col_types);
 
 
 #ifdef USE_FILESYSTEM
@@ -55,4 +56,4 @@ public:
 
 };
 
-#endif //DAMENGDB_H
+#endif //CAE_H
