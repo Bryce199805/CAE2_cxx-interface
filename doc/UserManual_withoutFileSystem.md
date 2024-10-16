@@ -19,6 +19,7 @@ database:
   passwd: "SYSDBA"              # 数据库密码
 ```
 ## API 用户手册
+
 API包括`CAE`类和`DBVariant`类
 ### Class DBVariant
 `DBVariant`提供了一种通用数据类型用于处理查询结果，用于处理承接从数据库中查询到的任意类型的值，支持`std::string`,`int`,`float`,`double`类型。
@@ -364,5 +365,94 @@ std::vector<int> types;
 if(obj.Query(sql_str, res)){
     obj.printResult(res, types);
 }
+```
+
+## CMAKE构建指南与程序样例
+
+### CMAKE参数
+
+- 需要导入 `/path_to_libcae/include` 和 `/path_to_libcae/include`
+- 可执行程序需要链接 `dmdpi`,`yaml-cpp`和`libCAE2.a`
+
+```cmake
+# CmakeList.txt Sample
+cmake_minimum_required(VERSION 3.28)
+project(test)
+
+set(CMAKE_CXX_STANDARD 17)
+
+# CAE setting import 
+include_directories(D:/libcae/include)
+link_directories(D:/libcae/lib)
+
+add_executable(test main.cpp)
+target_link_libraries(test dmdpi yaml-cpp libCAE2.a)
+```
+
+### 程序样例
+
+```c++
+//main.cpp Sample
+
+#include "CAE.h"
+
+int main(int argc, char *argv[]) {
+    // 初始化对象
+    CAE obj("../config.yaml");
+
+    // 查询测试
+    std::string query_sql = "select * from BASIC_SHIP_INFORMATION_DB.SHIP_DATA_INFO";
+    std::vector<std::vector<DBVariant>> result2;
+    std::vector<int> col_types;
+
+    if(obj.Query(query_sql, result2, col_types)) {
+        // 输出打印测试
+        obj.printResult(result2, col_types);
+    }
+	
+    // 插入测试
+    std::string insert_sql =
+        "insert into BASIC_SHIP_INFORMATION_DB.SISTER_SHIP_INFO (SHIP_DATA_ID, SISTER_DATA_ID, SHIP_NAME) "
+        "values (7082002, 7082006, 'test No1')";
+    if(obj.Insert(insert_sql)) {
+        std::cout << "insert done." << std::endl;
+    }
+	
+    // 更新测试
+    std::string update_sql =
+        "update BASIC_SHIP_INFORMATION_DB.SISTER_SHIP_INFO set SHIP_NAME = 'test No2' where SHIP_NAME = 'test No1'";
+    if(obj.Update(update_sql)) {
+        std::cout << "update done." << std::endl;
+    }
+	
+    //删除测试
+    std::string delete_sql =
+        "delete from BASIC_SHIP_INFORMATION_DB.SISTER_SHIP_INFO where SHIP_NAME = 'test No2'";
+    if(obj.Delete(delete_sql)) {
+        std::cout << "delete done." << std::endl;
+    }
+}
+
+/* 输出结果
+
+========== dpi: connect to server success! ==========
+---------- Query ----------
+query success!
+7082001 航海1号 油船 2020-10-01 24 航运有限公司 2020-11-01 中国船级社CSS 
+7082002 航海2号 散货船 2020-10-01 24.2 航运有限公司 2020-11-01 中国船级社CSS 
+---------- Insert ----------
+insert success!
+insert done.
+---------- Update ----------
+update success!
+update done.
+---------- Delete ----------
+delete success!
+delete done.
+========== dpi: disconnect from server success! ==========
+
+进程已结束，退出代码为 0
+
+*/
 ```
 
