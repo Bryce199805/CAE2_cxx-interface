@@ -7,9 +7,7 @@
 
 #include <string>
 #include <iostream>
-#include <any>
 #include <variant>
-
 
 #include "DBVariant.h"
 #include "DPI.h"
