@@ -34,7 +34,7 @@ private:
 public:
     CAE(const std::string &file_path);
     ~CAE();
-    void connectTest();
+    // void connectTest(const std::string &file_path);
 
     bool Query(std::string &sql_str, std::vector<std::vector<std::string>>& res);
     bool Query(std::string &sql_str, std::vector<std::vector<DBVariant>>& res);

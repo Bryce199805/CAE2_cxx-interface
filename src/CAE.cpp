@@ -481,16 +481,16 @@ void CAE::dpiErrorMsgPrint_(sdint2 hndl_type, dhandle hndl) {
     std::cout << "err_msg = " << err_msg << ", err_code = " << err_code << std::endl;
 }
 
-void CAE::connectTest() {
-    // std::cout << "connectTest" << std::endl;
-    YAML::Node config = YAML::LoadFile("../config.yaml");
-
-    if (!config) {
-        std::cout << "Open config File:" << "test " << " failed.";
-    }
-
-    std::cout << config["database"]["host"] << std::endl;
-}
+// void CAE::connectTest(const std::string &file_path) {
+//     // std::cout << "connectTest" << std::endl;
+//     YAML::Node config = YAML::LoadFile(file_path);
+//
+//     if (!config) {
+//         std::cout << "Open config File:" << "test " << " failed.";
+//     }
+//
+//     std::cout << config["database"]["host"] << std::endl;
+// }
 
 #ifdef USE_FILESYSTEM
 void DamengDB::FileTest() {
