@@ -28,17 +28,18 @@ link_directories(pkg/yaml-cxx/bin)
 
 if (USE_FILESYSTEM)
      message(STATUS "File system support enabled")
-
-     target_compile_definitions(CAE2 PRIVATE USE_FILESYSTEM)
-     target_compile_definitions(CAE2Test PRIVATE USE_FILESYSTEM)
-
      # file system env
 
      add_library(CAE2 STATIC ${SRC_LIST} ${HEAD_LIST})
      add_executable(CAE2Test ${SRC_LIST} ${HEAD_LIST} src/main.cpp)
 
+     target_compile_definitions(CAE2 PRIVATE USE_FILESYSTEM)
+     target_compile_definitions(CAE2Test PRIVATE USE_FILESYSTEM)
+
      target_link_libraries(CAE2 PUBLIC dmdpi yaml-cpp)
      target_link_libraries(CAE2Test PUBLIC dmdpi yaml-cpp)
+
+
 else()
      message(STATUS "File system support disabled")
 

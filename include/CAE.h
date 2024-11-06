@@ -50,6 +50,9 @@ public:
 
 #ifdef USE_FILESYSTEM
     void FileTest();
+    bool getFile(const std::string filePath);
+    bool getFile(std::vector<std::byte>);
+
 #endif
 
 };
