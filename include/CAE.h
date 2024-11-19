@@ -25,10 +25,11 @@ private:
 
     bool isValidSQLCommand_(const std::string &sql, const std::string type);
     void dpiErrorMsgPrint_(sdint2 hndl_type, dhandle hndl);
+    bool initDB_(const std::string &file_path);
 
 #ifdef USE_FILESYSTEM
     // 定义文件系统私有成员
-
+    bool initminio_
 #endif
 
 public:
@@ -49,9 +50,11 @@ public:
 
 
 #ifdef USE_FILESYSTEM
-    void FileTest();
+    CAE(const std::string &file_path, bool withFile = true);
+
     bool getFile(const std::string filePath);
     bool getFile(std::vector<std::byte>);
+
 
 #endif
 
