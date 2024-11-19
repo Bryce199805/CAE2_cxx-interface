@@ -8,6 +8,7 @@ option(USE_FILESYSTEM "Enable file system support" OFF)
 set(SRC_LIST
         src/CAE.cpp
         src/DBVariant.cpp
+        src/CAEwithFileSystem.cpp
 )
 
 set(HEAD_LIST
@@ -44,7 +45,8 @@ else()
      message(STATUS "File system support disabled")
 
      add_library(CAE2 STATIC ${SRC_LIST} ${HEAD_LIST})
-     add_executable(CAE2Test ${SRC_LIST} ${HEAD_LIST} src/main.cpp)
+     add_executable(CAE2Test ${SRC_LIST} ${HEAD_LIST} src/main.cpp
+             src/CAEwithFileSystem.cpp)
 
      target_link_libraries(CAE2 PUBLIC dmdpi yaml-cpp)
      target_link_libraries(CAE2Test PUBLIC dmdpi yaml-cpp)
