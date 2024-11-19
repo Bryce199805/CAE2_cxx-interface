@@ -4,35 +4,10 @@
 
 #include "CAE.h"
 
+// constructor
 
 CAE::CAE(const std::string &file_path) {
-    // 读取yaml文件
-    YAML::Node data_config = YAML::LoadFile(file_path);
-    if(!data_config) {
-        std::cout << "Open config File:" << file_path << " failed.";
-        exit(1);
-    }
-
-    // 申请环境句柄
-    this->m_rt_ = dpi_alloc_env(&this->m_henv_);
-
-    // 申请连接句柄
-    this->m_rt_ = dpi_alloc_con(this->m_henv_, &this->m_hcon_);
-
-    // 连接数据库
-    this->m_rt_ = dpi_login(this->m_hcon_,
-        reinterpret_cast<sdbyte*>(data_config["database"]["server"].as<std::string>().data()),
-        reinterpret_cast<sdbyte*>(data_config["database"]["username"].as<std::string>().data()),
-        reinterpret_cast<sdbyte*>(data_config["database"]["passwd"].as<std::string>().data())
-    );
-
-    // 测试
-    if(!DSQL_SUCCEEDED(this->m_rt_)) {
-        dpiErrorMsgPrint_(DSQL_HANDLE_DBC, this->m_hcon_);
-	    exit(-1);
-    }
-
-    printf("========== dpi: connect to server success! ==========\n");
+    this->initDB_(file_path);
 }
 
 CAE::~CAE() {
@@ -48,6 +23,62 @@ CAE::~CAE() {
     this->m_rt_ = dpi_free_con(this->m_hcon_);
     this->m_rt_ = dpi_free_env(this->m_henv_);
 }
+
+// private function
+
+bool CAE::initDB_(const std::string& file_path) {
+    // 读取yaml文件
+    YAML::Node data_config = YAML::LoadFile(file_path);
+    if(!data_config) {
+        std::cout << "Open config File:" << file_path << " failed.";
+        exit(1);
+    }
+    // 申请环境句柄
+    this->m_rt_ = dpi_alloc_env(&this->m_henv_);
+    // 申请连接句柄
+    this->m_rt_ = dpi_alloc_con(this->m_henv_, &this->m_hcon_);
+    // 连接数据库
+    this->m_rt_ = dpi_login(this->m_hcon_,
+        reinterpret_cast<sdbyte*>(data_config["database"]["server"].as<std::string>().data()),
+        reinterpret_cast<sdbyte*>(data_config["database"]["username"].as<std::string>().data()),
+        reinterpret_cast<sdbyte*>(data_config["database"]["passwd"].as<std::string>().data())
+    );
+    // 测试
+    if(!DSQL_SUCCEEDED(this->m_rt_)) {
+        dpiErrorMsgPrint_(DSQL_HANDLE_DBC, this->m_hcon_);
+        exit(-1);
+    }
+    printf("========== dpi: connect to server success! ==========\n");
+
+    return true;
+}
+
+bool CAE::isValidSQLCommand_(const std::string& sql, const std::string type) {
+    std::string trimmedSQL = sql;
+    trimmedSQL.erase(0, trimmedSQL.find_first_not_of(" \t"));
+
+    // 找到第一个单词
+    size_t pos = trimmedSQL.find(' ');
+    std::string firstWord = (pos == std::string::npos) ? trimmedSQL : trimmedSQL.substr(0, pos);
+
+    // 转换为小写以进行不区分大小写比较
+    std::transform(firstWord.begin(), firstWord.end(), firstWord.begin(), ::tolower);
+
+    // 检查第一个单词
+    return firstWord == type;
+}
+
+void CAE::dpiErrorMsgPrint_(sdint2 hndl_type, dhandle hndl) {
+    sdint4 err_code;
+    sdint2 msg_len;
+    sdbyte err_msg[SDBYTE_MAX];
+
+    /* 获取错误信息集合 */
+    dpi_get_diag_rec(hndl_type, hndl, 1, &err_code, err_msg, sizeof(err_msg), &msg_len);
+    std::cout << "err_msg = " << err_msg << ", err_code = " << err_code << std::endl;
+}
+
+// public function
 
 bool CAE::Query(std::string &sql_str, std::vector<std::vector<std::string>>& res) {
     std::cout << "---------- Query ----------" << std::endl;
@@ -455,46 +486,3 @@ void CAE::printResult(std::vector<std::vector<DBVariant>>& res, std::vector<int>
         std::cout << std::endl;
     }
 }
-
-bool CAE::isValidSQLCommand_(const std::string& sql, const std::string type) {
-    std::string trimmedSQL = sql;
-    trimmedSQL.erase(0, trimmedSQL.find_first_not_of(" \t"));
-
-    // 找到第一个单词
-    size_t pos = trimmedSQL.find(' ');
-    std::string firstWord = (pos == std::string::npos) ? trimmedSQL : trimmedSQL.substr(0, pos);
-
-    // 转换为小写以进行不区分大小写比较
-    std::transform(firstWord.begin(), firstWord.end(), firstWord.begin(), ::tolower);
-
-    // 检查第一个单词
-    return firstWord == type;
-}
-
-void CAE::dpiErrorMsgPrint_(sdint2 hndl_type, dhandle hndl) {
-    sdint4 err_code;
-    sdint2 msg_len;
-    sdbyte err_msg[SDBYTE_MAX];
-
-    /* 获取错误信息集合 */
-    dpi_get_diag_rec(hndl_type, hndl, 1, &err_code, err_msg, sizeof(err_msg), &msg_len);
-    std::cout << "err_msg = " << err_msg << ", err_code = " << err_code << std::endl;
-}
-
-// void CAE::connectTest(const std::string &file_path) {
-//     // std::cout << "connectTest" << std::endl;
-//     YAML::Node config = YAML::LoadFile(file_path);
-//
-//     if (!config) {
-//         std::cout << "Open config File:" << "test " << " failed.";
-//     }
-//
-//     std::cout << config["database"]["host"] << std::endl;
-// }
-
-#ifdef USE_FILESYSTEM
-void DamengDB::FileTest() {
-    std::cout<< "use file system" <<std::endl;
-    // test git
-}
-#endif
