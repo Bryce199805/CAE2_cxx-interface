@@ -1,9 +1,9 @@
 database:
-  server: "192.168.8.201:5236"
+  server: "222.27.255.211:15236"
   username: "SYSDBA"
   passwd: "SYSDBA"
 
 minio:
-  endpoint: "192.168.8.201:9000"
-  username: "minioCAE"
-  passwd: "admin123"
+  endpoint: "222.27.255.211:19000"
+  username: "fileadmin"
+  passwd: "fileadmin"

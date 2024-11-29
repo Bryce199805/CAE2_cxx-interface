@@ -1142,7 +1142,7 @@ dpi_lob_truncate2(
     udint8*         data_len
 );
 
-//////complex object
+//////complex m_object_
 DllExport
 DPIRETURN
 dpi_desc_obj(
