@@ -1,0 +1,2 @@
+D:\CLion\bin\mingw\bin\ar.exe qc libCAE2.a CMakeFiles/CAE2.dir/src/CAE.cpp.obj CMakeFiles/CAE2.dir/src/DBVariant.cpp.obj CMakeFiles/CAE2.dir/src/CAEwithFileSystem.cpp.obj CMakeFiles/CAE2.dir/pkg/minio/src/ini.c.obj
+D:\CLion\bin\mingw\bin\ranlib.exe libCAE2.a

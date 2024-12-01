@@ -21,6 +21,7 @@
 #include <unordered_set>
 #include "miniocpp/client.h"
 #include <filesystem>
+#include <fstream>
 
 #undef GetObject
 
@@ -29,8 +30,8 @@
 
 class CAE {
 private:
-    dhenv m_henv_;   // 环境句柄
-    dhcon m_hcon_;   // 连接句柄
+    dhenv m_henv_; // 环境句柄
+    dhcon m_hcon_; // 连接句柄
     dhstmt m_hstmt_; // 语句句柄
     dhdesc m_hdesc_; // 描述符句柄
     DPIRETURN m_rt_; // 函数返回值
@@ -43,30 +44,55 @@ private:
 
 #ifdef USE_FILESYSTEM
     // 定义文件系统私有成员
-    std::string m_filepath_;
-    std::string m_bucket_;
-    std::string m_object_;
-    std::string m_filename_;
-    std::string m_sql_;
-    std::vector<std::vector<std::string>> m_res_;
+    std::string m_bucket_; //桶名
+    std::string m_prefix_; //前缀名
+    std::string m_object_; //文件名
+    std::string m_sql_; //sql语句
+    std::string m_id_; //表中文件ID
+    std::vector<std::vector<std::string> > m_res_; //查询结果
 
+    // init file system.
     bool initFileSystem_(const std::string &file_path);
 
-    bool checkFilePath_(std::string dbName, std::string tableName, std::string col);
+    // check if the path contains file.
+    bool checkFilePath_(const std::string &dbName, const std::string &tableName, const std::string &col);
 
-    bool local2FilePath_(std::string &dbName, std::string tableName, std::string id, std::string &path);
+    // check if the path contains file.
+    bool checkFilePath_(const std::string &dbName, const std::string &tableName);
 
-    bool parseDBPath_(std::string &path);
+    // transform the local path to file path.
+    void local2FilePath_(const std::string &dbName, const std::string &tableName, const std::string &id,
+                         std::string &path);
+
+    // parse the file path in DM.
+    void parseDBPath_(const std::string &path);
+
+    // get the name of local file.
+    std::string getLocalName_(std::string &path);
+
+    // get the file id in filesystem.
+    std::string getTableID_(const std::string &dbName, const std::string &tableName);
+
+    // transform the dbName.
+    std::string TransDBName_(std::string &dbName);
 
     // Map 2 Define
-    // key: dbName -> tableName -> colName
-    const std::unordered_map<std::string, std::unordered_map<std::string, std::unordered_set<std::string>>> m_FileMap_ = {
-            {"HULL_MODEL_AND_INFORMATION_DB", {
-                    {"HULL_PARAMETER_INFO", {"TRANSVERSE_AREA_CURVE", "HULL_3D_MODEL", "OFFSETS_TABLE"}}
-            }}
-    };
-    const std::unordered_map<std::string, std::unordered_set<std::string>> m_KeyMap_ = {
-            {"HULL_MODEL_AND_INFORMATION_DB", {"HULL_PARAMETER_INFO", "HULL_ID"}}
+    // key: dbName -> tableName -> colName check for file path
+    const std::unordered_map<std::string, std::unordered_map<std::string, std::unordered_set<std::string> > > m_FileMap_
+            = {
+                {
+                    "HULL_MODEL_AND_INFORMATION_DB", {
+                        {"HULL_PARAMETER_INFO", {"TRANSVERSE_AREA_CURVE", "HULL_3D_MODEL", "OFFSETS_TABLE"}}
+                    }
+                }
+            };
+    // key:dbName -> tableName -> id check for id
+    const std::unordered_map<std::string, std::unordered_map<std::string, std::string> > m_KeyMap_ = {
+        {
+            "HULL_MODEL_AND_INFORMATION_DB", {
+                {"HULL_PARAMETER_INFO", "HULL_ID"}
+            }
+        }
     };
 
 #endif
@@ -75,13 +101,14 @@ public:
     CAE(const std::string &file_path);
 
     ~CAE();
+
     // void connectTest(const std::string &file_path);
 
-    bool Query(std::string &sql_str, std::vector<std::vector<std::string>> &res);
+    bool Query(std::string &sql_str, std::vector<std::vector<std::string> > &res);
 
-    bool Query(std::string &sql_str, std::vector<std::vector<DBVariant>> &res);
+    bool Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res);
 
-    bool Query(std::string &sql_str, std::vector<std::vector<DBVariant>> &res, std::vector<int> &col_types);
+    bool Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res, std::vector<int> &col_types);
 
     bool Delete(std::string &sql_str);
 
@@ -89,9 +116,9 @@ public:
 
     bool Insert(std::string &sql_str);
 
-    void printResult(std::vector<std::vector<std::string>> &res);
+    void printResult(std::vector<std::vector<std::string> > &res);
 
-    void printResult(std::vector<std::vector<DBVariant>> &res, std::vector<int> &col_types);
+    void printResult(std::vector<std::vector<DBVariant> > &res, std::vector<int> &col_types);
 
 
 #ifdef USE_FILESYSTEM
@@ -102,19 +129,22 @@ public:
     CAE(const std::string &file_path, bool withFile);
 
     // bool QuerywithFile(std::string sqlstr);
-    bool UploadFile(std::string dbName, std::string tableName, std::string id, std::string col, std::string local_path);
+    bool UploadFile(const std::string &dbName, const std::string &tableName, const std::string &id,
+                    const std::string &col, std::string &local_path);
 
-    bool GetFile(std::string dbName, std::string tableName, std::string id, std::string col, std::string local_path);
+    bool GetFile(const std::string &dbName, const std::string &tableName, const std::string &id, const std::string &col,
+                 std::string &local_path);
 
-    bool GetFile(std::string dbName, std::string tableName, std::string id, std::string col, std::vector<unsigned char> &object_data);
+    bool GetFile(const std::string &dbName, const std::string &tableName, const std::string &id, const std::string &col,
+                 std::vector<unsigned char> &object_data);
 
-    bool DeleteFile(std::string dbName, std::string tableName, std::string id, std::string col);
+    bool DeleteFile(const std::string &dbName, const std::string &tableName, const std::string &id,
+                    const std::string &col);
 
-    bool DeleteRecord(std::string dbName, std::string tableName, std::string id);
+    bool DeleteRecord(std::string &dbName, const std::string &tableName, const std::string &id);
 
 
 #endif
-
 };
 
 #endif //CAE_H

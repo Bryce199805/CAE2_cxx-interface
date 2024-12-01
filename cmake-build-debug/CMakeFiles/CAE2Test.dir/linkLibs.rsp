@@ -1,0 +1,1 @@
+  -L"E:/CAE/CAE2_cxx-interface/pkg/dm_driver/bin"  -L"E:/CAE/CAE2_cxx-interface/pkg/yaml-cxx/bin"  -L"E:/CAE/CAE2_cxx-interface/pkg/minio/lib"  -ldmdpi -lyaml-cpp -lminiocpp -lcurlpp -lcurl -lpugixml -lini -linih -lINIReader -lbcrypt -lzlib -lcrypto -lssl -lws2_32 -lcrypt32 -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 

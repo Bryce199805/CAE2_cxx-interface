@@ -1,0 +1,507 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="CMakePresetLoader">{
+  &quot;useNewFormat&quot;: true
+}</component>
+  <component name="CMakeReloadState">
+    <option name="reloaded" value="true" />
+  </component>
+  <component name="CMakeRunConfigurationManager">
+    <generated>
+      <config projectName="CAE2" targetName="CAE2Test" />
+      <config projectName="CAE2" targetName="CAE2" />
+    </generated>
+  </component>
+  <component name="CMakeSettings" AUTO_RELOAD="true">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" GENERATION_OPTIONS="-G &quot;MinGW Makefiles&quot;" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="344ed1e1-f5c8-4b40-8a48-27ccbe294a9e" name="Changes" comment="Changes">
+      <change afterPath="$PROJECT_DIR$/doc/blue.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/INIReader.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curl/curl.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curl/curlver.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curl/easy.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curl/header.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curl/mprintf.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curl/multi.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curl/options.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curl/stdcheaders.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curl/system.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curl/typecheck-gcc.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curl/urlapi.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curl/websockets.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curlpp/Easy.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curlpp/Easy.inl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curlpp/Exception.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curlpp/Form.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curlpp/Info.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curlpp/Info.inl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curlpp/Infos.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curlpp/Multi.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curlpp/Option.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curlpp/Option.inl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curlpp/OptionBase.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curlpp/Options.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curlpp/Types.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curlpp/cURLpp.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curlpp/internal/CurlHandle.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curlpp/internal/CurlHandle.inl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curlpp/internal/OptionContainer.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curlpp/internal/OptionContainer.inl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curlpp/internal/OptionContainerType.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curlpp/internal/OptionList.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curlpp/internal/OptionSetter.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curlpp/internal/OptionSetter.inl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/curlpp/internal/SList.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/ini.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/miniocpp/args.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/miniocpp/baseclient.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/miniocpp/client.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/miniocpp/config.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/miniocpp/credentials.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/miniocpp/error.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/miniocpp/http.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/miniocpp/providers.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/miniocpp/request.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/miniocpp/response.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/miniocpp/select.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/miniocpp/signer.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/miniocpp/sse.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/miniocpp/types.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/miniocpp/utils.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/adl_serializer.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/byte_container_with_subtype.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/abi_macros.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/conversions/from_json.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/conversions/to_chars.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/conversions/to_json.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/exceptions.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/hash.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/input/binary_reader.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/input/input_adapters.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/input/json_sax.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/input/lexer.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/input/parser.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/input/position_t.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/iterators/internal_iterator.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/iterators/iter_impl.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/iterators/iteration_proxy.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/iterators/iterator_traits.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/iterators/json_reverse_iterator.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/iterators/primitive_iterator.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/json_custom_base_class.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/json_pointer.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/json_ref.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/macro_scope.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/macro_unscope.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/meta/call_std/begin.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/meta/call_std/end.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/meta/cpp_future.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/meta/detected.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/meta/identity_tag.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/meta/is_sax.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/meta/std_fs.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/meta/type_traits.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/meta/void_t.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/output/binary_writer.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/output/output_adapters.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/output/serializer.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/string_concat.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/string_escape.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/detail/value_t.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/json.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/json_fwd.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/ordered_map.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/thirdparty/hedley/hedley.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/nlohmann/thirdparty/hedley/hedley_undef.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/aes.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/asn1.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/asn1_mac.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/asn1err.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/asn1t.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/async.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/asyncerr.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/bio.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/bioerr.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/blowfish.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/bn.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/bnerr.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/buffer.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/buffererr.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/camellia.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/cast.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/cmac.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/cmp.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/cmp_util.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/cmperr.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/cms.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/cmserr.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/comp.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/comperr.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/conf.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/conf_api.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/conferr.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/configuration.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/conftypes.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/core.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/core_dispatch.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/core_names.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/core_object.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/crmf.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/crmferr.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/crypto.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/cryptoerr.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/cryptoerr_legacy.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/ct.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/cterr.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/decoder.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/decodererr.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/des.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/dh.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/dherr.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/dsa.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/dsaerr.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/dtls1.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/e_os2.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/e_ostime.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/ebcdic.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/ec.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/ecdh.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/ecdsa.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/ecerr.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/encoder.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/encodererr.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/engine.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/engineerr.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/err.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/ess.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/esserr.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/evp.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/evperr.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/fips_names.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/fipskey.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/hmac.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/hpke.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/http.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/httperr.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/idea.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/indicator.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/kdf.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/kdferr.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/lhash.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/macros.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/md2.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/md4.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/md5.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/mdc2.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/modes.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/obj_mac.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/objects.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/objectserr.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/ocsp.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/ocsperr.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/opensslconf.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/opensslv.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/ossl_typ.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/param_build.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/params.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/pem.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/pem2.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/pemerr.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/pkcs12.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/pkcs12err.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/pkcs7.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/pkcs7err.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/prov_ssl.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/proverr.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/provider.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/quic.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/rand.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/randerr.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/rc2.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/rc4.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/rc5.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/ripemd.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/rsa.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/rsaerr.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/safestack.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/seed.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/self_test.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/sha.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/srp.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/srtp.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/ssl.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/ssl2.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/ssl3.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/sslerr.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/sslerr_legacy.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/stack.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/store.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/storeerr.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/symhacks.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/thread.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/tls1.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/trace.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/ts.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/tserr.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/txt_db.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/types.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/ui.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/uierr.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/whrlpool.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/x509.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/x509_acert.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/x509_vfy.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/x509err.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/x509v3.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/openssl/x509v3err.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/pugiconfig.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/pugixml.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/utilspp/EmptyType.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/utilspp/NonCopyable.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/utilspp/NullType.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/utilspp/SmartPtr.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/utilspp/ThreadingFactoryMutex.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/utilspp/ThreadingFactoryMutex.inl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/utilspp/ThreadingSingle.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/utilspp/ThreadingSingle.inl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/utilspp/TypeList.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/utilspp/TypeTrait.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/utilspp/clone_ptr.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/zconf.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/include/zlib.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/lib/libINIReader.a" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/lib/libcrypto.a" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/lib/libcurl.a" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/lib/libcurlpp.a" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/lib/libini.a" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/lib/libinih.a" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/lib/libminiocpp.a" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/lib/libpugixml.a" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/lib/libssl.a" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/lib/libzlib.a" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/lib/pkgconfig/INIReader.pc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/lib/pkgconfig/curlpp.pc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/lib/pkgconfig/inih.pc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/lib/pkgconfig/libcrypto.pc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/lib/pkgconfig/libcurl.pc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/lib/pkgconfig/libssl.pc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/lib/pkgconfig/miniocpp.pc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/lib/pkgconfig/openssl.pc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/lib/pkgconfig/pugixml.pc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/lib/pkgconfig/zlib.pc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/minio/src/ini.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/CAE2.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/deployment.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/editor.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/editor.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/material_theme_project_new.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/material_theme_project_new.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/CAE.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/CAE.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/CAE.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/CAE.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/CAEwithFileSystem.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/CAEwithFileSystem.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_HOME_DIR$/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/stl_list.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_HOME_DIR$/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/stl_map.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_HOME_DIR$/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/stl_tree.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_HOME_DIR$/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/ext/aligned_buffer.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/main.cpp" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="ProjectApplicationVersion">
+    <option name="ide" value="CLion" />
+    <option name="majorVersion" value="2024" />
+    <option name="minorVersion" value="1.6" />
+    <option name="productBranch" value="Classic" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7
+}</component>
+  <component name="ProjectId" id="2pWBKpWpP9EU5EJ11rE2HKNWZSk" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;CMake Application.CAE2Test.executor&quot;: &quot;Run&quot;,
+    &quot;CMake 应用程序.CAE2Test.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.RadMigrateCodeStyle&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;E:/CAE/CAE2_cxx-interface&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\CAE\CAE2_cxx-interface\doc" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\CAE\CAE2_cxx-interface\" />
+    </key>
+  </component>
+  <component name="RunManager" selected="CMake 应用程序.CAE2Test">
+    <configuration name="CAE2" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CAE2" TARGET_NAME="CAE2" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="CAE2Test" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CAE2" TARGET_NAME="CAE2Test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="CAE2" RUN_TARGET_NAME="CAE2Test">
+      <envs>
+        <env name="Path" value="E:\CAE\lib" />
+      </envs>
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="CMake 应用程序.CAE2Test" />
+      <item itemvalue="CMake 应用程序.CAE2" />
+    </list>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="344ed1e1-f5c8-4b40-8a48-27ccbe294a9e" name="Changes" comment="" />
+      <created>1732871889491</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1732871889491</updated>
+      <workItem from="1732871890594" duration="1012000" />
+      <workItem from="1732882640312" duration="160000" />
+      <workItem from="1732882813410" duration="646000" />
+      <workItem from="1732884081431" duration="626000" />
+      <workItem from="1732884726209" duration="925000" />
+      <workItem from="1732885675380" duration="2396000" />
+      <workItem from="1732889974367" duration="1646000" />
+      <workItem from="1732891649860" duration="40000" />
+      <workItem from="1732891703873" duration="309000" />
+      <workItem from="1732892027093" duration="1292000" />
+      <workItem from="1732893347055" duration="122000" />
+      <workItem from="1732894344723" duration="235000" />
+      <workItem from="1732938851812" duration="23323000" />
+      <workItem from="1733029694124" duration="4506000" />
+      <workItem from="1733034591583" duration="5194000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VCPKGProject">
+    <isAutomaticCheckingOnLaunch value="false" />
+    <isAutomaticFoundErrors value="true" />
+    <isAutomaticReloadCMake value="true" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>
