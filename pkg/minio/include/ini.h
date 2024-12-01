@@ -75,12 +75,12 @@ typedef char* (*ini_reader)(char* str, int num, void* stream);
 */
 INI_API int ini_parse(const char* filename, ini_handler handler, void* user);
 
-/* Same as ini_parse(), but takes a FILE* instead of m_filename_. This doesn't
+/* Same as ini_parse(), but takes a FILE* instead of filename. This doesn't
    close the file when it's finished -- the caller must do that. */
 INI_API int ini_parse_file(FILE* file, ini_handler handler, void* user);
 
 /* Same as ini_parse(), but takes an ini_reader function pointer instead of
-   m_filename_. Used for implementing custom or string-based I/O (see also
+   filename. Used for implementing custom or string-based I/O (see also
    ini_parse_string). */
 INI_API int ini_parse_stream(ini_reader reader, void* stream, ini_handler handler,
                      void* user);

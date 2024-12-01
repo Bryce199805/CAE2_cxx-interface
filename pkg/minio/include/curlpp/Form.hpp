@@ -149,14 +149,14 @@ namespace FormParts
 
 		/**
 		* initialize a File part. "name" is the name of the field. 
-		* "m_filename_" is the string that holds the m_filename_.
+		* "filename" is the string that holds the filename.
 		*/
 		File(const char * name, 
 			const char * filename);
 
 		/**
 		* initialize a File part. "name" is the name of the field. 
-		* "m_filename_" is the string that holds the m_filename_.
+		* "filename" is the string that holds the filename. 
 		* "contentType" is the MIME type of the file.
 		*/
 		File(const char * name, 
@@ -165,14 +165,14 @@ namespace FormParts
 
 		/**
 		* initialize a File part. "name" is the name of the field. 
-		* "m_filename_" is the string that holds the m_filename_.
+		* "filename" is the string that holds the filename.
 		*/
 		File(const std::string & name, 
 			const std::string & filename);
 
 		/**
 		* initialize a File part. "name" is the name of the field. 
-		* "m_filename_" is the string that holds the m_filename_.
+		* "filename" is the string that holds the filename. 
 		* "contentType" is the MIME type of the file.
 		*/
 		File(const std::string & name, 
@@ -211,14 +211,14 @@ namespace FormParts
 
 		/**
 		* initialize a Content part. "name" is the name of the field. 
-		* "content" is the string that holds the m_filename_.
+		* "content" is the string that holds the filename.
 		*/
 		Content(const char * name, 
 			const char * content);
 
 		/**
 		* initialize a Content part. "name" is the name of the field. 
-		* "content" is the string that holds the m_filename_.
+		* "content" is the string that holds the filename. 
 		* "contentType" is the MIME type of the file.
 		*/
 		Content(const char * name, 

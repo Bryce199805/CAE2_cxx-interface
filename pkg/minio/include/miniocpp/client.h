@@ -99,7 +99,7 @@ class RemoveObjectsResult {
 };  // class RemoveObjectsResult
 
 /**
- * Simple Storage Service (aka S3) client to perform m_bucket_ and m_object_
+ * Simple Storage Service (aka S3) client to perform bucket and object
  * operations.
  */
 class Client : public BaseClient {

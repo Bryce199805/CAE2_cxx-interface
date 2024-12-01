@@ -193,9 +193,9 @@ struct curl_httppost {
                                        files */
   long flags;                       /* as defined below */
 
-/* specified content is a m_filename_ */
+/* specified content is a filename */
 #define CURL_HTTPPOST_FILENAME (1<<0)
-/* specified content is a m_filename_ */
+/* specified content is a filename */
 #define CURL_HTTPPOST_READFILE (1<<1)
 /* name is only stored pointer do not free in formfree */
 #define CURL_HTTPPOST_PTRNAME (1<<2)
@@ -211,8 +211,8 @@ struct curl_httppost {
 /* use size in 'contentlen', added in 7.46.0 */
 #define CURL_HTTPPOST_LARGE (1<<7)
 
-  char *showfilename;               /* The m_filename_ to show. If not set, the
-                                       actual m_filename_ will be used (if this
+  char *showfilename;               /* The filename to show. If not set, the
+                                       actual filename will be used (if this
                                        is a file part) */
   void *userp;                      /* custom pointer used for
                                        HTTPPOST_CALLBACK posts */
@@ -322,7 +322,7 @@ struct curl_fileinfo {
     char *perm;
     char *user;
     char *group;
-    char *target; /* pointer to the target m_filename_ of a symlink */
+    char *target; /* pointer to the target filename of a symlink */
   } strings;
 
   unsigned int flags;
@@ -1365,7 +1365,7 @@ typedef enum {
      makes the operation slower and is less friendly for the network. */
   CURLOPT(CURLOPT_FORBID_REUSE, CURLOPTTYPE_LONG, 75),
 
-  /* Set to a m_filename_ that contains random data for libcurl to use to
+  /* Set to a filename that contains random data for libcurl to use to
      seed the random engine when doing SSL connects. */
   CURLOPTDEPRECATED(CURLOPT_RANDOM_FILE, CURLOPTTYPE_STRINGPOINT, 76,
                     7.84.0, "Serves no purpose anymore"),
@@ -1392,8 +1392,8 @@ typedef enum {
    * provided hostname. */
   CURLOPT(CURLOPT_SSL_VERIFYHOST, CURLOPTTYPE_LONG, 81),
 
-  /* Specify which m_filename_ to write all known cookies in after completed
-     operation. Set m_filename_ to "-" (dash) to make it go to stdout. */
+  /* Specify which filename to write all known cookies in after completed
+     operation. Set filename to "-" (dash) to make it go to stdout. */
   CURLOPT(CURLOPT_COOKIEJAR, CURLOPTTYPE_STRINGPOINT, 82),
 
   /* Specify which TLS 1.2 (1.1, 1.0) ciphers to use */
@@ -1544,7 +1544,7 @@ typedef enum {
    */
   CURLOPT(CURLOPT_MAXFILESIZE_LARGE, CURLOPTTYPE_OFF_T, 117),
 
-  /* Set this option to the m_filename_ of your .netrc file you want libcurl
+  /* Set this option to the filename of your .netrc file you want libcurl
      to parse (using the CURLOPT_NETRC option). If not set, libcurl will do
      a poor attempt to find the user's home directory and check for a .netrc
      file in there. */
@@ -1761,7 +1761,7 @@ typedef enum {
   CURLOPTDEPRECATED(CURLOPT_REDIR_PROTOCOLS, CURLOPTTYPE_LONG, 182,
                     7.85.0, "Use CURLOPT_REDIR_PROTOCOLS_STR"),
 
-  /* set the SSH knownhost m_filename_ to use */
+  /* set the SSH knownhost filename to use */
   CURLOPT(CURLOPT_SSH_KNOWNHOSTS, CURLOPTTYPE_STRINGPOINT, 183),
 
   /* set the SSH host key callback, must point to a curl_sshkeycallback
@@ -2105,7 +2105,7 @@ typedef enum {
   /* alt-svc control bitmask */
   CURLOPT(CURLOPT_ALTSVC_CTRL, CURLOPTTYPE_LONG, 286),
 
-  /* alt-svc cache m_filename_ to possibly read from/write to */
+  /* alt-svc cache filename to possibly read from/write to */
   CURLOPT(CURLOPT_ALTSVC, CURLOPTTYPE_STRINGPOINT, 287),
 
   /* maximum age (idle time) of a connection to consider it for reuse
@@ -2137,7 +2137,7 @@ typedef enum {
 
   /* HSTS bitmask */
   CURLOPT(CURLOPT_HSTS_CTRL, CURLOPTTYPE_LONG, 299),
-  /* HSTS m_filename_ */
+  /* HSTS filename */
   CURLOPT(CURLOPT_HSTS, CURLOPTTYPE_STRINGPOINT, 300),
 
   /* HSTS read callback */
@@ -2434,7 +2434,7 @@ CURL_EXTERN CURLcode curl_mime_name(curl_mimepart *part, const char *name);
  *
  * DESCRIPTION
  *
- * Set mime part remote m_filename_.
+ * Set mime part remote filename.
  */
 CURL_EXTERN CURLcode curl_mime_filename(curl_mimepart *part,
                                         const char *filename);

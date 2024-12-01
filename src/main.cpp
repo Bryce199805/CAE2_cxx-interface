@@ -9,50 +9,62 @@
 int main() {
     CAE obj("../config.yaml", true);
 
-    // Êü•ËØ¢ÊµãËØï
+    // ≤È—Ø≤‚ ‘
     std::string query_sql = "select * from BASIC_SHIP_INFORMATION_DB.SHIP_DATA_INFO";
-    std::vector<std::vector<DBVariant>> result2;
+    std::vector<std::vector<DBVariant> > result2;
     std::vector<int> col_types;
 
-    if(obj.Query(query_sql, result2, col_types)) {
-        // ËæìÂá∫ÊâìÂç∞ÊµãËØï
+    if (obj.Query(query_sql, result2, col_types)) {
+        //  ‰≥ˆ¥Ú”°≤‚ ‘
         obj.printResult(result2, col_types);
     }
 
-    // ÊèíÂÖ•ÊµãËØï
+    // ≤Â»Î≤‚ ‘
     std::string insert_sql =
             "insert into BASIC_SHIP_INFORMATION_DB.SISTER_SHIP_INFO (SHIP_DATA_ID, SISTER_DATA_ID, SHIP_NAME) "
             "values (7082002, 7082006, 'test No1')";
-    if(obj.Insert(insert_sql)) {
+    if (obj.Insert(insert_sql)) {
         std::cout << "insert done." << std::endl;
     }
 
-    // Êõ¥Êñ∞ÊµãËØï
+    // ∏¸–¬≤‚ ‘
     std::string update_sql =
             "update BASIC_SHIP_INFORMATION_DB.SISTER_SHIP_INFO set SHIP_NAME = 'test No2' where SHIP_NAME = 'test No1'";
-    if(obj.Update(update_sql)) {
+    if (obj.Update(update_sql)) {
         std::cout << "update done." << std::endl;
     }
 
-    //Âà†Èô§ÊµãËØï
+    //…æ≥˝≤‚ ‘
     std::string delete_sql =
             "delete from BASIC_SHIP_INFORMATION_DB.SISTER_SHIP_INFO where SHIP_NAME = 'test No2'";
-    if(obj.Delete(delete_sql)) {
+    if (obj.Delete(delete_sql)) {
         std::cout << "delete done." << std::endl;
     }
 
 
-    // ÊµãËØï‰∏ä‰º†Êñá‰ª∂
-    // todo Êñ≠ÁÇπÂ§ÑÊúâ‰∏Ä‰∏™bugÔºå‰∏ä‰º†Êó∂ÂÜÖÈÉ®Êñá‰ª∂ÊµÅÂá∫ÈîôÔºåÊÄÄÁñëËØ•ÂáΩÊï∞ÂÜÖÈÉ®‰ΩøÁî®ÁöÑPutObjectÊñπÊ≥ï
-    // todo ÂèØ‰ª•Â∞ùËØï‰ΩøÁî®PutObjectÊñπÊ≥ïÔºå‰ΩÜÊòØÈúÄË¶ÅÂ∞ÜÊñá‰ª∂ÊµÅËΩ¨Êç¢‰∏∫‰∫åËøõÂà∂ÊµÅ
-//    obj.UploadFile("HULL_MODEL_AND_INFORMATION_DB", "HULL_PARAMETER_INFO", "M7081002", "TRANSVERSE_AREA_CURVE", "./test.jpg");
-    // ÊµãËØï‰∏ãËΩΩÊñá‰ª∂
-     obj.GetFile("HULL_MODEL_AND_INFORMATION_DB", "HULL_PARAMETER_INFO", "M7081002", "TRANSVERSE_AREA_CURVE", ".");
-    // ÊµãËØï‰∏ãËΩΩÂ≠óÁ¨¶ÊµÅ
-    std::vector<unsigned char> object_data;
-    obj.GetFile("HULL_MODEL_AND_INFORMATION_DB", "HULL_PARAMETER_INFO", "M7081002", "TRANSVERSE_AREA_CURVE",object_data);
-    std::cout << "object_data size: " << object_data.size() << std::endl;
-    // ÊµãËØïÂà†Èô§Êñá‰ª∂
-//    obj.DeleteFile("HULL_MODEL_AND_INFORMATION_DB", "HULL_PARAMETER_INFO", "M7081002", "TRANSVERSE_AREA_CURVE");
+     // //Œƒº˛≤Ÿ◊˜≤‚ ‘
+     // // …œ¥´Œƒº˛ ÷∏∂®¬∑æ∂£¨¥¯Œƒº˛√˚
+     // if (obj.UploadFile("HULL_MODEL_AND_INFORMATION_DB", "HULL_PARAMETER_INFO", "M7081002", "TRANSVERSE_AREA_CURVE",
+     //                    "../doc/blue.png"))
+     //     std::cout << "Upload file done." << std::endl;
+     //
+     // // œ¬‘ÿŒƒº˛ ÷∏∂®¬∑æ∂£¨≤ª¥¯Œƒº˛√˚
+     // if (obj.GetFile("HULL_MODEL_AND_INFORMATION_DB", "HULL_PARAMETER_INFO", "M7081002", "TRANSVERSE_AREA_CURVE", "."))
+     //     std::cout << "Download file done." << std::endl;
+     //
+     // // œ¬‘ÿ◊÷∑˚¡˜
+     // std::vector<unsigned char> object_data;
+     // if (obj.GetFile("HULL_MODEL_AND_INFORMATION_DB", "HULL_PARAMETER_INFO", "M7081002", "TRANSVERSE_AREA_CURVE",
+     //                 object_data))
+     //     std::cout << "Download data stream done." << endl;
+     // std::cout << "object_data size: " << object_data.size() << std::endl;
+     //
+     // // …æ≥˝Œƒº˛
+     // if (obj.DeleteFile("HULL_MODEL_AND_INFORMATION_DB", "HULL_PARAMETER_INFO", "M7081002", "TRANSVERSE_AREA_CURVE"))
+     //     std::cout << "Delete file done." << std::endl;
+    // // …æ≥˝º«¬º
+    // if (obj.DeleteRecord("HULL_MODEL_AND_INFORMATION_DB", "HULL_PARAMETER_INFO", "M7081002"))
+    //     std::cout << "Delete record done." << std::endl;
     return 0;
 }
+

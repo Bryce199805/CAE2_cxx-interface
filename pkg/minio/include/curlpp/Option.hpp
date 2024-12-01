@@ -40,7 +40,7 @@ namespace curlpp
 	* This class is representing an option that you set on a class. 
 	*
 	* We use utilspp::pointer_on_member_function and utilspp::type_trait to simplify
-	* the declaration of an option m_object_.
+	* the declaration of an option object.
 	*/
 
         template<typename OT>
