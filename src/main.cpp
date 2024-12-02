@@ -42,29 +42,29 @@ int main() {
     }
 
 
-     // //文件操作测试
-     // // 上传文件 指定路径，带文件名
-     // if (obj.UploadFile("HULL_MODEL_AND_INFORMATION_DB", "HULL_PARAMETER_INFO", "M7081002", "TRANSVERSE_AREA_CURVE",
-     //                    "../doc/blue.png"))
-     //     std::cout << "Upload file done." << std::endl;
+     //文件操作测试
+     // 上传文件 指定路径，带文件名
+     if (obj.UploadFile("HULL_MODEL_AND_INFORMATION_DB", "HULL_PARAMETER_INFO", "M7081002", "TRANSVERSE_AREA_CURVE",
+                        "../doc/blue.png"))
+         std::cout << "Upload file done." << std::endl;
 
-     // // 下载文件 指定路径，不带文件名
-     // if (obj.GetFile("HULL_MODEL_AND_INFORMATION_DB", "HULL_PARAMETER_INFO", "M7081002", "TRANSVERSE_AREA_CURVE", "."))
-     //     std::cout << "Download file done." << std::endl;
+     // 下载文件 指定路径，不带文件名
+     if (obj.GetFile("HULL_MODEL_AND_INFORMATION_DB", "HULL_PARAMETER_INFO", "M7081002", "TRANSVERSE_AREA_CURVE", "."))
+         std::cout << "Download file done." << std::endl;
 
-     // 下载字符流
-     // std::vector<unsigned char> object_data;
-     // if (obj.GetFile("HULL_MODEL_AND_INFORMATION_DB", "HULL_PARAMETER_INFO", "M7081002", "TRANSVERSE_AREA_CURVE",
-     //                 object_data))
-     //     std::cout << "Download data stream done." << std::endl;
-     // std::cout << "object_data size: " << object_data.size() << std::endl;
-     //
-     // // 删除文件
-     // if (obj.DeleteFile("HULL_MODEL_AND_INFORMATION_DB", "HULL_PARAMETER_INFO", "M7081002", "TRANSVERSE_AREA_CURVE"))
-     //     std::cout << "Delete file done." << std::endl;
-    // // 删除记录
-    // if (obj.DeleteRecord("HULL_MODEL_AND_INFORMATION_DB", "HULL_PARAMETER_INFO", "M7081002"))
-    //     std::cout << "Delete record done." << std::endl;
+     //下载字符流
+     std::vector<unsigned char> object_data;
+     if (obj.GetFile("HULL_MODEL_AND_INFORMATION_DB", "HULL_PARAMETER_INFO", "M7081002", "TRANSVERSE_AREA_CURVE",
+                     object_data))
+         std::cout << "Download data stream done." << std::endl;
+     std::cout << "object_data size: " << object_data.size() << std::endl;
+
+     // 删除文件
+     if (obj.DeleteFile("HULL_MODEL_AND_INFORMATION_DB", "HULL_PARAMETER_INFO", "M7081002", "TRANSVERSE_AREA_CURVE"))
+         std::cout << "Delete file done." << std::endl;
+    // 删除记录
+    if (obj.DeleteRecord("HULL_MODEL_AND_INFORMATION_DB", "HULL_PARAMETER_INFO", "M7081002"))
+        std::cout << "Delete record done." << std::endl;
     return 0;
 }
 

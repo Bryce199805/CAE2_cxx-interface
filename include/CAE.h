@@ -60,6 +60,9 @@ private:
     // check if the path contains file.
     bool checkFilePath_(const std::string &dbName, const std::string &tableName);
 
+    // check if the path is null.
+    bool checkFileNull_(std::string path);
+
     // transform the local path to file path.
     void local2FilePath_(const std::string &dbName, const std::string &tableName, const std::string &id,
                          const std::string &local_path);
