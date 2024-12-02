@@ -60,6 +60,9 @@ private:
     // check if the path contains file.
     bool checkFilePath_(const std::string &dbName, const std::string &tableName);
 
+    // check if the path is null.
+    bool checkFileNull_(std::string path);
+
     // transform the local path to file path.
     void local2FilePath_(const std::string &dbName, const std::string &tableName, const std::string &id,
                          const std::string &local_path);
@@ -74,7 +77,7 @@ private:
     std::string getTableID_(const std::string &dbName, const std::string &tableName);
 
     // transform the dbName.
-    std::string TransDBName_(std::string &dbName);
+    std::string TransDBName_(const std::string &dbName);
 
     // Map 2 Define
     // key: dbName -> tableName -> colName check for file path
@@ -141,7 +144,7 @@ public:
     bool DeleteFile(const std::string &dbName, const std::string &tableName, const std::string &id,
                     const std::string &col);
 
-    bool DeleteRecord(std::string &dbName, const std::string &tableName, const std::string &id);
+    bool DeleteRecord(const std::string &dbName, const std::string &tableName, const std::string &id);
 
 
 #endif
