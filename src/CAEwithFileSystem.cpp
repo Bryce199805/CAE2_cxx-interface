@@ -114,10 +114,11 @@ std::string CAE::getTableID_(const std::string &dbName, const std::string &table
     return m_KeyMap_.find(dbName)->second.find(tableName)->second;
 }
 
-std::string CAE::TransDBName_(std::string &dbName) {
-    std::transform(dbName.begin(), dbName.end(), dbName.begin(), tolower);
-    std::replace(dbName.begin(), dbName.end(), '_', '-');
-    return dbName;
+std::string CAE::TransDBName_(const std::string &dbName) {
+    std::string dbname = dbName;
+    std::transform(dbname.begin(), dbname.end(), dbname.begin(), tolower);
+    std::replace(dbname.begin(), dbname.end(), '_', '-');
+    return dbname;
 }
 
 //public function
@@ -334,7 +335,7 @@ bool CAE::DeleteFile(const std::string &dbName, const std::string &tableName, co
     return true;
 }
 
-bool CAE::DeleteRecord(std::string &dbName, const std::string &tableName, const std::string &id) {
+bool CAE::DeleteRecord(const std::string &dbName, const std::string &tableName, const std::string &id) {
     if (!this->checkFilePath_(dbName, tableName)) {
         std::cout << "Noting to do. There is no file." << std::endl;
         return false;
