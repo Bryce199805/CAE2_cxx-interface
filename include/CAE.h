@@ -62,7 +62,7 @@ private:
 
     // transform the local path to file path.
     void local2FilePath_(const std::string &dbName, const std::string &tableName, const std::string &id,
-                         std::string &path);
+                         const std::string &local_path);
 
     // parse the file path in DM.
     void parseDBPath_(const std::string &path);
@@ -130,10 +130,10 @@ public:
 
     // bool QuerywithFile(std::string sqlstr);
     bool UploadFile(const std::string &dbName, const std::string &tableName, const std::string &id,
-                    const std::string &col, std::string &local_path);
+                    const std::string &col, const std::string &local_path);
 
     bool GetFile(const std::string &dbName, const std::string &tableName, const std::string &id, const std::string &col,
-                 std::string &local_path);
+                 const std::string &local_path);
 
     bool GetFile(const std::string &dbName, const std::string &tableName, const std::string &id, const std::string &col,
                  std::vector<unsigned char> &object_data);

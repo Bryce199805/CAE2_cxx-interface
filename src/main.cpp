@@ -47,16 +47,16 @@ int main() {
      // if (obj.UploadFile("HULL_MODEL_AND_INFORMATION_DB", "HULL_PARAMETER_INFO", "M7081002", "TRANSVERSE_AREA_CURVE",
      //                    "../doc/blue.png"))
      //     std::cout << "Upload file done." << std::endl;
-     //
+
      // // 下载文件 指定路径，不带文件名
      // if (obj.GetFile("HULL_MODEL_AND_INFORMATION_DB", "HULL_PARAMETER_INFO", "M7081002", "TRANSVERSE_AREA_CURVE", "."))
      //     std::cout << "Download file done." << std::endl;
-     //
-     // // 下载字符流
+
+     // 下载字符流
      // std::vector<unsigned char> object_data;
      // if (obj.GetFile("HULL_MODEL_AND_INFORMATION_DB", "HULL_PARAMETER_INFO", "M7081002", "TRANSVERSE_AREA_CURVE",
      //                 object_data))
-     //     std::cout << "Download data stream done." << endl;
+     //     std::cout << "Download data stream done." << std::endl;
      // std::cout << "object_data size: " << object_data.size() << std::endl;
      //
      // // 删除文件
