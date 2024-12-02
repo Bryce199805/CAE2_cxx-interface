@@ -56,16 +56,23 @@ void CAE::parseDBPath_(const std::string &path) {
         std::cout << "Invalid path format" << std::endl;
         return;
     }
+    // 查找第二个斜杠
+    size_t secondSlash = path.find('/', firstSlash + 1);
+    if (secondSlash == std::string::npos) {
+        std::cout << "Invalid path format" << std::endl;
+        return;
+    }
     // 查找最后一个斜杠，提取object部分
     size_t lastSlash = path.rfind('/');
     if (lastSlash == std::string::npos || lastSlash == firstSlash) {
         std::cout << "Invalid path format" << std::endl;
         return;
     }
-    this->m_bucket_ = path.substr(0, firstSlash);
+    // 提取第一个斜杠和第二个斜杠之间的部分
+    this->m_bucket_ = path.substr(firstSlash + 1, secondSlash - firstSlash - 1);
     // 提取中间的prefix部分
-    // 介于第一个斜杠和最后一个斜杠之间的部分
-    this->m_prefix_ = path.substr(firstSlash + 1, lastSlash - firstSlash - 1);
+    // 介于第二个斜杠和最后一个斜杠之间的部分
+    this->m_prefix_ = path.substr(secondSlash + 1, lastSlash - secondSlash - 1);
     this->m_object_ = path.substr(lastSlash + 1);
 }
 
@@ -85,11 +92,13 @@ bool CAE::checkFilePath_(const std::string &dbName, const std::string &tableName
 
 
 void CAE::local2FilePath_(const std::string &dbName, const std::string &tableName, const std::string &id,
-                          std::string &path) {
+                          const std::string &local_path) {
+    std::string dbname = dbName;
+    std::string path = local_path;
     // 转小写 -替换_
-    std::transform(dbName.begin(), dbName.end(), dbName.begin(), tolower);
-    std::replace(dbName.begin(), dbName.end(), '_', '-');
-    this->m_bucket_ = dbName;
+    std::transform(dbname.begin(), dbname.end(), dbname.begin(), tolower);
+    std::replace(dbname.begin(), dbname.end(), '_', '-');
+    this->m_bucket_ = dbname;
     this->m_prefix_ = tableName + "/" + id;
     this->m_object_ = this->getLocalName_(path);
 }
@@ -115,7 +124,7 @@ std::string CAE::TransDBName_(std::string &dbName) {
 
 bool CAE::UploadFile(const std::string &dbName, const std::string &tableName, const std::string &id,
                      const std::string &col,
-                     std::string &local_path) {
+                     const std::string &local_path) {
     // sql query minio path
     // 1. record exist. col not null ->  minio path
     // 2, record exist. col null ->  make path
@@ -144,7 +153,6 @@ bool CAE::UploadFile(const std::string &dbName, const std::string &tableName, co
         return false;
     }
     std::string path = this->m_res_[0][0];
-
     //check the col path exist or not;
     if (path == "" || path == " ") {
         //this file is not exist.
@@ -178,12 +186,12 @@ bool CAE::UploadFile(const std::string &dbName, const std::string &tableName, co
     minio::s3::PutObjectResponse resp = this->m_client_->PutObject(args);
 
     if (resp) {
-        std::cout << "File is successfully uploaded , updating DM..." << std::endl;
+        // std::cout << "File is successfully uploaded , updating DM..." << std::endl;
         // update　DM file path
+        this->m_id_ = this->getTableID_(dbName, tableName);
         std::string minio_path = "/" + this->m_bucket_ + "/" + tableName + "/" + id + "/" + this->m_object_;
         sprintf(sqlStr, "UPDATE %s.%s SET %s = '%s' WHERE %s ='%s'", dbName.c_str(), tableName.c_str(),
-                col.c_str(),
-                minio_path.c_str(), "HULL_ID", id.c_str());
+                col.c_str(),minio_path.c_str(), m_id_.c_str(), id.c_str());
         this->m_sql_ = sqlStr;
         this->Update(this->m_sql_);
     } else {
@@ -193,9 +201,8 @@ bool CAE::UploadFile(const std::string &dbName, const std::string &tableName, co
     return true;
 }
 
-
 bool CAE::GetFile(const std::string &dbName, const std::string &tableName, const std::string &id,
-                  const std::string &col, std::string &local_path) {
+                  const std::string &col, const std::string &local_path) {
     if (!this->checkFilePath_(dbName, tableName, col)) {
         std::cout << "Error: check your dbname/tablename/colname." << std::endl;
         return false;
@@ -314,7 +321,7 @@ bool CAE::DeleteFile(const std::string &dbName, const std::string &tableName, co
     minio::s3::RemoveObjectResponse resp = this->m_client_->RemoveObject(args);
 
     if (resp) {
-        std::cout << "File is successfully deleted , updating DM..." << std::endl;
+        // std::cout << "File is successfully deleted , updating DM..." << std::endl;
         // deletel DM col path
         sprintf(sqlStr, "UPDATE %s.%s SET %s = ' '  WHERE %s ='%s'", dbName.c_str(), tableName.c_str(),
                 col.c_str(), this->m_id_.c_str(), id.c_str());
