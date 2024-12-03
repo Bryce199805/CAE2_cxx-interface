@@ -49,6 +49,7 @@ private:
     std::string m_object_; //文件名
     std::string m_sql_; //sql语句
     std::string m_id_; //表中文件ID
+    std::string m_path_; //查询到的文件路径
     std::vector<std::vector<std::string> > m_res_; //查询结果
 
     // init file system.
@@ -61,23 +62,23 @@ private:
     bool checkFilePath_(const std::string &dbName, const std::string &tableName);
 
     // check if the path is null.
-    bool checkFileNull_(std::string path);
+    bool checkFileNull_(std::string &path);
 
     // transform the local path to file path.
-    void local2FilePath_(const std::string &dbName, const std::string &tableName, const std::string &id,
-                         const std::string &local_path);
+    void local2FilePath_(std::string &dbName, const std::string &tableName, const std::string &id,
+                         std::string &local_path);
 
     // parse the file path in DM.
-    void parseDBPath_(const std::string &path);
+    void parseDBPath_(std::string &path);
 
     // get the name of local file.
-    std::string getLocalName_(std::string &path);
+    void getFileName_(std::string &path);
 
     // get the file id in filesystem.
-    std::string getTableID_(const std::string &dbName, const std::string &tableName);
+    std::string getTableID_(std::string &dbName, std::string &tableName);
 
-    // transform the dbName.
-    std::string TransDBName_(const std::string &dbName);
+    // transform the dbName, use - replace _
+    std::string TransDBName_(std::string &dbName);
 
     // Map 2 Define
     // key: dbName -> tableName -> colName check for file path
@@ -132,19 +133,19 @@ public:
     CAE(const std::string &file_path, bool withFile);
 
     // bool QuerywithFile(std::string sqlstr);
-    bool UploadFile(const std::string &dbName, const std::string &tableName, const std::string &id,
-                    const std::string &col, const std::string &local_path);
+    bool UploadFile(std::string dbName, std::string tableName, const std::string &id,
+                    const std::string &col, std::string local_path);
 
-    bool GetFile(const std::string &dbName, const std::string &tableName, const std::string &id, const std::string &col,
-                 const std::string &local_path);
+    bool GetFile(std::string dbName, std::string tableName, const std::string &id, const std::string &col,
+                  std::string local_path);
 
-    bool GetFile(const std::string &dbName, const std::string &tableName, const std::string &id, const std::string &col,
+    bool GetFile(std::string dbName, std::string tableName, const std::string &id, const std::string &col,
                  std::vector<unsigned char> &object_data);
 
-    bool DeleteFile(const std::string &dbName, const std::string &tableName, const std::string &id,
+    bool DeleteFile(std::string dbName, std::string tableName, const std::string &id,
                     const std::string &col);
 
-    bool DeleteRecord(const std::string &dbName, const std::string &tableName, const std::string &id);
+    bool DeleteRecord(std::string dbName, std::string tableName, const std::string &id);
 
 
 #endif
