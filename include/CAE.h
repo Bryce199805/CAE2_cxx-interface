@@ -22,7 +22,7 @@
 #include "miniocpp/client.h"
 #include <filesystem>
 #include <fstream>
-
+#include <windows.h>
 #undef GetObject
 
 #undef DeleteFile

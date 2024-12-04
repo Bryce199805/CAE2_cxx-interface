@@ -185,10 +185,13 @@ bool CAE::UploadFile(std::string dbName, std::string tableName, const std::strin
     } else {
         //file exist.
         this->parseDBPath_(this->m_path_);
+        this->getFileName_(local_path);
+        this->m_object_= local_path;
     }
 
-    //以二进制打开文件
-    std::ifstream file(local_path, std::ios::binary);
+    //文件读取
+    std::filesystem::path zh_path(local_path);
+    std::ifstream file(zh_path, std::ios::binary);
     //获取文件大小
     file.seekg(0, std::ios::end);
     std::streamsize file_size = file.tellg();
@@ -258,14 +261,13 @@ bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &
 
     args.bucket = this->m_bucket_;
     args.object = this->m_prefix_ + "/" + this->m_object_;
-    std::cout << args.object << std::endl;
     std::string path = local_path + "/" + this->m_object_;
 
     // args.filename = local_path + "/" + this->m_object_;
-    args.datafunc = [&object_data,&path](minio::http::DataFunctionArgs args) -> bool {
+    args.datafunc = [&object_data](minio::http::DataFunctionArgs args) -> bool {
         object_data.write(args.datachunk.data(), args.datachunk.size());
         // 打开文件  进行写入
-        std::ofstream outFile(path, std::ios::binary); // 以二进制模式打开文件
+        std::ofstream outFile("./temp", std::ios::binary); // 以二进制模式打开文件
 
         if (outFile.is_open()) {
             // 将 stringstream 中的内容写入到文件
@@ -281,6 +283,8 @@ bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &
 
     if (!resp) {
         std::cerr << "Unable to download object:" << resp.Error().String() << std::endl;
+    } else {
+        std::filesystem::rename("./temp", path);
     }
 
     // // Handle response.
