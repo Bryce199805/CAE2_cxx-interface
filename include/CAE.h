@@ -50,6 +50,9 @@ private:
     std::string m_sql_; //sql语句
     std::string m_id_; //表中文件ID
     std::string m_path_; //查询到的文件路径
+    std::vector<std::vector<DBVariant> > m_result_;
+    std::vector<int> m_col_types_;
+
     std::vector<std::vector<std::string> > m_res_; //查询结果
 
     // init file system.
@@ -62,14 +65,14 @@ private:
     bool checkFilePath_(const std::string &dbName, const std::string &tableName);
 
     // check if the path is null.
-    bool checkFileNull_(std::string &path);
+    bool checkFileExist_(std::string path);
 
     // transform the local path to file path.
-    void local2FilePath_(std::string &dbName, const std::string &tableName, const std::string &id,
+    void local2FilePath_(std::string dbName, std::string tableName, const std::string &id,
                          std::string &local_path);
 
     // parse the file path in DM.
-    void parseDBPath_(std::string &path);
+    void parseDBPath_(std::string path);
 
     // get the name of local file.
     void getFileName_(std::string &path);
@@ -78,7 +81,10 @@ private:
     std::string getTableID_(std::string &dbName, std::string &tableName);
 
     // transform the dbName, use - replace _
-    std::string TransDBName_(std::string &dbName);
+    std::string TransDBName_(std::string dbName);
+
+    // transform the dbName, tableName to upper.
+    void UpperName_(std::string &dbName,std::string &tableName);
 
     // Map 2 Define
     // key: dbName -> tableName -> colName check for file path
