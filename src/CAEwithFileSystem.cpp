@@ -19,22 +19,22 @@ CAE::CAE(const std::string &file_path, bool withFile = true) {
 
 // private function
 bool CAE::initFileSystem_(const std::string &file_path) {
-    // ¶ÁÈ¡yamlÎÄ¼ş
+    // è¯»å–yamlæ–‡ä»¶
     YAML::Node data_config = YAML::LoadFile(file_path);
     if (!data_config) {
         std::cout << "Open config File:" << file_path << " failed.";
         exit(0);
     }
-    // ÌáÈ¡ÅäÖÃÏî
+    // æå–é…ç½®é¡¹
     std::string endpoint = data_config["minio"]["endpoint"].as<std::string>();
     std::string username = data_config["minio"]["username"].as<std::string>();
     std::string passwd = data_config["minio"]["passwd"].as<std::string>();
 
-    // ×¢Òâ£ºÊ¹ÓÃSSE-C¼ÓÃÜĞè¿ªÆôHTTPS·şÎñ£¬·ñÔò±¨´í£¬¿ªÆôºó£¬¹Ø±ÕbaseurlµÄÑéÖ¤²¢Ê¹ÓÃhttpsÁ¬½Ó
+    // æ³¨æ„ï¼šä½¿ç”¨SSE-CåŠ å¯†éœ€å¼€å¯HTTPSæœåŠ¡ï¼Œå¦åˆ™æŠ¥é”™ï¼Œå¼€å¯åï¼Œå…³é—­baseurlçš„éªŒè¯å¹¶ä½¿ç”¨httpsè¿æ¥
     this->base_url = new minio::s3::BaseUrl(endpoint, false);
     this->provider = new minio::creds::StaticProvider(username, passwd);
     this->m_client_ = new minio::s3::Client(*base_url, provider);
-    // ²âÊÔÁ¬½Ó
+    // æµ‹è¯•è¿æ¥
     try {
         minio::s3::ListBucketsArgs args;
         minio::s3::ListBucketsResponse result = this->m_client_->ListBuckets(args);
@@ -50,28 +50,28 @@ bool CAE::initFileSystem_(const std::string &file_path) {
 
 
 void CAE::parseDBPath_(std::string path) {
-    // ²éÕÒµÚÒ»¸öĞ±¸Ü£¬ÌáÈ¡bucket²¿·Ö
+    // æŸ¥æ‰¾ç¬¬ä¸€ä¸ªæ–œæ ï¼Œæå–bucketéƒ¨åˆ†
     size_t firstSlash = path.find('/');
     if (firstSlash == std::string::npos) {
         std::cout << "Invalid path format" << std::endl;
         return;
     }
-    // ²éÕÒµÚ¶ş¸öĞ±¸Ü
+    // æŸ¥æ‰¾ç¬¬äºŒä¸ªæ–œæ 
     size_t secondSlash = path.find('/', firstSlash + 1);
     if (secondSlash == std::string::npos) {
         std::cout << "Invalid path format" << std::endl;
         return;
     }
-    // ²éÕÒ×îºóÒ»¸öĞ±¸Ü£¬ÌáÈ¡object²¿·Ö
+    // æŸ¥æ‰¾æœ€åä¸€ä¸ªæ–œæ ï¼Œæå–objectéƒ¨åˆ†
     size_t lastSlash = path.rfind('/');
     if (lastSlash == std::string::npos || lastSlash == firstSlash) {
         std::cout << "Invalid path format" << std::endl;
         return;
     }
-    // ÌáÈ¡µÚÒ»¸öĞ±¸ÜºÍµÚ¶ş¸öĞ±¸ÜÖ®¼äµÄ²¿·Ö
+    // æå–ç¬¬ä¸€ä¸ªæ–œæ å’Œç¬¬äºŒä¸ªæ–œæ ä¹‹é—´çš„éƒ¨åˆ†
     this->m_bucket_ = path.substr(firstSlash + 1, secondSlash - firstSlash - 1);
-    // ÌáÈ¡ÖĞ¼äµÄprefix²¿·Ö
-    // ½éÓÚµÚ¶ş¸öĞ±¸ÜºÍ×îºóÒ»¸öĞ±¸ÜÖ®¼äµÄ²¿·Ö
+    // æå–ä¸­é—´çš„prefixéƒ¨åˆ†
+    // ä»‹äºç¬¬äºŒä¸ªæ–œæ å’Œæœ€åä¸€ä¸ªæ–œæ ä¹‹é—´çš„éƒ¨åˆ†
     this->m_prefix_ = path.substr(secondSlash + 1, lastSlash - secondSlash - 1);
     this->m_object_ = path.substr(lastSlash + 1);
 }
@@ -91,10 +91,10 @@ bool CAE::checkFilePath_(const std::string &dbName, const std::string &tableName
 }
 
 bool CAE::checkFileExist_(std::string path) {
-    // ÕÒµ½µÚÒ»¸ö·Ç¿Õ°××Ö·ûµÄÎ»ÖÃ
+    // æ‰¾åˆ°ç¬¬ä¸€ä¸ªéç©ºç™½å­—ç¬¦çš„ä½ç½®
     size_t start = path.find_first_not_of(" \t\n\r");
     if (start == std::string::npos) {
-        // È«ÊÇ¿Õ°××Ö·û£¬¿Õ´®
+        // å…¨æ˜¯ç©ºç™½å­—ç¬¦ï¼Œç©ºä¸²
         return false;
     }
     return true;
@@ -110,7 +110,7 @@ void CAE::local2FilePath_(std::string dbName, std::string tableName, const std::
 
 void CAE::getFileName_(std::string &path) {
     size_t pos = path.find_last_of("/");
-    // ÌáÈ¡×îºóÒ»¸öĞ±¸ÜºóÃæµÄ²¿·Ö
+    // æå–æœ€åä¸€ä¸ªæ–œæ åé¢çš„éƒ¨åˆ†
     path = path.substr(pos + 1);
 }
 
@@ -148,7 +148,7 @@ bool CAE::UploadFile(std::string dbName, std::string tableName, const std::strin
     // sql query minio path
     // 1. record exist. col not null ->  minio path
     // 2, record exist. col null ->  make path
-    // 3. record not exist. mapÓ³Éä¶ÔÓ¦²»ÉÏ->  return
+    // 3. record not exist. mapæ˜ å°„å¯¹åº”ä¸ä¸Š->  return
 
     //check the parameters of the function;
 
@@ -187,9 +187,9 @@ bool CAE::UploadFile(std::string dbName, std::string tableName, const std::strin
         this->parseDBPath_(this->m_path_);
     }
 
-    //ÒÔ¶ş½øÖÆ´ò¿ªÎÄ¼ş
+    //ä»¥äºŒè¿›åˆ¶æ‰“å¼€æ–‡ä»¶
     std::ifstream file(local_path, std::ios::binary);
-    //»ñÈ¡ÎÄ¼ş´óĞ¡
+    //è·å–æ–‡ä»¶å¤§å°
     file.seekg(0, std::ios::end);
     std::streamsize file_size = file.tellg();
     file.seekg(0, std::ios::beg);
@@ -204,7 +204,7 @@ bool CAE::UploadFile(std::string dbName, std::string tableName, const std::strin
     // std::cout << "m_object_: " << object << std::endl;
 
     minio::s3::PutObjectArgs args(file, file_size, 0);
-    //ÉÏ´«Â·¾¶£ºbucket/path/path/filename, prefix=path/path/
+    //ä¸Šä¼ è·¯å¾„ï¼šbucket/path/path/filename, prefix=path/path/
     //bucket:this->bucket object:prefix/this->object filename:this->object
     args.bucket = this->m_bucket_;
     args.object = this->m_prefix_ + "/" + this->m_object_;
@@ -212,7 +212,7 @@ bool CAE::UploadFile(std::string dbName, std::string tableName, const std::strin
 
     if (resp) {
         // std::cout << "File is successfully uploaded , updating DM..." << std::endl;
-        // update¡¡DM file path
+        // updateã€€DM file path
         std::string minio_path = "/" + this->m_bucket_ + "/" + tableName + "/" + id + "/" + this->m_object_;
         sprintf(sqlStr, "UPDATE %s.%s SET %s = '%s' WHERE %s ='%s'", dbName.c_str(), tableName.c_str(),
                 col.c_str(), minio_path.c_str(), m_id_.c_str(), id.c_str());
@@ -251,18 +251,43 @@ bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &
     }
     this->parseDBPath_(this->m_path_);
 
-    minio::s3::DownloadObjectArgs args;
+    minio::s3::GetObjectArgs args;
+
+    // Create a stringstream to capture the data.
+    std::stringstream object_data;
 
     args.bucket = this->m_bucket_;
     args.object = this->m_prefix_ + "/" + this->m_object_;
-    args.filename = local_path + "/" + this->m_object_;
-    minio::s3::DownloadObjectResponse resp = this->m_client_->DownloadObject(args);
+    std::cout << args.object << std::endl;
+    std::string path = local_path + "/" + this->m_object_;
 
-    // Handle response.
+    // args.filename = local_path + "/" + this->m_object_;
+    args.datafunc = [&object_data,&path](minio::http::DataFunctionArgs args) -> bool {
+        object_data.write(args.datachunk.data(), args.datachunk.size());
+        // æ‰“å¼€æ–‡ä»¶  è¿›è¡Œå†™å…¥
+        std::ofstream outFile(path, std::ios::binary); // ä»¥äºŒè¿›åˆ¶æ¨¡å¼æ‰“å¼€æ–‡ä»¶
+
+        if (outFile.is_open()) {
+            // å°† stringstream ä¸­çš„å†…å®¹å†™å…¥åˆ°æ–‡ä»¶
+            outFile << object_data.str(); // é€šè¿‡ str() è·å– stringstream çš„å†…å®¹
+            outFile.close(); // å…³é—­æ–‡ä»¶
+        } else {
+            std::cerr << "operate file error." << std::endl;
+        }
+        return true;
+    };
+    // ä¸‹è½½å¯¹è±¡
+    minio::s3::GetObjectResponse resp = this->m_client_->GetObject(args);
+
     if (!resp) {
-        std::cout << "Unable to download object:" << resp.Error().String() << std::endl;
-        return false;
+        std::cerr << "Unable to download object:" << resp.Error().String() << std::endl;
     }
+
+    // // Handle response.
+    // if (!resp) {
+    //     std::cout << "Unable to download object:" << resp.Error().String() << std::endl;
+    //     return false;
+    // }
     return true;
 }
 

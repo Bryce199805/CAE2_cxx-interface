@@ -19,7 +19,7 @@ CAE::~CAE() {
     }
     printf("========== dpi: disconnect from server success! ==========\n");
 
-    // ÊÍ·ÅÁ¬½Ó¾ä±úºÍ»·¾³¾ä±ú
+    // é‡Šæ”¾è¿æ¥å¥æŸ„å’Œç¯å¢ƒå¥æŸ„
     this->m_rt_ = dpi_free_con(this->m_hcon_);
     this->m_rt_ = dpi_free_env(this->m_henv_);
 }
@@ -27,23 +27,25 @@ CAE::~CAE() {
 // private function
 
 bool CAE::initDB_(const std::string &file_path) {
-    // ¶ÁÈ¡yamlÎÄ¼ş
+    // è¯»å–yamlæ–‡ä»¶
     YAML::Node data_config = YAML::LoadFile(file_path);
     if (!data_config) {
         std::cout << "Open config File:" << file_path << " failed.";
         exit(1);
     }
-    // ÉêÇë»·¾³¾ä±ú
+
+    // ç”³è¯·ç¯å¢ƒå¥æŸ„
     this->m_rt_ = dpi_alloc_env(&this->m_henv_);
-    // ÉêÇëÁ¬½Ó¾ä±ú
+    this->m_rt_ = dpi_set_env_attr(this->m_henv_, DSQL_ATTR_LOCAL_CODE, (dpointer)PG_UTF8, sizeof(PG_UTF8));
+    // ç”³è¯·è¿æ¥å¥æŸ„
     this->m_rt_ = dpi_alloc_con(this->m_henv_, &this->m_hcon_);
-    // Á¬½ÓÊı¾İ¿â
+    // è¿æ¥æ•°æ®åº“
     this->m_rt_ = dpi_login(this->m_hcon_,
                             reinterpret_cast<sdbyte *>(data_config["database"]["server"].as<std::string>().data()),
                             reinterpret_cast<sdbyte *>(data_config["database"]["username"].as<std::string>().data()),
                             reinterpret_cast<sdbyte *>(data_config["database"]["passwd"].as<std::string>().data())
     );
-    // ²âÊÔ
+    // æµ‹è¯•
     if (!DSQL_SUCCEEDED(this->m_rt_)) {
         dpiErrorMsgPrint_(DSQL_HANDLE_DBC, this->m_hcon_);
         exit(-1);
@@ -57,14 +59,14 @@ bool CAE::isValidSQLCommand_(const std::string &sql, const std::string type) {
     std::string trimmedSQL = sql;
     trimmedSQL.erase(0, trimmedSQL.find_first_not_of(" \t"));
 
-    // ÕÒµ½µÚÒ»¸öµ¥´Ê
+    // æ‰¾åˆ°ç¬¬ä¸€ä¸ªå•è¯
     size_t pos = trimmedSQL.find(' ');
     std::string firstWord = (pos == std::string::npos) ? trimmedSQL : trimmedSQL.substr(0, pos);
 
-    // ×ª»»ÎªĞ¡Ğ´ÒÔ½øĞĞ²»Çø·Ö´óĞ¡Ğ´±È½Ï
+    // è½¬æ¢ä¸ºå°å†™ä»¥è¿›è¡Œä¸åŒºåˆ†å¤§å°å†™æ¯”è¾ƒ
     std::transform(firstWord.begin(), firstWord.end(), firstWord.begin(), ::tolower);
 
-    // ¼ì²éµÚÒ»¸öµ¥´Ê
+    // æ£€æŸ¥ç¬¬ä¸€ä¸ªå•è¯
     return firstWord == type;
 }
 
@@ -73,7 +75,7 @@ void CAE::dpiErrorMsgPrint_(sdint2 hndl_type, dhandle hndl) {
     sdint2 msg_len;
     sdbyte err_msg[SDBYTE_MAX];
 
-    /* »ñÈ¡´íÎóĞÅÏ¢¼¯ºÏ */
+    /* è·å–é”™è¯¯ä¿¡æ¯é›†åˆ */
     dpi_get_diag_rec(hndl_type, hndl, 1, &err_code, err_msg, sizeof(err_msg), &msg_len);
     std::cout << "err_msg = " << err_msg << ", err_code = " << err_code << std::endl;
 }
@@ -82,22 +84,22 @@ void CAE::dpiErrorMsgPrint_(sdint2 hndl_type, dhandle hndl) {
 
 bool CAE::Query(std::string &sql_str, std::vector<std::vector<std::string> > &res) {
     std::cout << "---------- Query ----------" << std::endl;
-    // ========== ³õÊ¼»¯ÅĞ¶Ï ==========
-    // ÅĞ¶ÏsqlÊÇ·ñÒÔselect¿ªÍ·
+    // ========== åˆå§‹åŒ–åˆ¤æ–­ ==========
+    // åˆ¤æ–­sqlæ˜¯å¦ä»¥selectå¼€å¤´
     if (!this->isValidSQLCommand_(sql_str, "select")) {
         std::cout << "illegal statement." << std::endl;
         return false;
     }
 
-    // ========== sqlÓï¾ä×¼±¸Óë²éÑ¯ ==========
-    // sqlÓï¾äÀàĞÍ×ª»»ÎªDMÀàĞÍ
+    // ========== sqlè¯­å¥å‡†å¤‡ä¸æŸ¥è¯¢ ==========
+    // sqlè¯­å¥ç±»å‹è½¬æ¢ä¸ºDMç±»å‹
     sdbyte *_sql = reinterpret_cast<sdbyte *>(sql_str.data());
-    // ÉêÇëÓï¾ä¾ä±ú
+    // ç”³è¯·è¯­å¥å¥æŸ„
     this->m_rt_ = dpi_alloc_stmt(this->m_hcon_, &this->m_hstmt_);
-    // Ö´ĞĞsqlÓï¾ä
+    // æ‰§è¡Œsqlè¯­å¥
     this->m_rt_ = dpi_exec_direct(this->m_hstmt_, _sql);
 
-    // ÅĞ¶Ï²éÑ¯½á¹û
+    // åˆ¤æ–­æŸ¥è¯¢ç»“æœ
     if (!DSQL_SUCCEEDED(this->m_rt_)) {
         std::cout << "query error!" << std::endl;
         this->dpiErrorMsgPrint_(DSQL_HANDLE_STMT, this->m_hstmt_);
@@ -105,41 +107,41 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<std::string> > &re
         return false;
     }
 
-    // ========== ´¦Àí²éÑ¯½á¹û ==========
-    // »ñÈ¡²éÑ¯½á¹ûÁĞÊı
+    // ========== å¤„ç†æŸ¥è¯¢ç»“æœ ==========
+    // è·å–æŸ¥è¯¢ç»“æœåˆ—æ•°
     sdint2 temp;
     this->m_rt_ = dpi_number_columns(this->m_hstmt_, &temp);
     int col_number = static_cast<int>(temp);
 
-    // ¶¨ÒåÖÇÄÜÖ¸ÕëÊı¾İ´æ´¢½á¹û
+    // å®šä¹‰æ™ºèƒ½æŒ‡é’ˆæ•°æ®å­˜å‚¨ç»“æœ
     std::unique_ptr<char[]> ptr[col_number];
 
-    // ¶¨Òå°ó¶¨½á¹ûËùĞè±äÁ¿
+    // å®šä¹‰ç»‘å®šç»“æœæ‰€éœ€å˜é‡
     const int col_buf_len = 30;
     sdbyte *col_name = new sdbyte[col_buf_len];
     sdint2 name_len, sql_type, dec_digits, nullable;
     ulength col_sz, row_num;
     slength out_length = 0;
 
-    // ´¦Àí°ó¶¨Ã¿Ò»ÁĞÊı¾İ
+    // å¤„ç†ç»‘å®šæ¯ä¸€åˆ—æ•°æ®
     for (int i = 1; i <= col_number; i++) {
-        // ²éÑ¯Ã¿Ò»ÁĞÊı¾İĞÅÏ¢
+        // æŸ¥è¯¢æ¯ä¸€åˆ—æ•°æ®ä¿¡æ¯
         this->m_rt_ = dpi_desc_column(this->m_hstmt_, static_cast<sdint2>(i), col_name, col_buf_len, &name_len,
                                       &sql_type, &col_sz, &dec_digits, &nullable);
         // std::cout << "name " << col_name << " name_len " << name_len << " sqltype " << sql_type << " col_sz " << col_sz << " dec_digits " << dec_digits << " nullable " << nullable<< std::endl;
 
-        // ³õÊ¼»¯ÁĞÊı×é
+        // åˆå§‹åŒ–åˆ—æ•°ç»„
         ptr[i - 1] = std::make_unique<char[]>(col_sz + 1);
-        // °ó¶¨Êı¾İµ½ÁĞ
+        // ç»‘å®šæ•°æ®åˆ°åˆ—
         this->m_rt_ = dpi_bind_col(
             this->m_hstmt_, i, DSQL_C_NCHAR, static_cast<void *>(ptr[i - 1].get()), col_sz + 1, &out_length);
     }
-    // ÊÍ·ÅÁĞÃû´æ´¢¿Õ¼äÖ¸ÕëÖÃ¿Õ
+    // é‡Šæ”¾åˆ—åå­˜å‚¨ç©ºé—´æŒ‡é’ˆç½®ç©º
     delete[] col_name;
     col_name = nullptr;
 
 
-    // Ñ­»·¶Á³öÃ¿Ò»ĞĞ¼ÇÂ¼
+    // å¾ªç¯è¯»å‡ºæ¯ä¸€è¡Œè®°å½•
     while (dpi_fetch(this->m_hstmt_, &row_num) != DSQL_NO_DATA) {
         std::vector<std::string> temp;
         for (int i = 0; i < col_number; i++) {
@@ -148,9 +150,9 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<std::string> > &re
         res.push_back(temp);
     }
 
-    //todo Ìí¼ÓÈÕÖ¾Ğ´Èë²¿·Ö
+    //todo æ·»åŠ æ—¥å¿—å†™å…¥éƒ¨åˆ†
 
-    // ÊÍ·ÅÓï¾ä¾ä±ú
+    // é‡Šæ”¾è¯­å¥å¥æŸ„
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
     std::cout << "query success!" << std::endl;
@@ -159,22 +161,22 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<std::string> > &re
 
 bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res) {
     std::cout << "---------- Query ----------" << std::endl;
-    // ========== ³õÊ¼»¯ÅĞ¶Ï ==========
-    // ÅĞ¶ÏsqlÊÇ·ñÒÔselect¿ªÍ·
+    // ========== åˆå§‹åŒ–åˆ¤æ–­ ==========
+    // åˆ¤æ–­sqlæ˜¯å¦ä»¥selectå¼€å¤´
     if (!this->isValidSQLCommand_(sql_str, "select")) {
         std::cout << "illegal statement." << std::endl;
         return false;
     }
 
-    // ========== sqlÓï¾ä×¼±¸Óë²éÑ¯ ==========
-    // sqlÓï¾äÀàĞÍ×ª»»ÎªDMÀàĞÍ
+    // ========== sqlè¯­å¥å‡†å¤‡ä¸æŸ¥è¯¢ ==========
+    // sqlè¯­å¥ç±»å‹è½¬æ¢ä¸ºDMç±»å‹
     sdbyte *_sql = reinterpret_cast<sdbyte *>(sql_str.data());
-    // ÉêÇëÓï¾ä¾ä±ú
+    // ç”³è¯·è¯­å¥å¥æŸ„
     this->m_rt_ = dpi_alloc_stmt(this->m_hcon_, &this->m_hstmt_);
-    // Ö´ĞĞsqlÓï¾ä
+    // æ‰§è¡Œsqlè¯­å¥
     this->m_rt_ = dpi_exec_direct(this->m_hstmt_, _sql);
 
-    // ÅĞ¶Ï²éÑ¯½á¹û
+    // åˆ¤æ–­æŸ¥è¯¢ç»“æœ
     if (!DSQL_SUCCEEDED(this->m_rt_)) {
         std::cout << "query error!" << std::endl;
         this->dpiErrorMsgPrint_(DSQL_HANDLE_STMT, this->m_hstmt_);
@@ -182,16 +184,16 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res)
         return false;
     }
 
-    // ========== ´¦Àí²éÑ¯½á¹û ==========
-    // »ñÈ¡²éÑ¯½á¹ûÁĞÊı
+    // ========== å¤„ç†æŸ¥è¯¢ç»“æœ ==========
+    // è·å–æŸ¥è¯¢ç»“æœåˆ—æ•°
     sdint2 temp;
     this->m_rt_ = dpi_number_columns(this->m_hstmt_, &temp);
     int col_number = static_cast<int>(temp);
 
-    // ¶¨ÒåÖÇÄÜÖ¸ÕëÊı¾İ´æ´¢½á¹û
+    // å®šä¹‰æ™ºèƒ½æŒ‡é’ˆæ•°æ®å­˜å‚¨ç»“æœ
     std::unique_ptr<char[]> ptr[col_number];
 
-    // ¶¨Òå°ó¶¨½á¹ûËùĞè±äÁ¿
+    // å®šä¹‰ç»‘å®šç»“æœæ‰€éœ€å˜é‡
     const int col_buf_len = 30;
     sdbyte *col_name = new sdbyte[col_buf_len];
     sdint2 name_len, sql_type, dec_digits, nullable;
@@ -199,24 +201,24 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res)
     slength out_length = 0;
     std::vector<int> types;
 
-    // ´¦Àí°ó¶¨Ã¿Ò»ÁĞÊı¾İ
+    // å¤„ç†ç»‘å®šæ¯ä¸€åˆ—æ•°æ®
     for (int i = 1; i <= col_number; i++) {
-        // ²éÑ¯Ã¿Ò»ÁĞÊı¾İĞÅÏ¢
+        // æŸ¥è¯¢æ¯ä¸€åˆ—æ•°æ®ä¿¡æ¯
         this->m_rt_ = dpi_desc_column(this->m_hstmt_, static_cast<sdint2>(i), col_name, col_buf_len, &name_len,
                                       &sql_type, &col_sz, &dec_digits, &nullable);
         // std::cout << "name " << col_name << " name_len " << name_len << " sqltype " << sql_type << " col_sz " << col_sz << " dec_digits " << dec_digits << " nullable " << nullable<< std::endl;
         types.push_back(static_cast<int>(sql_type));
-        // ³õÊ¼»¯ÁĞÊı×é
+        // ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         ptr[i - 1] = std::make_unique<char[]>(col_sz + 1);
-        // °ó¶¨Êı¾İµ½ÁĞ
+        // ï¿½ï¿½ï¿½ï¿½ï¿½İµï¿½ï¿½ï¿½
         this->m_rt_ = dpi_bind_col(
             this->m_hstmt_, i, DSQL_C_NCHAR, static_cast<void *>(ptr[i - 1].get()), col_sz + 1, &out_length);
     }
-    // ÊÍ·ÅÁĞÃû´æ´¢¿Õ¼äÖ¸ÕëÖÃ¿Õ
+    // ï¿½Í·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æ´¢ï¿½Õ¼ï¿½Ö¸ï¿½ï¿½ï¿½Ã¿ï¿½
     delete[] col_name;
     col_name = nullptr;
 
-    // Ñ­»·¶Á³öÃ¿Ò»ĞĞ¼ÇÂ¼
+    // Ñ­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã¿Ò»ï¿½Ğ¼ï¿½Â¼
     while (dpi_fetch(this->m_hstmt_, &row_num) != DSQL_NO_DATA) {
         std::vector<DBVariant> temp;
         std::string str;
@@ -247,9 +249,9 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res)
         res.push_back(temp);
     }
 
-    //todo Ìí¼ÓÈÕÖ¾Ğ´Èë²¿·Ö
+    //todo ï¿½ï¿½ï¿½ï¿½ï¿½Ö¾Ğ´ï¿½ë²¿ï¿½ï¿½
 
-    // ÊÍ·ÅÓï¾ä¾ä±ú
+    // ï¿½Í·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
     std::cout << "query success!" << std::endl;
@@ -258,22 +260,22 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res)
 
 bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res, std::vector<int> &col_types) {
     std::cout << "---------- Query ----------" << std::endl;
-    // ========== ³õÊ¼»¯ÅĞ¶Ï ==========
-    // ÅĞ¶ÏsqlÊÇ·ñÒÔselect¿ªÍ·
+    // ========== ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½Ğ¶ï¿½ ==========
+    // ï¿½Ğ¶ï¿½sqlï¿½Ç·ï¿½ï¿½ï¿½selectï¿½ï¿½Í·
     if (!this->isValidSQLCommand_(sql_str, "select")) {
         std::cout << "illegal statement." << std::endl;
         return false;
     }
 
-    // ========== sqlÓï¾ä×¼±¸Óë²éÑ¯ ==========
-    // sqlÓï¾äÀàĞÍ×ª»»ÎªDMÀàĞÍ
+    // ========== sqlï¿½ï¿½ï¿½×¼ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¯ ==========
+    // sqlï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ÎªDMï¿½ï¿½ï¿½ï¿½
     sdbyte *_sql = reinterpret_cast<sdbyte *>(sql_str.data());
-    // ÉêÇëÓï¾ä¾ä±ú
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     this->m_rt_ = dpi_alloc_stmt(this->m_hcon_, &this->m_hstmt_);
-    // Ö´ĞĞsqlÓï¾ä
+    // Ö´ï¿½ï¿½sqlï¿½ï¿½ï¿½
     this->m_rt_ = dpi_exec_direct(this->m_hstmt_, _sql);
 
-    // ÅĞ¶Ï²éÑ¯½á¹û
+    // ï¿½Ğ¶Ï²ï¿½Ñ¯ï¿½ï¿½ï¿½
     if (!DSQL_SUCCEEDED(this->m_rt_)) {
         std::cout << "query error!" << std::endl;
         this->dpiErrorMsgPrint_(DSQL_HANDLE_STMT, this->m_hstmt_);
@@ -281,16 +283,16 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res,
         return false;
     }
 
-    // ========== ´¦Àí²éÑ¯½á¹û ==========
-    // »ñÈ¡²éÑ¯½á¹ûÁĞÊı
+    // ========== ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½ ==========
+    // ï¿½ï¿½È¡ï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     sdint2 temp;
     this->m_rt_ = dpi_number_columns(this->m_hstmt_, &temp);
     int col_number = static_cast<int>(temp);
 
-    // ¶¨ÒåÖÇÄÜÖ¸ÕëÊı¾İ´æ´¢½á¹û
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½İ´æ´¢ï¿½ï¿½ï¿½
     std::unique_ptr<char[]> ptr[col_number];
 
-    // ¶¨Òå°ó¶¨½á¹ûËùĞè±äÁ¿
+    // ï¿½ï¿½ï¿½ï¿½ó¶¨½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     const int col_buf_len = 30;
     sdbyte *col_name = new sdbyte[col_buf_len];
     sdint2 name_len, sql_type, dec_digits, nullable;
@@ -298,24 +300,24 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res,
     slength out_length = 0;
     std::vector<int> types;
 
-    // ´¦Àí°ó¶¨Ã¿Ò»ÁĞÊı¾İ
+    // ï¿½ï¿½ï¿½ï¿½ï¿½Ã¿Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     for (int i = 1; i <= col_number; i++) {
-        // ²éÑ¯Ã¿Ò»ÁĞÊı¾İĞÅÏ¢
+        // ï¿½ï¿½Ñ¯Ã¿Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
         this->m_rt_ = dpi_desc_column(this->m_hstmt_, static_cast<sdint2>(i), col_name, col_buf_len, &name_len,
                                       &sql_type, &col_sz, &dec_digits, &nullable);
         // std::cout << "name " << col_name << " name_len " << name_len << " sqltype " << sql_type << " col_sz " << col_sz << " dec_digits " << dec_digits << " nullable " << nullable<< std::endl;
         types.push_back(static_cast<int>(sql_type));
-        // ³õÊ¼»¯ÁĞÊı×é
+        // ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         ptr[i - 1] = std::make_unique<char[]>(col_sz + 1);
-        // °ó¶¨Êı¾İµ½ÁĞ
+        // ï¿½ï¿½ï¿½ï¿½ï¿½İµï¿½ï¿½ï¿½
         this->m_rt_ = dpi_bind_col(
             this->m_hstmt_, i, DSQL_C_NCHAR, static_cast<void *>(ptr[i - 1].get()), col_sz + 1, &out_length);
     }
-    // ÊÍ·ÅÁĞÃû´æ´¢¿Õ¼äÖ¸ÕëÖÃ¿Õ
+    // ï¿½Í·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æ´¢ï¿½Õ¼ï¿½Ö¸ï¿½ï¿½ï¿½Ã¿ï¿½
     delete[] col_name;
     col_name = nullptr;
 
-    // Ñ­»·¶Á³öÃ¿Ò»ĞĞ¼ÇÂ¼
+    // Ñ­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã¿Ò»ï¿½Ğ¼ï¿½Â¼
     while (dpi_fetch(this->m_hstmt_, &row_num) != DSQL_NO_DATA) {
         std::vector<DBVariant> temp;
         std::string str;
@@ -350,9 +352,9 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res,
         res.push_back(temp);
     }
 
-    //todo Ìí¼ÓÈÕÖ¾Ğ´Èë²¿·Ö
+    //todo ï¿½ï¿½ï¿½ï¿½ï¿½Ö¾Ğ´ï¿½ë²¿ï¿½ï¿½
 
-    // ÊÍ·ÅÓï¾ä¾ä±ú
+    // ï¿½Í·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
     std::cout << "query success!" << std::endl;
@@ -361,21 +363,21 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res,
 
 bool CAE::Delete(std::string &sql_str) {
     std::cout << "---------- Delete ----------" << std::endl;
-    // ========== ³õÊ¼»¯ÅĞ¶Ï ==========
-    // ÅĞ¶ÏsqlÊÇ·ñÒÔdelete¿ªÍ·
+    // ========== ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½Ğ¶ï¿½ ==========
+    // ï¿½Ğ¶ï¿½sqlï¿½Ç·ï¿½ï¿½ï¿½deleteï¿½ï¿½Í·
     if (!this->isValidSQLCommand_(sql_str, "delete")) {
         std::cout << "illegal statement." << std::endl;
         return false;
     }
 
-    // ========== sqlÓï¾ä×¼±¸ÓëÖ´ĞĞ ==========
+    // ========== sqlï¿½ï¿½ï¿½×¼ï¿½ï¿½ï¿½ï¿½Ö´ï¿½ï¿½ ==========
     sdbyte *_sql = reinterpret_cast<sdbyte *>(sql_str.data());
-    // ÉêÇëÓï¾ä¾ä±ú
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     this->m_rt_ = dpi_alloc_stmt(this->m_hcon_, &this->m_hstmt_);
-    // Ö´ĞĞsqlÓï¾ä
+    // Ö´ï¿½ï¿½sqlï¿½ï¿½ï¿½
     this->m_rt_ = dpi_exec_direct(this->m_hstmt_, _sql);
 
-    //todo Ìí¼ÓÈÕÖ¾Ğ´Èë²¿·Ö
+    //todo ï¿½ï¿½ï¿½ï¿½ï¿½Ö¾Ğ´ï¿½ë²¿ï¿½ï¿½
 
     if (!DSQL_SUCCEEDED(this->m_rt_)) {
         std::cout << "delete error!" << std::endl;
@@ -384,7 +386,7 @@ bool CAE::Delete(std::string &sql_str) {
         return false;
     }
 
-    // ÊÍ·ÅÓï¾ä¾ä±ú
+    // ï¿½Í·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
     std::cout << "delete success!" << std::endl;
     return true;
@@ -392,21 +394,21 @@ bool CAE::Delete(std::string &sql_str) {
 
 bool CAE::Update(std::string &sql_str) {
     std::cout << "---------- Update ----------" << std::endl;
-    // ========== ³õÊ¼»¯ÅĞ¶Ï ==========
-    // ÅĞ¶ÏsqlÊÇ·ñÒÔupdate¿ªÍ·
+    // ========== ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½Ğ¶ï¿½ ==========
+    // ï¿½Ğ¶ï¿½sqlï¿½Ç·ï¿½ï¿½ï¿½updateï¿½ï¿½Í·
     if (!this->isValidSQLCommand_(sql_str, "update")) {
         std::cout << "illegal statement." << std::endl;
         return false;
     }
 
-    // ========== sqlÓï¾ä×¼±¸ÓëÖ´ĞĞ ==========
+    // ========== sqlï¿½ï¿½ï¿½×¼ï¿½ï¿½ï¿½ï¿½Ö´ï¿½ï¿½ ==========
     sdbyte *_sql = reinterpret_cast<sdbyte *>(sql_str.data());
-    // ÉêÇëÓï¾ä¾ä±ú
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     this->m_rt_ = dpi_alloc_stmt(this->m_hcon_, &this->m_hstmt_);
-    // Ö´ĞĞsqlÓï¾ä
+    // Ö´ï¿½ï¿½sqlï¿½ï¿½ï¿½
     this->m_rt_ = dpi_exec_direct(this->m_hstmt_, _sql);
 
-    //todo Ìí¼ÓÈÕÖ¾Ğ´Èë²¿·Ö
+    //todo ï¿½ï¿½ï¿½ï¿½ï¿½Ö¾Ğ´ï¿½ë²¿ï¿½ï¿½
 
     if (!DSQL_SUCCEEDED(this->m_rt_)) {
         std::cout << "update error!" << std::endl;
@@ -415,7 +417,7 @@ bool CAE::Update(std::string &sql_str) {
         return false;
     }
 
-    // ÊÍ·ÅÓï¾ä¾ä±ú
+    // ï¿½Í·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
     std::cout << "update success!" << std::endl;
     return true;
@@ -423,21 +425,21 @@ bool CAE::Update(std::string &sql_str) {
 
 bool CAE::Insert(std::string &sql_str) {
     std::cout << "---------- Insert ----------" << std::endl;
-    // ========== ³õÊ¼»¯ÅĞ¶Ï ==========
-    // ÅĞ¶ÏsqlÊÇ·ñÒÔinsert¿ªÍ·
+    // ========== ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½Ğ¶ï¿½ ==========
+    // ï¿½Ğ¶ï¿½sqlï¿½Ç·ï¿½ï¿½ï¿½insertï¿½ï¿½Í·
     if (!this->isValidSQLCommand_(sql_str, "insert")) {
         std::cout << "illegal statement." << std::endl;
         return false;
     }
 
-    // ========== sqlÓï¾ä×¼±¸ÓëÖ´ĞĞ ==========
+    // ========== sqlï¿½ï¿½ï¿½×¼ï¿½ï¿½ï¿½ï¿½Ö´ï¿½ï¿½ ==========
     sdbyte *_sql = reinterpret_cast<sdbyte *>(sql_str.data());
-    // ÉêÇëÓï¾ä¾ä±ú
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     this->m_rt_ = dpi_alloc_stmt(this->m_hcon_, &this->m_hstmt_);
-    // Ö´ĞĞsqlÓï¾ä
+    // Ö´ï¿½ï¿½sqlï¿½ï¿½ï¿½
     this->m_rt_ = dpi_exec_direct(this->m_hstmt_, _sql);
 
-    //todo Ìí¼ÓÈÕÖ¾Ğ´Èë²¿·Ö
+    //todo ï¿½ï¿½ï¿½ï¿½ï¿½Ö¾Ğ´ï¿½ë²¿ï¿½ï¿½
 
     if (!DSQL_SUCCEEDED(this->m_rt_)) {
         std::cout << "insert error!" << std::endl;
@@ -446,7 +448,7 @@ bool CAE::Insert(std::string &sql_str) {
         return false;
     }
 
-    // ÊÍ·ÅÓï¾ä¾ä±ú
+    // ï¿½Í·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
     std::cout << "insert success!" << std::endl;
     return true;
