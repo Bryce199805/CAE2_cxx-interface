@@ -208,17 +208,17 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res)
                                       &sql_type, &col_sz, &dec_digits, &nullable);
         // std::cout << "name " << col_name << " name_len " << name_len << " sqltype " << sql_type << " col_sz " << col_sz << " dec_digits " << dec_digits << " nullable " << nullable<< std::endl;
         types.push_back(static_cast<int>(sql_type));
-        // ��ʼ��������
+        // 初始化列数组
         ptr[i - 1] = std::make_unique<char[]>(col_sz + 1);
-        // �����ݵ���
+        // 绑定数据到列
         this->m_rt_ = dpi_bind_col(
             this->m_hstmt_, i, DSQL_C_NCHAR, static_cast<void *>(ptr[i - 1].get()), col_sz + 1, &out_length);
     }
-    // �ͷ������洢�ռ�ָ���ÿ�
+    // 释放列名存储空间指针置空
     delete[] col_name;
     col_name = nullptr;
 
-    // ѭ������ÿһ�м�¼
+    // 循环读出每一行记录
     while (dpi_fetch(this->m_hstmt_, &row_num) != DSQL_NO_DATA) {
         std::vector<DBVariant> temp;
         std::string str;
@@ -249,9 +249,9 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res)
         res.push_back(temp);
     }
 
-    //todo �����־д�벿��
+    //todo 添加日志写入部分
 
-    // �ͷ������
+    // 释放语句句柄
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
     std::cout << "query success!" << std::endl;
@@ -260,22 +260,22 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res)
 
 bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res, std::vector<int> &col_types) {
     std::cout << "---------- Query ----------" << std::endl;
-    // ========== ��ʼ���ж� ==========
-    // �ж�sql�Ƿ���select��ͷ
+    // ========== 初始化判断 ==========
+    // 判断sql是否以select开头
     if (!this->isValidSQLCommand_(sql_str, "select")) {
         std::cout << "illegal statement." << std::endl;
         return false;
     }
 
-    // ========== sql���׼�����ѯ ==========
-    // sql�������ת��ΪDM����
+    // ========== sql语句准备与查询 ==========
+    // sql语句类型转换为DM类型
     sdbyte *_sql = reinterpret_cast<sdbyte *>(sql_str.data());
-    // ���������
+    // 申请语句句柄
     this->m_rt_ = dpi_alloc_stmt(this->m_hcon_, &this->m_hstmt_);
-    // ִ��sql���
+    // 执行sql语句
     this->m_rt_ = dpi_exec_direct(this->m_hstmt_, _sql);
 
-    // �жϲ�ѯ���
+    // 判断查询结果
     if (!DSQL_SUCCEEDED(this->m_rt_)) {
         std::cout << "query error!" << std::endl;
         this->dpiErrorMsgPrint_(DSQL_HANDLE_STMT, this->m_hstmt_);
@@ -283,16 +283,16 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res,
         return false;
     }
 
-    // ========== �����ѯ��� ==========
-    // ��ȡ��ѯ�������
+    // ========== 处理查询结果 ==========
+    // 获取查询结果列数
     sdint2 temp;
     this->m_rt_ = dpi_number_columns(this->m_hstmt_, &temp);
     int col_number = static_cast<int>(temp);
 
-    // ��������ָ�����ݴ洢���
+    // 定义智能指针数据存储结果
     std::unique_ptr<char[]> ptr[col_number];
 
-    // ����󶨽���������
+    // 定义绑定结果所需变量
     const int col_buf_len = 30;
     sdbyte *col_name = new sdbyte[col_buf_len];
     sdint2 name_len, sql_type, dec_digits, nullable;
@@ -300,24 +300,24 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res,
     slength out_length = 0;
     std::vector<int> types;
 
-    // �����ÿһ������
+    // 处理绑定每一列数据
     for (int i = 1; i <= col_number; i++) {
-        // ��ѯÿһ��������Ϣ
+        // 查询每一列数据信息
         this->m_rt_ = dpi_desc_column(this->m_hstmt_, static_cast<sdint2>(i), col_name, col_buf_len, &name_len,
                                       &sql_type, &col_sz, &dec_digits, &nullable);
         // std::cout << "name " << col_name << " name_len " << name_len << " sqltype " << sql_type << " col_sz " << col_sz << " dec_digits " << dec_digits << " nullable " << nullable<< std::endl;
         types.push_back(static_cast<int>(sql_type));
-        // ��ʼ��������
+        // 初始化列数组
         ptr[i - 1] = std::make_unique<char[]>(col_sz + 1);
-        // �����ݵ���
+        // 绑定数据到列
         this->m_rt_ = dpi_bind_col(
             this->m_hstmt_, i, DSQL_C_NCHAR, static_cast<void *>(ptr[i - 1].get()), col_sz + 1, &out_length);
     }
-    // �ͷ������洢�ռ�ָ���ÿ�
+    // 释放列名存储空间指针置空
     delete[] col_name;
     col_name = nullptr;
 
-    // ѭ������ÿһ�м�¼
+    // 循环读出每一行记录
     while (dpi_fetch(this->m_hstmt_, &row_num) != DSQL_NO_DATA) {
         std::vector<DBVariant> temp;
         std::string str;
@@ -352,9 +352,9 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res,
         res.push_back(temp);
     }
 
-    //todo �����־д�벿��
+    //todo 添加日志写入部分
 
-    // �ͷ������
+    // 释放语句句柄
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
     std::cout << "query success!" << std::endl;
@@ -363,21 +363,21 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res,
 
 bool CAE::Delete(std::string &sql_str) {
     std::cout << "---------- Delete ----------" << std::endl;
-    // ========== ��ʼ���ж� ==========
-    // �ж�sql�Ƿ���delete��ͷ
+    // ========== 初始化判断 ==========
+    // 判断sql是否以delete开头
     if (!this->isValidSQLCommand_(sql_str, "delete")) {
         std::cout << "illegal statement." << std::endl;
         return false;
     }
 
-    // ========== sql���׼����ִ�� ==========
+    // ========== sql语句准备与执行 ==========
     sdbyte *_sql = reinterpret_cast<sdbyte *>(sql_str.data());
-    // ���������
+    // 申请语句句柄
     this->m_rt_ = dpi_alloc_stmt(this->m_hcon_, &this->m_hstmt_);
-    // ִ��sql���
+    // 执行sql语句
     this->m_rt_ = dpi_exec_direct(this->m_hstmt_, _sql);
 
-    //todo �����־д�벿��
+    //todo 添加日志写入部分
 
     if (!DSQL_SUCCEEDED(this->m_rt_)) {
         std::cout << "delete error!" << std::endl;
@@ -386,7 +386,7 @@ bool CAE::Delete(std::string &sql_str) {
         return false;
     }
 
-    // �ͷ������
+    // 释放语句句柄
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
     std::cout << "delete success!" << std::endl;
     return true;
@@ -394,21 +394,21 @@ bool CAE::Delete(std::string &sql_str) {
 
 bool CAE::Update(std::string &sql_str) {
     std::cout << "---------- Update ----------" << std::endl;
-    // ========== ��ʼ���ж� ==========
-    // �ж�sql�Ƿ���update��ͷ
+    // ========== 初始化判断 ==========
+    // 判断sql是否以update开头
     if (!this->isValidSQLCommand_(sql_str, "update")) {
         std::cout << "illegal statement." << std::endl;
         return false;
     }
 
-    // ========== sql���׼����ִ�� ==========
+    // ========== sql语句准备与执行 ==========
     sdbyte *_sql = reinterpret_cast<sdbyte *>(sql_str.data());
-    // ���������
+    // 申请语句句柄
     this->m_rt_ = dpi_alloc_stmt(this->m_hcon_, &this->m_hstmt_);
-    // ִ��sql���
+    // 执行sql语句
     this->m_rt_ = dpi_exec_direct(this->m_hstmt_, _sql);
 
-    //todo �����־д�벿��
+    //todo 添加日志写入部分
 
     if (!DSQL_SUCCEEDED(this->m_rt_)) {
         std::cout << "update error!" << std::endl;
@@ -417,7 +417,7 @@ bool CAE::Update(std::string &sql_str) {
         return false;
     }
 
-    // �ͷ������
+    // 释放语句句柄
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
     std::cout << "update success!" << std::endl;
     return true;
@@ -425,21 +425,21 @@ bool CAE::Update(std::string &sql_str) {
 
 bool CAE::Insert(std::string &sql_str) {
     std::cout << "---------- Insert ----------" << std::endl;
-    // ========== ��ʼ���ж� ==========
-    // �ж�sql�Ƿ���insert��ͷ
+    // ========== 初始化判断 ==========
+    // 判断sql是否以insert开头
     if (!this->isValidSQLCommand_(sql_str, "insert")) {
         std::cout << "illegal statement." << std::endl;
         return false;
     }
 
-    // ========== sql���׼����ִ�� ==========
+    // ========== sql语句准备与执行 ==========
     sdbyte *_sql = reinterpret_cast<sdbyte *>(sql_str.data());
-    // ���������
+    // 申请语句句柄
     this->m_rt_ = dpi_alloc_stmt(this->m_hcon_, &this->m_hstmt_);
-    // ִ��sql���
+    // 执行sql语句
     this->m_rt_ = dpi_exec_direct(this->m_hstmt_, _sql);
 
-    //todo �����־д�벿��
+    //todo 添加日志写入部分
 
     if (!DSQL_SUCCEEDED(this->m_rt_)) {
         std::cout << "insert error!" << std::endl;
@@ -448,7 +448,7 @@ bool CAE::Insert(std::string &sql_str) {
         return false;
     }
 
-    // �ͷ������
+    // 释放语句句柄
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
     std::cout << "insert success!" << std::endl;
     return true;

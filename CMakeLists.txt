@@ -66,24 +66,24 @@ else()
      target_link_libraries(CAE2Test PUBLIC dmdpi yaml-cpp)
 endif ()
 
-# °²×°Ä¿±ê
+# å®‰è£…ç›®æ ‡
 install(TARGETS CAE2 ARCHIVE DESTINATION lib)
 install(DIRECTORY include/ DESTINATION include)
 
-# °²×°Êı¾İ¿âÏà¹ØÒÀÀµ
+# å®‰è£…æ•°æ®åº“ç›¸å…³ä¾èµ–
 install(DIRECTORY pkg/dm_driver/bin/ DESTINATION lib
-        FILES_MATCHING PATTERN "*.dll"  # Ö»Æ¥Åä .so ÎÄ¼ş
+        FILES_MATCHING PATTERN "*.dll"  # åªåŒ¹é… .so æ–‡ä»¶
 )
 install(DIRECTORY pkg/dm_driver/include/ DESTINATION include)
 
-# °²×°ÊıyamlÏà¹ØÒÀÀµ
+# å®‰è£…æ•°yamlç›¸å…³ä¾èµ–
 install(DIRECTORY pkg/yaml-cxx/bin/ DESTINATION lib
-        FILES_MATCHING PATTERN "*.dll"  # Ö»Æ¥Åä .so ÎÄ¼ş
+        FILES_MATCHING PATTERN "*.dll"  # åªåŒ¹é… .so æ–‡ä»¶
 )
 install(DIRECTORY pkg/yaml-cxx/include/ DESTINATION include)
 
 if (USE_FILESYSTEM)
-     # °²×°ÎÄ¼şÏµÍ³Ïà¹ØÒÀÀµ
+     # å®‰è£…æ–‡ä»¶ç³»ç»Ÿç›¸å…³ä¾èµ–
      install(FILES ./config.yaml DESTINATION .)
 else()
      install(FILES ./config.yaml DESTINATION .)
