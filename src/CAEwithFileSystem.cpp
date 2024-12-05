@@ -27,9 +27,9 @@ bool CAE::initFileSystem_(const std::string &file_path) {
         exit(0);
     }
     // 提取配置项
-    std::string endpoint = data_config["minio"]["endpoint"].as<std::string>();
-    std::string username = data_config["minio"]["username"].as<std::string>();
-    std::string passwd = data_config["minio"]["passwd"].as<std::string>();
+    std::string endpoint = data_config["fileSystem"]["endpoint"].as<std::string>();
+    std::string username = data_config["fileSystem"]["username"].as<std::string>();
+    std::string passwd = data_config["fileSystem"]["passwd"].as<std::string>();
 
     // 注意：使用SSE-C加密需开启HTTPS服务，否则报错，开启后，关闭baseurl的验证并使用https连接
     this->base_url = new minio::s3::BaseUrl(endpoint, false);
