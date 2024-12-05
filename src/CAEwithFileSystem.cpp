@@ -126,8 +126,8 @@ std::string CAE::TransDBName_(std::string dbName) {
 }
 
 void CAE::UpperName_(std::string &dbName, std::string &tableName) {
-        std::transform(dbName.begin(), dbName.end(), dbName.begin(), ::toupper);
-        std::transform(tableName.begin(), tableName.end(), tableName.begin(), ::toupper);
+    std::transform(dbName.begin(), dbName.end(), dbName.begin(), ::toupper);
+    std::transform(tableName.begin(), tableName.end(), tableName.begin(), ::toupper);
 }
 
 //public function
