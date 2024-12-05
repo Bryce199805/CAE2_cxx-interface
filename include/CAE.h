@@ -43,8 +43,15 @@ private:
 
     bool initDB_(const std::string &file_path);
 
+    void releaseDB_();
+
 #ifdef USE_FILESYSTEM
     // 定义文件系统私有成员
+    minio::s3::BaseUrl *base_url;
+    minio::creds::StaticProvider *provider;
+    minio::s3::Client *m_client_ = nullptr;
+    std::vector<std::vector<std::string> > m_res_; //查询结果
+
     std::string m_bucket_; //桶名
     std::string m_prefix_; //前缀名
     std::string m_object_; //文件名
@@ -54,7 +61,6 @@ private:
     std::vector<std::vector<DBVariant> > m_result_;
     std::vector<int> m_col_types_;
 
-    std::vector<std::vector<std::string> > m_res_; //查询结果
 
     // init file system.
     bool initFileSystem_(const std::string &file_path);
@@ -133,9 +139,6 @@ public:
 
 
 #ifdef USE_FILESYSTEM
-    minio::s3::BaseUrl *base_url;
-    minio::creds::StaticProvider *provider;
-    minio::s3::Client *m_client_ = nullptr;
 
     CAE(const std::string &file_path, bool withFile);
 
