@@ -11,17 +11,7 @@ CAE::CAE(const std::string &file_path) {
 }
 
 CAE::~CAE() {
-    this->m_rt_ = dpi_logout(this->m_hcon_);
-
-    if (!DSQL_SUCCEEDED(this->m_rt_)) {
-        this->dpiErrorMsgPrint_(DSQL_HANDLE_DBC, this->m_hcon_);
-        exit(-1);
-    }
-    printf("========== dpi: disconnect from server success! ==========\n");
-
-    // 释放连接句柄和环境句柄
-    this->m_rt_ = dpi_free_con(this->m_hcon_);
-    this->m_rt_ = dpi_free_env(this->m_henv_);
+    this->releaseDB_();
 }
 
 // private function
@@ -36,7 +26,7 @@ bool CAE::initDB_(const std::string &file_path) {
 
     // 申请环境句柄
     this->m_rt_ = dpi_alloc_env(&this->m_henv_);
-    this->m_rt_ = dpi_set_env_attr(this->m_henv_, DSQL_ATTR_LOCAL_CODE, (dpointer)PG_UTF8, sizeof(PG_UTF8));
+    this->m_rt_ = dpi_set_env_attr(this->m_henv_, DSQL_ATTR_LOCAL_CODE, (dpointer) PG_UTF8, sizeof(PG_UTF8));
     // 申请连接句柄
     this->m_rt_ = dpi_alloc_con(this->m_henv_, &this->m_hcon_);
     // 连接数据库
@@ -53,6 +43,20 @@ bool CAE::initDB_(const std::string &file_path) {
     printf("========== dpi: connect to server success! ==========\n");
 
     return true;
+}
+
+void CAE::releaseDB_() {
+    this->m_rt_ = dpi_logout(this->m_hcon_);
+
+    if (!DSQL_SUCCEEDED(this->m_rt_)) {
+        this->dpiErrorMsgPrint_(DSQL_HANDLE_DBC, this->m_hcon_);
+        exit(-1);
+    }
+    printf("========== dpi: disconnect from server success! ==========\n");
+
+    // 释放连接句柄和环境句柄
+    this->m_rt_ = dpi_free_con(this->m_hcon_);
+    this->m_rt_ = dpi_free_env(this->m_henv_);
 }
 
 bool CAE::isValidSQLCommand_(const std::string &sql, const std::string type) {
@@ -134,7 +138,7 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<std::string> > &re
         ptr[i - 1] = std::make_unique<char[]>(col_sz + 1);
         // 绑定数据到列
         this->m_rt_ = dpi_bind_col(
-            this->m_hstmt_, i, DSQL_C_NCHAR, static_cast<void *>(ptr[i - 1].get()), col_sz + 1, &out_length);
+                this->m_hstmt_, i, DSQL_C_NCHAR, static_cast<void *>(ptr[i - 1].get()), col_sz + 1, &out_length);
     }
     // 释放列名存储空间指针置空
     delete[] col_name;
@@ -212,7 +216,7 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res)
         ptr[i - 1] = std::make_unique<char[]>(col_sz + 1);
         // 绑定数据到列
         this->m_rt_ = dpi_bind_col(
-            this->m_hstmt_, i, DSQL_C_NCHAR, static_cast<void *>(ptr[i - 1].get()), col_sz + 1, &out_length);
+                this->m_hstmt_, i, DSQL_C_NCHAR, static_cast<void *>(ptr[i - 1].get()), col_sz + 1, &out_length);
     }
     // 释放列名存储空间指针置空
     delete[] col_name;
@@ -311,7 +315,7 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res,
         ptr[i - 1] = std::make_unique<char[]>(col_sz + 1);
         // 绑定数据到列
         this->m_rt_ = dpi_bind_col(
-            this->m_hstmt_, i, DSQL_C_NCHAR, static_cast<void *>(ptr[i - 1].get()), col_sz + 1, &out_length);
+                this->m_hstmt_, i, DSQL_C_NCHAR, static_cast<void *>(ptr[i - 1].get()), col_sz + 1, &out_length);
     }
     // 释放列名存储空间指针置空
     delete[] col_name;
