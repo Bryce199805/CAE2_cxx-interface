@@ -8,7 +8,6 @@
 
 #include <string>
 #include <iostream>
-#include <unordered_set>
 #include <variant>
 
 #include "DBVariant.h"
@@ -17,15 +16,19 @@
 #include "DPItypes.h"
 #include "yaml-cpp/yaml.h"
 
+#ifdef USE_FILESYSTEM
+
 #include <complex>
 #include <unordered_set>
 #include "miniocpp/client.h"
 #include <filesystem>
 #include <fstream>
 #include <windows.h>
+#include <unordered_set>
+
+#endif
 
 #undef GetObject
-
 #undef DeleteFile
 
 
@@ -106,9 +109,7 @@ private:
     // key:dbName -> tableName -> id check for id
     const std::unordered_map<std::string, std::unordered_map<std::string, std::string> > m_KeyMap_ = {
             {
-                    "HULL_MODEL_AND_INFORMATION_DB", {
-                    {"HULL_PARAMETER_INFO", "HULL_ID"}
-            }
+                    "HULL_MODEL_AND_INFORMATION_DB", {{"HULL_PARAMETER_INFO", "HULL_ID"}}
             }
     };
 
