@@ -83,7 +83,7 @@ void CAE::dpiErrorMsgPrint_(sdint2 hndl_type, dhandle hndl) {
 // public function
 
 bool CAE::Query(std::string &sql_str, std::vector<std::vector<std::string> > &res) {
-    std::cout << "---------- Query ----------" << std::endl;
+//    std::cout << "---------- Query ----------" << std::endl;
     // ========== 初始化判断 ==========
     // 判断sql是否以select开头
     if (!this->isValidSQLCommand_(sql_str, "select")) {
@@ -155,12 +155,12 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<std::string> > &re
     // 释放语句句柄
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
-    std::cout << "query success!" << std::endl;
+//    std::cout << "query success!" << std::endl;
     return true;
 }
 
 bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res) {
-    std::cout << "---------- Query ----------" << std::endl;
+//    std::cout << "---------- Query ----------" << std::endl;
     // ========== 初始化判断 ==========
     // 判断sql是否以select开头
     if (!this->isValidSQLCommand_(sql_str, "select")) {
@@ -254,12 +254,12 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res)
     // 释放语句句柄
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
-    std::cout << "query success!" << std::endl;
+//    std::cout << "query success!" << std::endl;
     return true;
 }
 
 bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res, std::vector<int> &col_types) {
-    std::cout << "---------- Query ----------" << std::endl;
+//    std::cout << "---------- Query ----------" << std::endl;
     // ========== 初始化判断 ==========
     // 判断sql是否以select开头
     if (!this->isValidSQLCommand_(sql_str, "select")) {
@@ -357,12 +357,12 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res,
     // 释放语句句柄
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
-    std::cout << "query success!" << std::endl;
+//    std::cout << "query success!" << std::endl;
     return true;
 }
 
 bool CAE::Delete(std::string &sql_str) {
-    std::cout << "---------- Delete ----------" << std::endl;
+//    std::cout << "---------- Delete ----------" << std::endl;
     // ========== 初始化判断 ==========
     // 判断sql是否以delete开头
     if (!this->isValidSQLCommand_(sql_str, "delete")) {
@@ -388,12 +388,12 @@ bool CAE::Delete(std::string &sql_str) {
 
     // 释放语句句柄
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
-    std::cout << "delete success!" << std::endl;
+//    std::cout << "delete success!" << std::endl;
     return true;
 }
 
 bool CAE::Update(std::string &sql_str) {
-    std::cout << "---------- Update ----------" << std::endl;
+//    std::cout << "---------- Update ----------" << std::endl;
     // ========== 初始化判断 ==========
     // 判断sql是否以update开头
     if (!this->isValidSQLCommand_(sql_str, "update")) {
@@ -419,12 +419,12 @@ bool CAE::Update(std::string &sql_str) {
 
     // 释放语句句柄
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
-    std::cout << "update success!" << std::endl;
+//    std::cout << "update success!" << std::endl;
     return true;
 }
 
 bool CAE::Insert(std::string &sql_str) {
-    std::cout << "---------- Insert ----------" << std::endl;
+//    std::cout << "---------- Insert ----------" << std::endl;
     // ========== 初始化判断 ==========
     // 判断sql是否以insert开头
     if (!this->isValidSQLCommand_(sql_str, "insert")) {
@@ -450,7 +450,7 @@ bool CAE::Insert(std::string &sql_str) {
 
     // 释放语句句柄
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
-    std::cout << "insert success!" << std::endl;
+//    std::cout << "insert success!" << std::endl;
     return true;
 }
 
