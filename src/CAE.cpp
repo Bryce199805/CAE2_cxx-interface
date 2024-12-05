@@ -12,6 +12,10 @@ CAE::CAE(const std::string &file_path) {
 
 CAE::~CAE() {
     this->releaseDB_();
+
+#ifdef USE_FILESYSTEM
+    std::cout << "minio release" << std::endl;
+#endif
 }
 
 // private function
