@@ -43,10 +43,10 @@ int main() {
     //文件操作测试
 
     //上传文件 指定路径，带文件名 hull_parameter_info
-    if (obj.UploadFile("hull_model_and_information_db", "hull_parameter_info", "SampleShip_JBC0000", "TRANSVERSE_AREA_CURVE",
-                       "../doc/鲨鱼.png")) {
-        std::cout << "Upload file done." << std::endl;
-    }
+    // if (obj.UploadFile("hull_model_and_information_db", "hull_parameter_info", "SampleShip_JBC0000", "TRANSVERSE_AREA_CURVE",
+    //                    "../doc/鲨鱼.png")) {
+    //     std::cout << "Upload file done." << std::endl;
+    // }
     // if (obj.UploadFile("hull_model_and_information_db", "hull_parameter_info", "SampleShip_JBC0000", "HULL_3D_MODEL",
     //                        "../doc/sharks.png")) {
     //     std::cout << "Upload file done." << std::endl;
