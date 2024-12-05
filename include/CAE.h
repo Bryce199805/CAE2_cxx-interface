@@ -75,7 +75,7 @@ private:
     void parseDBPath_(std::string path);
 
     // get the name of local file.
-    void getFileName_(std::string &path);
+    std::string getFileName_(std::string path);
 
     // get the file id in filesystem.
     std::string getTableID_(std::string &dbName, std::string &tableName);
