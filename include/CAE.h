@@ -23,6 +23,7 @@
 #include <filesystem>
 #include <fstream>
 #include <windows.h>
+
 #undef GetObject
 
 #undef DeleteFile
@@ -81,28 +82,28 @@ private:
     std::string getTableID_(std::string &dbName, std::string &tableName);
 
     // transform the dbName, use - replace _
-    std::string TransDBName_(std::string dbName);
+    std::string transDBName2BucketName_(std::string dbName);
 
     // transform the dbName, tableName to upper.
-    void UpperName_(std::string &dbName,std::string &tableName);
+    void upperName_(std::string &dbName, std::string &tableName);
 
     // Map 2 Define
     // key: dbName -> tableName -> colName check for file path
     const std::unordered_map<std::string, std::unordered_map<std::string, std::unordered_set<std::string> > > m_FileMap_
             = {
-                {
-                    "HULL_MODEL_AND_INFORMATION_DB", {
-                        {"HULL_PARAMETER_INFO", {"TRANSVERSE_AREA_CURVE", "HULL_3D_MODEL", "OFFSETS_TABLE"}}
+                    {
+                            "HULL_MODEL_AND_INFORMATION_DB", {
+                            {"HULL_PARAMETER_INFO", {"TRANSVERSE_AREA_CURVE", "HULL_3D_MODEL", "OFFSETS_TABLE"}}
                     }
-                }
+                    }
             };
     // key:dbName -> tableName -> id check for id
     const std::unordered_map<std::string, std::unordered_map<std::string, std::string> > m_KeyMap_ = {
-        {
-            "HULL_MODEL_AND_INFORMATION_DB", {
-                {"HULL_PARAMETER_INFO", "HULL_ID"}
+            {
+                    "HULL_MODEL_AND_INFORMATION_DB", {
+                    {"HULL_PARAMETER_INFO", "HULL_ID"}
             }
-        }
+            }
     };
 
 #endif
@@ -143,7 +144,7 @@ public:
                     const std::string &col, std::string local_path);
 
     bool GetFile(std::string dbName, std::string tableName, const std::string &id, const std::string &col,
-                  std::string local_path);
+                 std::string local_path);
 
     bool GetFile(std::string dbName, std::string tableName, const std::string &id, const std::string &col,
                  std::vector<unsigned char> &object_data);

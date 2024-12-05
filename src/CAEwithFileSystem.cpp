@@ -6,7 +6,7 @@
 
 #ifdef USE_FILESYSTEM
 
-// constructor
+// ============================== constructor ==============================
 
 CAE::CAE(const std::string &file_path, bool withFile = true) {
     if (withFile) {
@@ -17,7 +17,8 @@ CAE::CAE(const std::string &file_path, bool withFile = true) {
     }
 }
 
-// private function
+// ============================== private function ==============================
+
 bool CAE::initFileSystem_(const std::string &file_path) {
     // 读取yaml文件
     YAML::Node data_config = YAML::LoadFile(file_path);
@@ -103,7 +104,7 @@ bool CAE::checkFileExist_(std::string path) {
 }
 
 void CAE::local2FilePath_(std::string dbName, std::string tableName, const std::string &id, std::string &local_path) {
-    this->m_bucket_ = this->TransDBName_(dbName);
+    this->m_bucket_ = this->transDBName2BucketName_(dbName);
     this->m_prefix_ = tableName + "/" + id;
     this->m_object_ = this->getFileName_(local_path);
 }
@@ -118,21 +119,22 @@ std::string CAE::getTableID_(std::string &dbName, std::string &tableName) {
     return m_KeyMap_.find(dbName)->second.find(tableName)->second;
 }
 
-std::string CAE::TransDBName_(std::string dbName) {
+std::string CAE::transDBName2BucketName_(std::string dbName) {
     std::transform(dbName.begin(), dbName.end(), dbName.begin(), tolower);
     std::replace(dbName.begin(), dbName.end(), '_', '-');
-    std::cout << dbName << std::endl;
+//    std::cout << dbName << std::endl;
     return dbName;
 }
 
-void CAE::UpperName_(std::string &dbName, std::string &tableName) {
+void CAE::upperName_(std::string &dbName, std::string &tableName) {
     std::transform(dbName.begin(), dbName.end(), dbName.begin(), ::toupper);
     std::transform(tableName.begin(), tableName.end(), tableName.begin(), ::toupper);
 }
 
-//public function
+// ============================== public function ==============================
 
-bool CAE::UploadFile(std::string dbName, std::string tableName, const std::string &id, const std::string &col, std::string local_path) {
+bool CAE::UploadFile(std::string dbName, std::string tableName, const std::string &id, const std::string &col,
+                     std::string local_path) {
     // sql query minio path
     // 1. record exist. col not null ->  minio path
     // 2, record exist. col null ->  make path
@@ -140,31 +142,35 @@ bool CAE::UploadFile(std::string dbName, std::string tableName, const std::strin
 
     //check the parameters of the function;
 
-    this->UpperName_(dbName, tableName);
+    this->upperName_(dbName, tableName);
     // std::cout << dbName << " " << tableName << std::endl;
     if (!this->checkFilePath_(dbName, tableName, col)) {
         std::cout << "Error: check your dbname/tablename/colname." << std::endl;
         return false;
     }
+
     //check the local file path.
     if (!std::filesystem::exists(local_path)) {
         std::cerr << "Error: The file does not exist at " << local_path << std::endl;
         return false;
     }
+
     this->m_id_ = this->getTableID_(dbName, tableName);
 
     char sqlStr[1024];
-    sprintf(sqlStr, "SELECT %s FROM %s.%s WHERE %s='%s'", col.c_str(), dbName.c_str(), tableName.c_str(),
-            this->m_id_.c_str(), id.c_str());
-    this->m_sql_ = sqlStr;
+    sprintf(sqlStr, "SELECT %s FROM %s.%s WHERE %s='%s'",
+            col.c_str(), dbName.c_str(), tableName.c_str(), this->m_id_.c_str(), id.c_str());
 
+    this->m_sql_ = sqlStr;
     this->Query(this->m_sql_, this->m_res_);
+
     //check the record exist or not;
     if (this->m_res_.size() == 0) {
         //The record does not exist.
         std::cout << "Error: The record does not exist." << std::endl;
         return false;
     }
+
     this->m_path_ = this->m_res_[0][0];
     //check the col path exist or not;
     if (!this->checkFileExist_(this->m_path_)) {
@@ -179,19 +185,11 @@ bool CAE::UploadFile(std::string dbName, std::string tableName, const std::strin
     //文件读取
     std::filesystem::path zh_path(local_path);
     std::ifstream file(zh_path, std::ios::binary);
+
     //获取文件大小
     file.seekg(0, std::ios::end);
     std::streamsize file_size = file.tellg();
     file.seekg(0, std::ios::beg);
-
-    //print the path for check.
-    // std::string bucket = this->m_bucket_;
-    // std::string prefix = this->m_prefix_;
-    // std::string object = this->m_object_;
-    //
-    // std::cout << "m_bucket_: " << bucket << std::endl;
-    // std::cout << "m_prefix_: " << prefix << std::endl;
-    // std::cout << "m_object_: " << object << std::endl;
 
     minio::s3::PutObjectArgs args(file, file_size, 0);
     //上传路径：bucket/path/path/filename, prefix=path/path/
@@ -215,32 +213,41 @@ bool CAE::UploadFile(std::string dbName, std::string tableName, const std::strin
     return true;
 }
 
-bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &id, const std::string &col, std::string local_path) {
-    this->UpperName_(dbName, tableName);
+bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &id, const std::string &col,
+                  std::string local_path) {
+
+    this->upperName_(dbName, tableName);
+
     if (!this->checkFilePath_(dbName, tableName, col)) {
         std::cout << "Error: check your dbname/tablename/colname." << std::endl;
         return false;
     }
-    this->m_id_ = this->getTableID_(dbName, tableName);
-    char sqlStr[1024];
-    sprintf(sqlStr, "SELECT %s FROM %s.%s WHERE %s='%s'", col.c_str(), dbName.c_str(), tableName.c_str(), this->m_id_.c_str(), id.c_str());
-    this->m_sql_ = sqlStr;
 
+    this->m_id_ = this->getTableID_(dbName, tableName);
+
+    char sqlStr[1024];
+    sprintf(sqlStr, "SELECT %s FROM %s.%s WHERE %s='%s'",
+            col.c_str(), dbName.c_str(), tableName.c_str(), this->m_id_.c_str(), id.c_str());
+
+    this->m_sql_ = sqlStr;
     this->Query(this->m_sql_, this->m_res_);
+
     if (this->m_res_.size() == 0) {
         std::cout << "Error: The record does not exist." << std::endl;
         return false;
     }
+
     this->m_path_ = this->m_res_[0][0];
     if (!this->checkFileExist_(this->m_path_)) {
         std::cout << "This file is not exist." << std::endl;
         return false;
     }
+
     this->parseDBPath_(this->m_path_);
 
     minio::s3::GetObjectArgs args;
 
-    // Create a stringstream to capture the data.
+    // Create a string stream to capture the data.
     std::stringstream object_data;
 
     args.bucket = this->m_bucket_;
@@ -262,6 +269,7 @@ bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &
         }
         return true;
     };
+
     // 下载对象
     minio::s3::GetObjectResponse resp = this->m_client_->GetObject(args);
 
@@ -271,39 +279,40 @@ bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &
         std::filesystem::rename("./temp", path);
     }
 
-    // // Handle response.
-    // if (!resp) {
-    //     std::cout << "Unable to download object:" << resp.Error().String() << std::endl;
-    //     return false;
-    // }
     return true;
 }
 
 
-bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &id, const std::string &col, std::vector<unsigned char> &object_data) {
-    this->UpperName_(dbName, tableName);
+bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &id, const std::string &col,
+                  std::vector<unsigned char> &object_data) {
+
+    this->upperName_(dbName, tableName);
+
     if (!this->checkFilePath_(dbName, tableName, col)) {
         std::cout << "Error: check your dbname/tablename/colname." << std::endl;
         return false;
     }
-    this->m_id_ = this->getTableID_(dbName, tableName);
-    char sqlStr[1024];
-    sprintf(sqlStr, "SELECT %s FROM %s.%s WHERE %s='%s'", col.c_str(), dbName.c_str(), tableName.c_str(),
-            this->m_id_.c_str(),
-            id.c_str());
-    this->m_sql_ = sqlStr;
 
+    this->m_id_ = this->getTableID_(dbName, tableName);
+
+    char sqlStr[1024];
+    sprintf(sqlStr, "SELECT %s FROM %s.%s WHERE %s='%s'",
+            col.c_str(), dbName.c_str(), tableName.c_str(), this->m_id_.c_str(), id.c_str());
+
+    this->m_sql_ = sqlStr;
     this->Query(this->m_sql_, this->m_res_);
 
     if (this->m_res_.size() == 0) {
         std::cout << "Error: The record does not exist." << std::endl;
         return false;
     }
+
     this->m_path_ = this->m_res_[0][0];
     if (!this->checkFileExist_(this->m_path_)) {
         std::cout << "This file is not exist." << std::endl;
         return false;
     }
+
     this->parseDBPath_(this->m_path_);
 
     minio::s3::GetObjectArgs args;
@@ -317,6 +326,7 @@ bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &
     };
 
     minio::s3::GetObjectResponse resp = this->m_client_->GetObject(args);
+
     if (!resp) {
         std::cout << "Unable to get data:" << resp.Error().String() << std::endl;
         return false;
@@ -325,17 +335,23 @@ bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &
 }
 
 bool CAE::DeleteFile(std::string dbName, std::string tableName, const std::string &id, const std::string &col) {
-    this->UpperName_(dbName, tableName);
+
+    this->upperName_(dbName, tableName);
+
     if (!this->checkFilePath_(dbName, tableName, col)) {
         std::cout << "Error: check your dbname/tablename/colname." << std::endl;
         return false;
     }
-    this->m_id_ = this->getTableID_(dbName, tableName);
-    char sqlStr[1024];
-    sprintf(sqlStr, "SELECT %s FROM %s.%s WHERE %s='%s'", col.c_str(), dbName.c_str(), tableName.c_str(), this->m_id_.c_str(), id.c_str());
-    this->m_sql_ = sqlStr;
 
+    this->m_id_ = this->getTableID_(dbName, tableName);
+
+    char sqlStr[1024];
+    sprintf(sqlStr, "SELECT %s FROM %s.%s WHERE %s='%s'",
+            col.c_str(), dbName.c_str(), tableName.c_str(), this->m_id_.c_str(), id.c_str());
+
+    this->m_sql_ = sqlStr;
     this->Query(this->m_sql_, this->m_res_);
+
     if (this->m_res_.size() == 0) {
         std::cout << "Error: The record does not exist." << std::endl;
         return false;
@@ -346,17 +362,21 @@ bool CAE::DeleteFile(std::string dbName, std::string tableName, const std::strin
         std::cout << "This file is not exist." << std::endl;
         return false;
     }
+
     this->parseDBPath_(this->m_path_);
+
     std::cout << "---------- Delete File ----------" << std::endl;
+
     minio::s3::RemoveObjectArgs args;
     args.bucket = this->m_bucket_;
     args.object = this->m_prefix_ + "/" + this->m_object_;
+
     minio::s3::RemoveObjectResponse resp = this->m_client_->RemoveObject(args);
 
     if (resp) {
         // deletel DM col path
-        sprintf(sqlStr, "UPDATE %s.%s SET %s = ' '  WHERE %s ='%s'", dbName.c_str(), tableName.c_str(),
-                col.c_str(), this->m_id_.c_str(), id.c_str());
+        sprintf(sqlStr, "UPDATE %s.%s SET %s = ' '  WHERE %s ='%s'",
+                dbName.c_str(), tableName.c_str(), col.c_str(), this->m_id_.c_str(), id.c_str());
         this->m_sql_ = sqlStr;
         this->Update(this->m_sql_);
     } else {
@@ -367,29 +387,32 @@ bool CAE::DeleteFile(std::string dbName, std::string tableName, const std::strin
 }
 
 bool CAE::DeleteRecord(std::string dbName, std::string tableName, const std::string &id) {
-    this->UpperName_(dbName, tableName);
+    this->upperName_(dbName, tableName);
     if (!this->checkFilePath_(dbName, tableName)) {
         std::cout << "Noting to do. There is no file." << std::endl;
         return false;
     }
-    this->m_id_ = this->getTableID_(dbName, tableName);
-    char sqlStr[1024];
-    sprintf(sqlStr, "SELECT * FROM %s.%s WHERE %s='%s'", dbName.c_str(), tableName.c_str(),
-            this->m_id_.c_str(),
-            id.c_str());
-    this->m_sql_ = sqlStr;
 
+    this->m_id_ = this->getTableID_(dbName, tableName);
+
+    char sqlStr[1024];
+    sprintf(sqlStr, "SELECT * FROM %s.%s WHERE %s='%s'",
+            dbName.c_str(), tableName.c_str(), this->m_id_.c_str(), id.c_str());
+
+    this->m_sql_ = sqlStr;
     this->Query(this->m_sql_, this->m_res_);
+
     if (this->m_res_.size() == 0) {
         std::cout << "Error: The record does not exist." << std::endl;
         return false;
     }
 
     minio::s3::ListObjectsArgs args;
-    args.bucket = this->TransDBName_(dbName);
+    args.bucket = this->transDBName2BucketName_(dbName);
     args.prefix = tableName + "/" + id + "/";
 
     minio::s3::ListObjectsResult result = this->m_client_->ListObjects(args);
+
     bool is_empty = true;
     for (; result; result++) {
         minio::s3::Item item = *result;
@@ -397,21 +420,24 @@ bool CAE::DeleteRecord(std::string dbName, std::string tableName, const std::str
             is_empty = false;
             std::cout << "---------- Delete File ----------" << std::endl;
             minio::s3::RemoveObjectArgs delete_args;
-            delete_args.bucket = this->TransDBName_(dbName);
+            delete_args.bucket = this->transDBName2BucketName_(dbName);
             delete_args.object = item.name;
             m_client_->RemoveObject(delete_args);
         } else {
             break;
         }
     }
+
     if (is_empty) {
         std::cout << "Folder is empty, nothing to delete." << std::endl;
         return false;
     } else {
         this->m_id_ = this->getTableID_(dbName, tableName);
+
         char sqlStr[1024];
-        sprintf(sqlStr, "DELETE FROM %s.%s WHERE %s ='%s'", dbName.c_str(), tableName.c_str(),
-                this->m_id_.c_str(), id.c_str());
+        sprintf(sqlStr, "DELETE FROM %s.%s WHERE %s ='%s'",
+                dbName.c_str(), tableName.c_str(), this->m_id_.c_str(), id.c_str());
+
         this->m_sql_ = sqlStr;
         this->Delete(this->m_sql_);
     }
