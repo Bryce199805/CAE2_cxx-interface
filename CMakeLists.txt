@@ -8,8 +8,6 @@ option(USE_FILESYSTEM "Enable file system support" ON)
 set(SRC_LIST
         src/CAE.cpp
         src/DBVariant.cpp
-        src/CAEwithFileSystem.cpp
-        pkg/minio/src/ini.c    # todo need move
 )
 
 set(HEAD_LIST
@@ -29,41 +27,39 @@ link_directories(pkg/yaml-cxx/bin)
 
 
 if (USE_FILESYSTEM)
-     message(STATUS "File system support enabled")
-     # file system env
-     include_directories(pkg/minio/include)
-     link_directories(pkg/minio/lib)
+    message(STATUS "File system support enabled")
+    # file system env
+    include_directories(pkg/minio/include)
+    link_directories(pkg/minio/lib)
 
-     add_library(CAE2 STATIC ${SRC_LIST} ${HEAD_LIST})
-     add_executable(CAE2Test ${SRC_LIST} ${HEAD_LIST} src/main.cpp)
+    add_library(CAE2 STATIC ${SRC_LIST} ${HEAD_LIST} src/CAEwithFileSystem.cpp pkg/minio/src/ini.c)
+    add_executable(CAE2Test ${SRC_LIST} ${HEAD_LIST} src/CAEwithFileSystem.cpp pkg/minio/src/ini.c src/main.cpp)
 
-     target_compile_definitions(CAE2 PRIVATE USE_FILESYSTEM)
-     target_compile_definitions(CAE2Test PRIVATE USE_FILESYSTEM)
+    target_compile_definitions(CAE2 PRIVATE USE_FILESYSTEM)
+    target_compile_definitions(CAE2Test PRIVATE USE_FILESYSTEM)
 
-     target_link_libraries(CAE2 PUBLIC dmdpi yaml-cpp)
-     target_link_libraries(CAE2Test PUBLIC dmdpi yaml-cpp
-             miniocpp
-             curlpp
-             curl
-             pugixml
-             # inih
-             ini inih INIReader bcrypt
-             # zlib
-             zlib
-             # openssl : confirm if contains libeay32.dll. (err-70089)
-             crypto ssl ws2_32 crypt32
-     )
+    target_link_libraries(CAE2 PUBLIC dmdpi yaml-cpp)
+    target_link_libraries(CAE2Test PUBLIC dmdpi yaml-cpp
+            miniocpp
+            curlpp
+            curl
+            pugixml
+            # inih
+            ini inih INIReader bcrypt
+            # zlib
+            zlib
+            # openssl : confirm if contains libeay32.dll. (err-70089)
+            crypto ssl ws2_32 crypt32
+    )
 
+else ()
+    message(STATUS "File system support disabled")
 
-else()
-     message(STATUS "File system support disabled")
+    add_library(CAE2 STATIC ${SRC_LIST} ${HEAD_LIST})
+    add_executable(CAE2Test ${SRC_LIST} ${HEAD_LIST} src/main.cpp)
 
-     add_library(CAE2 STATIC ${SRC_LIST} ${HEAD_LIST})
-     add_executable(CAE2Test ${SRC_LIST} ${HEAD_LIST} src/main.cpp
-             src/CAEwithFileSystem.cpp)
-
-     target_link_libraries(CAE2 PUBLIC dmdpi yaml-cpp)
-     target_link_libraries(CAE2Test PUBLIC dmdpi yaml-cpp)
+    target_link_libraries(CAE2 PUBLIC dmdpi yaml-cpp)
+    target_link_libraries(CAE2Test PUBLIC dmdpi yaml-cpp)
 endif ()
 
 # 安装目标
@@ -83,9 +79,12 @@ install(DIRECTORY pkg/yaml-cxx/bin/ DESTINATION lib
 install(DIRECTORY pkg/yaml-cxx/include/ DESTINATION include)
 
 if (USE_FILESYSTEM)
-     # 安装文件系统相关依赖
-     install(FILES ./config.yaml DESTINATION .)
-else()
-     install(FILES ./config.yaml DESTINATION .)
+    install(DIRECTORY pkg/minio/lib/ DESTINATION lib)
+    install(DIRECTORY pkg/minio/include/ DESTINATION include)
+    install(DIRECTORY pkg/minio/src/ DESTINATION src)
+    # 安装文件系统相关依赖
+    install(FILES ./config.yaml RENAME interface-config.yaml DESTINATION .)
+else ()
+    install(FILES ./config_withoutFileSystem.yaml RENAME interface-config.yaml DESTINATION .)
 endif ()
 
