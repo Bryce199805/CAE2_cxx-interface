@@ -111,8 +111,7 @@ void CAE::local2FilePath_(std::string dbName, std::string tableName, const std::
 std::string CAE::getFileName_(std::string path) {
     size_t pos = path.find_last_of("/");
     // 提取最后一个斜杠后面的部分
-    path = path.substr(pos + 1);
-    return path;
+    return path.substr(pos + 1);
 }
 
 std::string CAE::getTableID_(std::string &dbName, std::string &tableName) {
