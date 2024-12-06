@@ -38,7 +38,42 @@ if (USE_FILESYSTEM)
     target_compile_definitions(CAE2 PRIVATE USE_FILESYSTEM)
     target_compile_definitions(CAE2Test PRIVATE USE_FILESYSTEM)
 
-    target_link_libraries(CAE2 PUBLIC dmdpi yaml-cpp)
+    set(OBJ_TEMP_DIR ${CMAKE_BINARY_DIR}/obj)
+    file(MAKE_DIRECTORY ${OBJ_TEMP_DIR})
+
+    add_custom_command(OUTPUT ${OBJ_TEMP_DIR}/all_objects
+            WORKING_DIRECTORY ${OBJ_TEMP_DIR}
+            COMMAND ar -x ${CMAKE_SOURCE_DIR}/pkg/minio/lib/libcrypto.a
+            COMMAND ar -x ${CMAKE_SOURCE_DIR}/pkg/minio/lib/libcurl.a
+            COMMAND ar -x ${CMAKE_SOURCE_DIR}/pkg/minio/lib/libcurlpp.a
+            COMMAND ar -x ${CMAKE_SOURCE_DIR}/pkg/minio/lib/libini.a
+            COMMAND ar -x ${CMAKE_SOURCE_DIR}/pkg/minio/lib/libinih.a
+            COMMAND ar -x ${CMAKE_SOURCE_DIR}/pkg/minio/lib/libINIReader.a
+            COMMAND ar -x ${CMAKE_SOURCE_DIR}/pkg/minio/lib/libminiocpp.a
+            COMMAND ar -x ${CMAKE_SOURCE_DIR}/pkg/minio/lib/libpugixml.a
+            COMMAND ar -x ${CMAKE_SOURCE_DIR}/pkg/minio/lib/libzlib.a
+            COMMAND ar -x ${CMAKE_SOURCE_DIR}/pkg/minio/lib/libssl.a
+            COMMAND ar -x ${CMAKE_BINARY_DIR}/libCAE2.a
+            COMMAND ${CMAKE_COMMAND} -E touch ${OBJ_TEMP_DIR}/all_objects
+            COMMENT "Extracting objects from dependency libraries"
+    )
+
+    # 创建一个自定义目标 'merge_libs'，依赖于解压操作的输出
+    add_custom_target(merge_libs ALL
+            DEPENDS ${OBJ_TEMP_DIR}/all_objects
+            COMMENT "Merging dependency libraries into libCAEALL2.a"
+    )
+
+    # 合并目标文件到新的静态库
+    add_custom_command(
+            TARGET merge_libs
+            POST_BUILD
+            COMMAND ar -crsv ${CMAKE_BINARY_DIR}/libCAE2ALL.a ${OBJ_TEMP_DIR}/*.obj ${OBJ_TEMP_DIR}/*.o
+            COMMENT "Merging dependency libraries into libCAEALL2.a"
+            #            COMMAND ${CMAKE_COMMAND} -E remove_directory ${OBJ_TEMP_DIR}
+            #            COMMENT "Removing temporary directory after build"
+    )
+
     target_link_libraries(CAE2Test PUBLIC dmdpi yaml-cpp
             miniocpp
             curlpp
@@ -51,7 +86,6 @@ if (USE_FILESYSTEM)
             # openssl : confirm if contains libeay32.dll. (err-70089)
             crypto ssl ws2_32 crypt32
     )
-
 else ()
     message(STATUS "File system support disabled")
 
@@ -63,7 +97,7 @@ else ()
 endif ()
 
 # 安装目标
-install(TARGETS CAE2 ARCHIVE DESTINATION lib)
+install(FILES ${CMAKE_BINARY_DIR}/libCAE2ALL.a DESTINATION lib)
 install(DIRECTORY include/ DESTINATION include)
 
 # 安装数据库相关依赖
@@ -79,7 +113,7 @@ install(DIRECTORY pkg/yaml-cxx/bin/ DESTINATION lib
 install(DIRECTORY pkg/yaml-cxx/include/ DESTINATION include)
 
 if (USE_FILESYSTEM)
-    install(DIRECTORY pkg/minio/lib/ DESTINATION lib)
+    #    install(DIRECTORY pkg/minio/lib/ DESTINATION lib)
     install(DIRECTORY pkg/minio/include/ DESTINATION include)
     install(DIRECTORY pkg/minio/src/ DESTINATION src)
     # 安装文件系统相关依赖
