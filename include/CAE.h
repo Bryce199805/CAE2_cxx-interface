@@ -16,6 +16,11 @@
 #include "DPItypes.h"
 #include "yaml-cpp/yaml.h"
 
+#include <iomanip>
+#include <openssl/hmac.h>
+#include <openssl/evp.h>
+#include <openssl/sha.h>
+
 #ifdef USE_FILESYSTEM
 
 #include <complex>
@@ -46,7 +51,10 @@ private:
 
     bool initDB_(const std::string &file_path);
 
+    std::string encrypt_(const std::string &data);
+
     void releaseDB_();
+
 
 #ifdef USE_FILESYSTEM
     // 定义文件系统私有成员
@@ -95,6 +103,10 @@ private:
 
     // transform the dbName, tableName to upper.
     void upperName_(std::string &dbName, std::string &tableName);
+
+    // release the file system.
+    void releaseFileSystem_();
+
 
     // Map 2 Define
     // key: dbName -> tableName -> colName check for file path

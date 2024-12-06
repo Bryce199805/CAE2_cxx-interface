@@ -1,9 +1,9 @@
 database:
   server: "222.27.255.211:15236"
-  username: "SYSDBA"
+  username: "SYSDBA_TEST"
   passwd: "SYSDBA"
 
 fileSystem:
   endpoint: "222.27.255.211:19000"
-  username: "fileadmin"
+  username: "fileadmin_test"
   passwd: "fileadmin"

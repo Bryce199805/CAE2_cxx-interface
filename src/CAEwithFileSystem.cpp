@@ -29,7 +29,7 @@ bool CAE::initFileSystem_(const std::string &file_path) {
     // 提取配置项
     std::string endpoint = data_config["fileSystem"]["endpoint"].as<std::string>();
     std::string username = data_config["fileSystem"]["username"].as<std::string>();
-    std::string passwd = data_config["fileSystem"]["passwd"].as<std::string>();
+    std::string passwd = this->encrypt_(data_config["fileSystem"]["passwd"].as<std::string>());
 
     // 注意：使用SSE-C加密需开启HTTPS服务，否则报错，开启后，关闭baseurl的验证并使用https连接
     this->base_url = new minio::s3::BaseUrl(endpoint, false);
@@ -78,19 +78,26 @@ void CAE::parseDBPath_(std::string path) {
 }
 
 bool CAE::checkFilePath_(const std::string &dbName, const std::string &tableName, const std::string &col) {
-    std::unordered_set<std::string> it = this->m_FileMap_.find(dbName)->second.find(tableName)->second;
-    if (it.find(col) != it.end()) {
-        return true;
+    if(this->m_FileMap_.find(dbName)==this->m_FileMap_.end()) {
+        return false;
     }
-    return false;
+    if(this->m_FileMap_.find(dbName)->second.find(tableName)==this->m_FileMap_.find(dbName)->second.end()) {
+        return false;
+    }
+    if(this->m_FileMap_.find(dbName)->second.find(tableName)->second.find(col)==this->m_FileMap_.find(dbName)->second.find(tableName)->second.end()) {
+        return false;
+    }
+    return true;
 }
 
 bool CAE::checkFilePath_(const std::string &dbName, const std::string &tableName) {
-    std::unordered_map<std::string, std::unordered_set<std::string> > it = this->m_FileMap_.find(dbName)->second;
-    if (it.find(tableName) != it.end()) {
-        return true;
+    if(this->m_FileMap_.find(dbName)==this->m_FileMap_.end()) {
+        return false;
     }
-    return false;
+    if(this->m_FileMap_.find(dbName)->second.find(tableName)==this->m_FileMap_.find(dbName)->second.end()) {
+        return false;
+    }
+    return true;
 }
 
 bool CAE::checkFileExist_(std::string path) {
@@ -131,6 +138,9 @@ void CAE::upperName_(std::string &dbName, std::string &tableName) {
     std::transform(tableName.begin(), tableName.end(), tableName.begin(), ::toupper);
 }
 
+void CAE::releaseFileSystem_() {
+    std::cout << "========== file system :disconnect from server success! ==========" << std::endl;
+}
 // ============================== public function ==============================
 
 bool CAE::UploadFile(std::string dbName, std::string tableName, const std::string &id, const std::string &col,
@@ -403,7 +413,7 @@ bool CAE::DeleteRecord(std::string dbName, std::string tableName, const std::str
     this->Query(this->m_sql_, this->m_res_);
 
     if (this->m_res_.size() == 0) {
-        std::cout << "Error: The record does not exist." << std::endl;
+        std::cout << "Error: check your dbname/tablename/colname." << std::endl;
         return false;
     }
 
