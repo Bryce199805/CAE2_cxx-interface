@@ -12,10 +12,8 @@ CAE::CAE(const std::string &file_path) {
 
 CAE::~CAE() {
     this->releaseDB_();
-    this->releaseFileSystem_();
-
 #ifdef USE_FILESYSTEM
-    std::cout << "File system release." << std::endl;
+    this->releaseFileSystem_();
 #endif
 }
 
@@ -38,7 +36,8 @@ bool CAE::initDB_(const std::string &file_path) {
     this->m_rt_ = dpi_login(this->m_hcon_,
                             reinterpret_cast<sdbyte *>(data_config["database"]["server"].as<std::string>().data()),
                             reinterpret_cast<sdbyte *>(data_config["database"]["username"].as<std::string>().data()),
-                            reinterpret_cast<sdbyte *>(this->encrypt_(data_config["database"]["passwd"].as<std::string>()).data())
+                            reinterpret_cast<sdbyte *>(this->encrypt_(
+                                    data_config["database"]["passwd"].as<std::string>()).data())
     );
     // 测试
     if (!DSQL_SUCCEEDED(this->m_rt_)) {
@@ -88,6 +87,7 @@ void CAE::dpiErrorMsgPrint_(sdint2 hndl_type, dhandle hndl) {
     dpi_get_diag_rec(hndl_type, hndl, 1, &err_code, err_msg, sizeof(err_msg), &msg_len);
     std::cout << "err_msg = " << err_msg << ", err_code = " << err_code << std::endl;
 }
+
 std::string CAE::encrypt_(const std::string &data) {
     unsigned char *result;
     unsigned int len = SHA256_DIGEST_LENGTH;
@@ -108,7 +108,6 @@ std::string CAE::encrypt_(const std::string &data) {
     for (int i = 0; i < 16; i++) {
         hex_result << std::hex << std::setw(2) << std::setfill('0') << (int) truncated_result[i];
     }
-
     return hex_result.str();
 }
 
