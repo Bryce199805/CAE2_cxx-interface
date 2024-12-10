@@ -7,6 +7,7 @@
 
 #include <variant>
 #include <string>
+#include <vector>
 
 
 class DBVariant {
@@ -14,16 +15,23 @@ private:
     std::variant<std::string, int, float, double> m_var_;
 
 public:
-    // Ä¬ÈÏ¹¹Ôìº¯Êı
+    // é»˜è®¤æ„é€ å‡½æ•°
     DBVariant() = default;
 
-    // ½ÓÊÜ²»Í¬ÀàĞÍµÄ¹¹Ôìº¯Êı
-    DBVariant(const std::string& val) : m_var_(val) {}
-    DBVariant(int val) : m_var_(val) {}
-    DBVariant(float val) : m_var_(val) {}
-    DBVariant(double val) : m_var_(val) {}
+    // æ¥å—ä¸åŒç±»å‹çš„æ„é€ å‡½æ•°
+    DBVariant(const std::string& val) : m_var_(val) {
+    }
 
-    void setValue(const std::string &val);
+    DBVariant(int val) : m_var_(val) {
+    }
+
+    DBVariant(float val) : m_var_(val) {
+    }
+
+    DBVariant(double val) : m_var_(val) {
+    }
+
+    void setValue(const std::string& val);
     void setValue(int val);
     void setValue(float val);
     void setValue(double val);
