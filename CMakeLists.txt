@@ -8,11 +8,13 @@ option(USE_FILESYSTEM "Enable file system support" ON)
 set(SRC_LIST
         src/CAE.cpp
         src/DBVariant.cpp
+        src/Logger.cpp
 )
 
 set(HEAD_LIST
         include/CAE.h
         include/DBVariant.h
+        include/Logger.h
 )
 
 include_directories(./include)
@@ -25,6 +27,9 @@ link_directories(pkg/dm_driver/bin)
 include_directories(pkg/yaml-cxx/include)
 link_directories(pkg/yaml-cxx/bin)
 
+# openssl
+include_directories(pkg/minio/include)
+link_directories(pkg/minio/lib)
 
 if (USE_FILESYSTEM)
     message(STATUS "File system support enabled")
@@ -93,7 +98,7 @@ else ()
     add_executable(CAE2Test ${SRC_LIST} ${HEAD_LIST} src/main.cpp)
 
     target_link_libraries(CAE2 PUBLIC dmdpi yaml-cpp)
-    target_link_libraries(CAE2Test PUBLIC dmdpi yaml-cpp)
+    target_link_libraries(CAE2Test PUBLIC dmdpi yaml-cpp crypto ssl ws2_32 crypt32)
 endif ()
 
 # 安装目标
