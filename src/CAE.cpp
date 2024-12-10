@@ -7,19 +7,29 @@
 // constructor
 
 CAE::CAE(const std::string &file_path) {
-    this->initDB_(file_path);
+    // todo 根据实际情况修改
+    std::string logger_username = "SYSDBA";
+    std::string logger_passwd = "SYSDBA";
+
+    std::string serverIP = this->initDB_(file_path);
+    this->initLogger_(serverIP, logger_username, logger_passwd);
+
+    this->logger_obj->__getIP();
+    this->logger_obj->__getUserName();
 }
 
 CAE::~CAE() {
     this->releaseDB_();
+    this->releaseLogger_();
 #ifdef USE_FILESYSTEM
     this->releaseFileSystem_();
 #endif
 }
 
+
 // private function
 
-bool CAE::initDB_(const std::string &file_path) {
+std::string CAE::initDB_(const std::string &file_path) {
     // 读取yaml文件
     YAML::Node data_config = YAML::LoadFile(file_path);
     if (!data_config) {
@@ -32,22 +42,34 @@ bool CAE::initDB_(const std::string &file_path) {
     this->m_rt_ = dpi_set_env_attr(this->m_henv_, DSQL_ATTR_LOCAL_CODE, (dpointer) PG_UTF8, sizeof(PG_UTF8));
     // 申请连接句柄
     this->m_rt_ = dpi_alloc_con(this->m_henv_, &this->m_hcon_);
+
+    // get connect parameters
+    std::string serverAddr = data_config["database"]["server"].as<std::string>();
+    std::string username = data_config["database"]["username"].as<std::string>();
+    std::string passwd = this->encrypt_(data_config["database"]["passwd"].as<std::string>());
     // 连接数据库
     this->m_rt_ = dpi_login(this->m_hcon_,
-                            reinterpret_cast<sdbyte *>(data_config["database"]["server"].as<std::string>().data()),
-                            reinterpret_cast<sdbyte *>(data_config["database"]["username"].as<std::string>().data()),
-                            reinterpret_cast<sdbyte *>(this->encrypt_(
-                                    data_config["database"]["passwd"].as<std::string>()).data())
-    );
+                            reinterpret_cast<sdbyte *>(serverAddr.data()),
+                            reinterpret_cast<sdbyte *>(username.data()),
+                            reinterpret_cast<sdbyte *>(passwd.data()));
+
     // 测试
     if (!DSQL_SUCCEEDED(this->m_rt_)) {
         dpiErrorMsgPrint_(DSQL_HANDLE_DBC, this->m_hcon_);
         exit(-1);
     }
+
     printf("========== dpi: connect to server success! ==========\n");
 
+    // 返回serverIP 用于日志记录
+    return serverAddr;
+}
+
+bool CAE::initLogger_(std::string& serverAddr, std::string& logger_username, std::string& logger_passwd) {
+    this->logger_obj = new Logger(serverAddr, logger_username, logger_passwd);
     return true;
 }
+
 
 void CAE::releaseDB_() {
     this->m_rt_ = dpi_logout(this->m_hcon_);
@@ -61,7 +83,14 @@ void CAE::releaseDB_() {
     // 释放连接句柄和环境句柄
     this->m_rt_ = dpi_free_con(this->m_hcon_);
     this->m_rt_ = dpi_free_env(this->m_henv_);
+    this->m_hcon_ = this->m_henv_ = this->m_hstmt_ = nullptr;
 }
+
+void CAE::releaseLogger_() {
+    delete this->logger_obj;
+    this->logger_obj = nullptr;
+}
+
 
 bool CAE::isValidSQLCommand_(const std::string &sql, const std::string type) {
     std::string trimmedSQL = sql;

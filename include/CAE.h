@@ -21,6 +21,8 @@
 #include <openssl/evp.h>
 #include <openssl/sha.h>
 
+#include "Logger.h"
+
 #ifdef USE_FILESYSTEM
 
 #include <complex>
@@ -36,32 +38,39 @@
 #undef GetObject
 #undef DeleteFile
 
+class Logger;
 
 class CAE {
 private:
     dhenv m_henv_; // 环境句柄
     dhcon m_hcon_; // 连接句柄
     dhstmt m_hstmt_; // 语句句柄
-    dhdesc m_hdesc_; // 描述符句柄
     DPIRETURN m_rt_; // 函数返回值
+
+    Logger* logger_obj;
 
     bool isValidSQLCommand_(const std::string &sql, const std::string type);
 
     void dpiErrorMsgPrint_(sdint2 hndl_type, dhandle hndl);
 
-    bool initDB_(const std::string &file_path);
+    std::string initDB_(const std::string &file_path);
+
+    bool initLogger_(std::string& serverAddr, std::string& logger_username, std::string& logger_passwd);
 
     std::string encrypt_(const std::string &data);
 
     void releaseDB_();
 
+    void releaseLogger_();
 
 #ifdef USE_FILESYSTEM
     // 定义文件系统私有成员
-    minio::s3::BaseUrl *base_url;
-    minio::creds::StaticProvider *provider;
-    minio::s3::Client *m_client_ = nullptr;
-    std::vector<std::vector<std::string> > m_res_; //查询结果
+
+    //todo minio中所有指针类型的变量 releaseFileSystem_方法中需要释放并制空
+    minio::s3::BaseUrl* base_url;
+    minio::creds::StaticProvider* provider;
+    minio::s3::Client* m_client_ = nullptr;
+    std::vector<std::vector<std::string>> m_res_; //查询结果
 
     std::string m_bucket_; //桶名
     std::string m_prefix_; //前缀名
@@ -69,7 +78,8 @@ private:
     std::string m_sql_; //sql语句
     std::string m_id_; //表中文件ID
     std::string m_path_; //查询到的文件路径
-    std::vector<std::vector<DBVariant> > m_result_;
+
+    std::vector<std::vector<DBVariant>> m_result_;
     std::vector<int> m_col_types_;
 
 
@@ -131,8 +141,6 @@ public:
     CAE(const std::string &file_path);
 
     ~CAE();
-
-    // void connectTest(const std::string &file_path);
 
     bool Query(std::string &sql_str, std::vector<std::vector<std::string> > &res);
 
