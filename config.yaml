@@ -7,3 +7,6 @@ fileSystem:
   endpoint: "222.27.255.211:19000"
   username: "fileadmin_test"
   passwd: "fileadmin"
+
+log:
+  cidr: "169.254.189.90/16"

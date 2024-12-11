@@ -9,17 +9,18 @@
 int main() {
     CAE obj("../config.yaml", true);
 
-    // Êü•ËØ¢ÊµãËØï
-    // std::string query_sql = "select * from BASIC_SHIP_INFORMATION_DB.SHIP_DATA_INFO where ship_type = 'Ê≤πËàπ'";
+    // ip ≤‚ ‘
+    // ≤È—Ø≤‚ ‘
+    // std::string query_sql = "select * from BASIC_SHIP_INFORMATION_DB.SHIP_DATA_INFO where ship_type = '”Õ¥¨'";
     // std::vector<std::vector<DBVariant> > result2;
     // std::vector<int> col_types;
     //
     // if (obj.Query(query_sql, result2, col_types)) {
-    //     // ËæìÂá∫ÊâìÂç∞ÊµãËØï
+    //     //  ‰≥ˆ¥Ú”°≤‚ ‘
     //     obj.printResult(result2, col_types);
     // }
 
-    // ÊèíÂÖ•ÊµãËØï
+    // ≤Â»Î≤‚ ‘
     // std::string insert_sql =
     //         "insert into BASIC_SHIP_INFORMATION_DB.SISTER_SHIP_INFO (SHIP_DATA_ID, SISTER_DATA_ID, SHIP_NAME) "
     //         "values (7082006, 7082007, 'test No1')";
@@ -27,36 +28,36 @@ int main() {
     //     std::cout << "insert done." << std::endl;
     // }
 
-    // Êõ¥Êñ∞ÊµãËØï
+    // ∏¸–¬≤‚ ‘
     // std::string update_sql = "update BASIC_SHIP_INFORMATION_DB.SISTER_SHIP_INFO set SHIP_NAME = 'test No1' where SHIP_NAME = 'test No3'";
     // if (obj.Update(update_sql)) {
     //     std::cout << "update done." << std::endl;
     // }
     //
-    // //Âà†Èô§ÊµãËØï
+    // //…æ≥˝≤‚ ‘
     // std::string delete_sql = "delete from BASIC_SHIP_INFORMATION_DB.SISTER_SHIP_INFO where SHIP_NAME = 'test No1'";
     // if (obj.Delete(delete_sql)) {
     //     std::cout << "delete done." << std::endl;
     // }
 
 
-    //Êñá‰ª∂Êìç‰ΩúÊµãËØï
+    //Œƒº˛≤Ÿ◊˜≤‚ ‘
 
-    // //‰∏ä‰º†Êñá‰ª∂ ÊåáÂÆöË∑ØÂæÑÔºåÂ∏¶Êñá‰ª∂Âêç hull_parameter_info
-    // if (obj.UploadFile("hull_model_and_information_db", "hull_parameter_info", "SampleShip_JBC0000", "TRANSVERSE_AREA_CURVE", "../doc/È≤®È±º.png")) {
+    // //…œ¥´Œƒº˛ ÷∏∂®¬∑æ∂£¨¥¯Œƒº˛√˚ hull_parameter_info
+    // if (obj.UploadFile("hull_model_and_information_db", "hull_parameter_info", "SampleShip_JBC0000", "TRANSVERSE_AREA_CURVE", "../doc/ˆË”„.png")) {
     //     std::cout << "Upload file done." << std::endl;
     // }
     // if (obj.UploadFile("hull_model_and_information_db", "hull_parameter_info", "SampleShip_JBC0000", "HULL_3D_MODEL",
     //                    "../doc/sharks.png")) {
     //     std::cout << "Upload file done." << std::endl;
     // }
-    // // ‰∏ãËΩΩÊñá‰ª∂ ÊåáÂÆöË∑ØÂæÑÔºå‰∏çÂ∏¶Êñá‰ª∂Âêç
+    // // œ¬‘ÿŒƒº˛ ÷∏∂®¬∑æ∂£¨≤ª¥¯Œƒº˛√˚
     // if (obj.GetFile("hull_model_and_information_db", "HULL_PARAMETER_INFO", "SampleShip_JBC0000",
     //                 "TRANSVERSE_AREA_CURVE", ".")) {
     //     std::cout << "Download file done." << std::endl;
     // }
     //
-    // //‰∏ãËΩΩÂ≠óÁ¨¶ÊµÅ
+    //œ¬‘ÿ◊÷∑˚¡˜
     std::vector<unsigned char> object_data;
     if (obj.GetFile("HuLL_MODEL_AND_INFORMATION_Db", "hull_parameter_info", "SampleShip_JBC0000", "HULL_3D_MODEL",
                     object_data)) {
@@ -64,13 +65,13 @@ int main() {
         std::cout << "object_data size: " << object_data.size() << std::endl;
     }
     //
-    // // Âà†Èô§Êñá‰ª∂
+    // // …æ≥˝Œƒº˛
     // if (obj.DeleteFile("HULL_MODEL_AND_INFORMATION_DB", "hull_parameter_info", "SampleShip_JBC0000",
     //                    "TRANSVERSE_AREA_CURVE")) {
     //     std::cout << "Delete file done." << std::endl;
     // }
     //
-    // //Âà†Èô§ËÆ∞ÂΩï
+    // //…æ≥˝º«¬º
     // if (obj.DeleteRecord("hull_model_and_information_db", "Performance_info", "SampleShip_JBC0000")) {
     //     std::cout << "Delete record done." << std::endl;
     // }

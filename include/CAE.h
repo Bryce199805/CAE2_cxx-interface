@@ -23,6 +23,7 @@
 
 #include "Logger.h"
 
+
 #ifdef USE_FILESYSTEM
 
 #include <complex>
@@ -47,13 +48,15 @@ private:
     dhstmt m_hstmt_; // 语句句柄
     DPIRETURN m_rt_; // 函数返回值
 
-    Logger* logger_obj;
+    std::string m_server_; // serverAddr
+    //todo 定义私有成员：log对象
+    Logger* logger_obj = nullptr;
 
     bool isValidSQLCommand_(const std::string &sql, const std::string type);
 
     void dpiErrorMsgPrint_(sdint2 hndl_type, dhandle hndl);
 
-    std::string initDB_(const std::string &file_path);
+    bool initDB_(const std::string &file_path);
 
     bool initLogger_(std::string& serverAddr, std::string& logger_username, std::string& logger_passwd);
 
@@ -66,9 +69,8 @@ private:
 #ifdef USE_FILESYSTEM
     // 定义文件系统私有成员
 
-    //todo minio中所有指针类型的变量 releaseFileSystem_方法中需要释放并制空
-    minio::s3::BaseUrl* base_url;
-    minio::creds::StaticProvider* provider;
+    minio::s3::BaseUrl* base_url = nullptr;
+    minio::creds::StaticProvider* provider = nullptr;
     minio::s3::Client* m_client_ = nullptr;
     std::vector<std::vector<std::string>> m_res_; //查询结果
 

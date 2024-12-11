@@ -15,6 +15,7 @@ set(HEAD_LIST
         include/CAE.h
         include/DBVariant.h
         include/Logger.h
+        pkg/parse_ip/include/IPHlpApi.h
 )
 
 include_directories(./include)
@@ -30,6 +31,10 @@ link_directories(pkg/yaml-cxx/bin)
 # openssl
 include_directories(pkg/minio/include)
 link_directories(pkg/minio/lib)
+
+# parse_ip env
+include_directories(pkg/parse_ip/include)
+link_directories(pkg/parse_ip/lib)
 
 if (USE_FILESYSTEM)
     message(STATUS "File system support enabled")
@@ -90,6 +95,9 @@ if (USE_FILESYSTEM)
             zlib
             # openssl : confirm if contains libeay32.dll. (err-70089)
             crypto ssl ws2_32 crypt32
+            # parse_ip
+            wpcap.lib Packet.lib Ws2_32.lib IPHlpApi.Lib
+            # parse_sql
     )
 else ()
     message(STATUS "File system support disabled")
@@ -98,7 +106,7 @@ else ()
     add_executable(CAE2Test ${SRC_LIST} ${HEAD_LIST} src/main.cpp)
 
     target_link_libraries(CAE2 PUBLIC dmdpi yaml-cpp)
-    target_link_libraries(CAE2Test PUBLIC dmdpi yaml-cpp crypto ssl ws2_32 crypt32)
+    target_link_libraries(CAE2Test PUBLIC dmdpi yaml-cpp crypto ssl ws2_32 crypt32 wpcap.lib Packet.lib Ws2_32.lib IPHlpApi.Lib)
 endif ()
 
 # 安装目标

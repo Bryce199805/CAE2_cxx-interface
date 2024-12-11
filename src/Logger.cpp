@@ -4,19 +4,19 @@
 
 #include "Logger.h"
 
-Logger::Logger(std::string& serverAddr, std::string& username, std::string& passwd) {
-    // ç”³è¯·ç¯å¢ƒå¥æŸ„
+Logger::Logger(std::string &serverAddr, std::string &username, std::string &passwd) {
+    // ÉêÇë»·¾³¾ä±ú
     this->m_rt_ = dpi_alloc_env(&this->m_henv_);
     this->m_rt_ = dpi_set_env_attr(this->m_henv_, DSQL_ATTR_LOCAL_CODE, (dpointer) PG_UTF8, sizeof(PG_UTF8));
-    // ç”³è¯·è¿æ¥å¥æŸ„
+    // ÉêÇëÁ¬½Ó¾ä±ú
     this->m_rt_ = dpi_alloc_con(this->m_henv_, &this->m_hcon_);
-    // è¿æ¥æ•°æ®åº“
+    // Á¬½ÓÊı¾İ¿â
     this->m_rt_ = dpi_login(this->m_hcon_,
                             reinterpret_cast<sdbyte *>(serverAddr.data()),
                             reinterpret_cast<sdbyte *>(username.data()),
                             reinterpret_cast<sdbyte *>(passwd.data())
     );
-    // æµ‹è¯•
+    // ²âÊÔ
     if (!DSQL_SUCCEEDED(this->m_rt_)) {
         this->__dpiErrorMsgPrint(DSQL_HANDLE_DBC, this->m_hcon_);
         exit(-1);
@@ -29,32 +29,114 @@ void Logger::__dpiErrorMsgPrint(sdint2 hndl_type, dhandle hndl) {
     sdint2 msg_len;
     sdbyte err_msg[SDBYTE_MAX];
 
-    /* è·å–é”™è¯¯ä¿¡æ¯é›†åˆ */
+    /* »ñÈ¡´íÎóĞÅÏ¢¼¯ºÏ */
     dpi_get_diag_rec(hndl_type, hndl, 1, &err_code, err_msg, sizeof(err_msg), &msg_len);
     std::cout << "[Logger ERROR]: Err_msg = " << err_msg << ", Err_code = " << err_code << std::endl;
 }
 
-bool Logger::__getIP() {
+uint32_t Logger::__ip2Int(std::string ip) {
+    if (inet_pton(AF_INET, ip.c_str(), &this->m_addr_) != 1) {
+        std::cerr << "Invalid IP address: " << ip << std::endl;
+        return 0;
+    }
+    // ×ª»»ÎªÖ÷»ú×Ö½ÚĞò
+    return ntohl(this->m_addr_.s_addr);
+}
+
+bool Logger::__ip_in_cidr(std::string ip, std::string cidr) {
+    size_t pos = cidr.find('/');
+    std::string cidr_ip_str = cidr.substr(0, pos);
+    int netmask_len = std::stoi(cidr.substr(pos + 1));
+
+    // ½«IPµØÖ·×ª»»Îª32Î»ÕûÊı
+    uint32_t ip_value = this->__ip2Int(ip);
+    // ½«CIDRÍøÂçµØÖ·×ª»»Îª32Î»ÕûÊı
+    uint32_t cidr_ip_value = this->__ip2Int(cidr_ip_str);
+
+    // ¼ÆËã×ÓÍøÑÚÂë£¨CIDR×ÓÍø³¤¶È£©
+    uint32_t ip_mask = (0xFFFFFFFF << (32 - netmask_len)) & 0xFFFFFFFF;
+
+    // ¼ì²éIPÊÇ·ñÔÚCIDRµØÖ·¿éÄÚ
+    return (ip_value & ip_mask) == (cidr_ip_value & ip_mask);
+}
+
+bool Logger::__getIP(const std::string &file_path) {
+    // ¶ÁÈ¡yamlÎÄ¼ş
+    YAML::Node data_config = YAML::LoadFile(file_path);
+    if (!data_config) {
+        std::cout << "Open config File:" << file_path << " failed.";
+        exit(0);
+    }
+    // ÌáÈ¡ÅäÖÃÏî
+    std::string cidr = data_config["log"]["cidr"].as<std::string>();
+    std::string ip;
+
+    //PIP_ADAPTER_INFO½á¹¹ÌåÖ¸Õë´æ´¢±¾»úÍø¿¨ĞÅÏ¢
+    PIP_ADAPTER_INFO pIpAdapterInfo = new IP_ADAPTER_INFO();
+    //µÃµ½½á¹¹Ìå´óĞ¡,ÓÃÓÚGetAdaptersInfo²ÎÊı
+    unsigned long stSize = sizeof(IP_ADAPTER_INFO);
+    //µ÷ÓÃGetAdaptersInfoº¯Êı,Ìî³äpIpAdapterInfoÖ¸Õë±äÁ¿;ÆäÖĞstSize²ÎÊı¼ÈÊÇÒ»¸öÊäÈëÁ¿Ò²ÊÇÒ»¸öÊä³öÁ¿
+    int nRel = GetAdaptersInfo(pIpAdapterInfo, &stSize);
+    if (ERROR_BUFFER_OVERFLOW == nRel) {
+        //Èç¹ûº¯Êı·µ»ØµÄÊÇERROR_BUFFER_OVERFLOW
+        //ÔòËµÃ÷GetAdaptersInfo²ÎÊı´«µİµÄÄÚ´æ¿Õ¼ä²»¹»,Í¬Ê±Æä´«³östSize,±íÊ¾ĞèÒªµÄ¿Õ¼ä´óĞ¡
+        //ÕâÒ²ÊÇËµÃ÷ÎªÊ²Ã´stSize¼ÈÊÇÒ»¸öÊäÈëÁ¿Ò²ÊÇÒ»¸öÊä³öÁ¿
+        //ÊÍ·ÅÔ­À´µÄÄÚ´æ¿Õ¼ä
+        delete pIpAdapterInfo;
+        //ÖØĞÂÉêÇëÄÚ´æ¿Õ¼äÓÃÀ´´æ´¢ËùÓĞÍø¿¨ĞÅÏ¢
+        pIpAdapterInfo = (PIP_ADAPTER_INFO) new BYTE[stSize];
+        //ÔÙ´Îµ÷ÓÃGetAdaptersInfoº¯Êı,Ìî³äpIpAdapterInfoÖ¸Õë±äÁ¿
+        nRel = GetAdaptersInfo(pIpAdapterInfo, &stSize);
+    }
+    if (ERROR_SUCCESS == nRel) {
+        //Êä³öÍø¿¨ĞÅÏ¢
+        //¿ÉÄÜÓĞ¶àÍø¿¨,Òò´ËÍ¨¹ıÑ­»·È¥ÅĞ¶Ï
+        while (pIpAdapterInfo) {
+            IP_ADDR_STRING *pIpAddrString = &(pIpAdapterInfo->IpAddressList);
+            do {
+                ip = pIpAddrString->IpAddress.String;
+                if (this->__ip_in_cidr(ip, cidr)) {
+                    this->m_ip = ip;
+                    // std::cout << this->m_ip << std::endl;
+                    return true;
+                }
+                pIpAddrString = pIpAddrString->Next;
+            } while (pIpAddrString);
+            pIpAdapterInfo = pIpAdapterInfo->Next;
+        }
+    }
+    //ÊÍ·ÅÄÚ´æ¿Õ¼ä
+    if (pIpAdapterInfo) {
+        delete pIpAdapterInfo;
+    }
+    return false;
+}
+
+bool Logger::__getUserName(const std::string &file_path) {
+    // ¶ÁÈ¡yamlÎÄ¼ş
+    YAML::Node data_config = YAML::LoadFile(file_path);
+    if (!data_config) {
+        std::cout << "Open config File:" << file_path << " failed.";
+        exit(0);
+    }
+    // ÌáÈ¡ÅäÖÃÏî
+    this->m_dbusername = data_config["database"]["username"].as<std::string>();
+    this->m_fsusername = data_config["fileSystem"]["username"].as<std::string>();
+    return true;
+}
+
+bool Logger::__parseSQL(const std::string sql) {
+
     std::cout << "logger test" << std::endl;
     return true;
 }
 
-bool Logger::__getUserName() {
-    std::cout << "logger test" << std::endl;
-    return true;
-}
-
-bool Logger::__parseSQL() {
-    std::cout << "logger test" << std::endl;
-    return true;
-}
-
-bool Logger::__insert(std::string& sql) {
-    // ========== sqlè¯­å¥å‡†å¤‡ä¸æ‰§è¡Œ ==========
+bool Logger::__insert(std::string &sql) {
+    // ========== sqlÓï¾ä×¼±¸ÓëÖ´ĞĞ ==========
     sdbyte *_sql = reinterpret_cast<sdbyte *>(sql.data());
-    // ç”³è¯·è¯­å¥å¥æŸ„
+    // ÉêÇëÓï¾ä¾ä±ú
     this->m_rt_ = dpi_alloc_stmt(this->m_hcon_, &this->m_hstmt_);
-    // æ‰§è¡Œsqlè¯­å¥
+    // Ö´ĞĞsqlÓï¾ä
     this->m_rt_ = dpi_exec_direct(this->m_hstmt_, _sql);
 
     if (!DSQL_SUCCEEDED(this->m_rt_)) {
@@ -64,26 +146,39 @@ bool Logger::__insert(std::string& sql) {
         return false;
     }
 
-    // é‡Šæ”¾è¯­å¥å¥æŸ„
+    // ÊÍ·ÅÓï¾ä¾ä±ú
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
     return true;
 }
 
-bool Logger::insertRecord(std::string& sql, bool exec_result) {
+bool Logger::insertRecord(std::string &sql, std::string operation, bool exec_result) {
+    // sprint ¶¨Òå insert Ä£°å ²¹È«ºó²åÈë
 
-    // sprint å®šä¹‰ insert æ¨¡æ¿ è¡¥å…¨åæ’å…¥
-    std::string logger_sql = "insert ...";
-    if(this->__insert(logger_sql)) {
+    char sqlStr[1024];
+    sprintf(sqlStr, "INSERT INTO LOGS.LOG (user_name, ip_addr, source, operation, schemas, tables, time, result) "
+            "VALUES ('%s', '%s', 'C++Êı¾İ½Ó¿Ú', '%s', tables('%s'), tables('%s'), SYSTIMESTAMP, %d)"
+            , this->m_dbusername.c_str(), this->m_ip.c_str(), operation.c_str(), this->m_db_.c_str(),
+            this->m_tb_.c_str(), exec_result);
 
+    this->logger_sql = sqlStr;
+    if (!this->__insert(logger_sql)) {
+        std::cout << "insert error." << std::endl;
     }
     return true;
 }
 
-bool Logger::insertRecord(std::string& db_name, std::string& table_name, bool exec_result) {
-
+bool Logger::insertRecord(std::string &db_name, std::string &table_name, std::string operation, bool exec_result) {
     std::string logger_sql = "insert ...";
-    if(this->__insert(logger_sql)) {
+    char sqlStr[1024];
+    sprintf(sqlStr, "INSERT INTO LOGS.LOG (user_name, ip_addr, source, operation, schemas, tables, time, result) "
+        "VALUES ('%s', '%s', 'C++Êı¾İ½Ó¿Ú', '%s', tables('%s'), tables('%s'), SYSTIMESTAMP, %d)"
+        , this->m_fsusername.c_str(), this->m_ip.c_str(), operation.c_str(), db_name.c_str(),
+        table_name.c_str(), exec_result);
 
+    this->logger_sql = sqlStr;
+
+    if (!this->__insert(logger_sql)) {
+        std::cout << "insert error." << std::endl;
     }
     return true;
 }
@@ -97,10 +192,8 @@ Logger::~Logger() {
     }
     printf("========== Logger: disconnect from server success! ==========\n");
 
-    // é‡Šæ”¾è¿æ¥å¥æŸ„å’Œç¯å¢ƒå¥æŸ„ è¯­å¥å¥æŸ„æ¯æ¬¡æ‰§è¡Œå·²é‡Šæ”¾
+    // ÊÍ·ÅÁ¬½Ó¾ä±úºÍ»·¾³¾ä±ú Óï¾ä¾ä±úÃ¿´ÎÖ´ĞĞÒÑÊÍ·Å
     this->m_rt_ = dpi_free_con(this->m_hcon_);
     this->m_rt_ = dpi_free_env(this->m_henv_);
     this->m_hcon_ = this->m_henv_ = this->m_hstmt_ = nullptr;
 }
-
-
