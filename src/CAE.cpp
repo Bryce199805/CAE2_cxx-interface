@@ -189,7 +189,7 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<std::string> > &re
         this->dpiErrorMsgPrint_(DSQL_HANDLE_STMT, this->m_hstmt_);
         this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
-        logger_obj->insertRecord(sql_str, "查询", false);
+        logger_obj->__insertRecord(sql_str, "查询", false);
 
         return false;
     }
@@ -237,7 +237,7 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<std::string> > &re
         res.push_back(temp);
     }
 
-    logger_obj->insertRecord(sql_str, "查询", true);
+    logger_obj->__insertRecord(sql_str, "查询", true);
 
     // 释放语句句柄
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
@@ -269,7 +269,7 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res)
         this->dpiErrorMsgPrint_(DSQL_HANDLE_STMT, this->m_hstmt_);
         this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
-        logger_obj->insertRecord(sql_str, "查询", false);
+        logger_obj->__insertRecord(sql_str, "查询", false);
 
         return false;
     }
@@ -339,7 +339,7 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res)
         res.push_back(temp);
     }
 
-    logger_obj->insertRecord(sql_str, "查询", true);
+    logger_obj->__insertRecord(sql_str, "查询", true);
 
     // 释放语句句柄
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
@@ -371,7 +371,7 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res,
         this->dpiErrorMsgPrint_(DSQL_HANDLE_STMT, this->m_hstmt_);
         this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
-        logger_obj->insertRecord(sql_str, "查询", false);
+        logger_obj->__insertRecord(sql_str, "查询", false);
 
         return false;
     }
@@ -445,7 +445,7 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res,
         res.push_back(temp);
     }
 
-    logger_obj->insertRecord(sql_str, "查询", true);
+    logger_obj->__insertRecord(sql_str, "查询", true);
 
     // 释放语句句柄
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
@@ -476,12 +476,12 @@ bool CAE::Delete(std::string &sql_str) {
         this->dpiErrorMsgPrint_(DSQL_HANDLE_STMT, this->m_hstmt_);
         this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
-        logger_obj->insertRecord(sql_str, "删除", false);
+        logger_obj->__insertRecord(sql_str, "删除", false);
 
         return false;
     }
 
-    logger_obj->insertRecord(sql_str, "删除", true);
+    logger_obj->__insertRecord(sql_str, "删除", true);
     // 释放语句句柄
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
     //    std::cout << "delete success!" << std::endl;
@@ -510,12 +510,12 @@ bool CAE::Update(std::string &sql_str) {
         this->dpiErrorMsgPrint_(DSQL_HANDLE_STMT, this->m_hstmt_);
         this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
-        logger_obj->insertRecord(sql_str, "修改", false);
+        logger_obj->__insertRecord(sql_str, "修改", false);
 
         return false;
     }
 
-    logger_obj->insertRecord(sql_str, "修改", true);
+    logger_obj->__insertRecord(sql_str, "修改", true);
 
     // 释放语句句柄
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
@@ -545,12 +545,12 @@ bool CAE::Insert(std::string &sql_str) {
         this->dpiErrorMsgPrint_(DSQL_HANDLE_STMT, this->m_hstmt_);
         this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
-        logger_obj->insertRecord(sql_str, "插入", false);
+        logger_obj->__insertRecord(sql_str, "插入", false);
 
         return false;
     }
 
-    logger_obj->insertRecord(sql_str, "插入", true);
+    logger_obj->__insertRecord(sql_str, "插入", true);
 
     // 释放语句句柄
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);

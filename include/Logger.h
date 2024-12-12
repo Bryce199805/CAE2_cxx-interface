@@ -52,9 +52,9 @@ private:
 
     bool __insert(std::string& sql);
 
-    bool insertRecord(std::string& sql, std::string operation, bool exec_result);
+    bool __insertRecord(std::string& sql, std::string operation, bool exec_result);
 
-    bool insertRecord(std::string& db_name, std::string& table_name, std::string operation, bool exec_result);
+    bool __insertRecord(std::string& db_name, std::string& table_name, std::string operation, bool exec_result);
 
     ~Logger();
 

@@ -227,11 +227,11 @@ bool CAE::UploadFile(std::string dbName, std::string tableName, const std::strin
         this->Update(this->m_sql_);
     } else {
         std::cout << "Unable to upload file:" << resp.Error().String() << std::endl;
-        logger_obj->insertRecord(dbName, tableName, "上传文件", false);
+        logger_obj->__insertRecord(dbName, tableName, "上传文件", false);
         return false;
     }
 
-    logger_obj->insertRecord(dbName, tableName, "上传文件", true);
+    logger_obj->__insertRecord(dbName, tableName, "上传文件", true);
 
     return true;
 }
@@ -300,10 +300,10 @@ bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &
         std::cerr << "Unable to download object:" << resp.Error().String() << std::endl;
     } else {
         std::filesystem::rename("./temp", path);
-        logger_obj->insertRecord(dbName, tableName, "下载文件", false);
+        logger_obj->__insertRecord(dbName, tableName, "下载文件", false);
     }
 
-    logger_obj->insertRecord(dbName, tableName, "下载文件", true);
+    logger_obj->__insertRecord(dbName, tableName, "下载文件", true);
 
     return true;
 }
@@ -355,11 +355,11 @@ bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &
 
     if (!resp) {
         std::cout << "Unable to get data:" << resp.Error().String() << std::endl;
-        logger_obj->insertRecord(dbName, tableName, "下载文件", false);
+        logger_obj->__insertRecord(dbName, tableName, "下载文件", false);
         return false;
     }
 
-    logger_obj->insertRecord(dbName, tableName, "下载文件", true);
+    logger_obj->__insertRecord(dbName, tableName, "下载文件", true);
 
     return true;
 }
@@ -411,12 +411,12 @@ bool CAE::DeleteFile(std::string dbName, std::string tableName, const std::strin
         this->Update(this->m_sql_);
     } else {
         std::cout << "Unable to delete file:" << resp.Error().String() << std::endl;
-        logger_obj->insertRecord(dbName, tableName, "删除文件", false);
+        logger_obj->__insertRecord(dbName, tableName, "删除文件", false);
 
         return false;
     }
 
-    logger_obj->insertRecord(dbName, tableName, "删除文件", true);
+    logger_obj->__insertRecord(dbName, tableName, "删除文件", true);
 
     return true;
 }
@@ -466,7 +466,7 @@ bool CAE::DeleteRecord(std::string dbName, std::string tableName, const std::str
     if (is_empty) {
         std::cout << "Folder is empty, nothing to delete." << std::endl;
 
-        logger_obj->insertRecord(dbName, tableName, "删除", false);
+        logger_obj->__insertRecord(dbName, tableName, "删除", false);
 
         return false;
     } else {
@@ -480,7 +480,7 @@ bool CAE::DeleteRecord(std::string dbName, std::string tableName, const std::str
         this->Delete(this->m_sql_);
     }
 
-    logger_obj->insertRecord(dbName, tableName, "删除", true);
+    logger_obj->__insertRecord(dbName, tableName, "删除", true);
 
     return true;
 }

@@ -1,4 +1,3 @@
-
 #ifndef GET_TBNAME_H
 #define GET_TBNAME_H
 
@@ -17,7 +16,6 @@ namespace sqltoaster {
 
         parser(sqltoast::parse_options_t &opts, const std::string &input) : opts(opts), subject(input.cbegin(), input.cend()) {
         }
-
         void operator()() {
             res = sqltoast::parse(subject, opts);
         }
@@ -31,12 +29,41 @@ namespace sqltoaster {
         // ptr.output_format = sqltoaster::OUTPUT_FORMAT_YAML;
 
         if (p.res.code == sqltoast::PARSE_OK) {
-            ptr.process_statements();
-            if (ptr.statement_node_count()) {
-                sqltoaster::mapping_t statements;
-                statements.setattr("statements", ptr.statements);
-                get_table(statements, res_lst);
+            for (const auto &stmt: p.res.statements) {
+                switch (stmt->type) {
+                    case sqltoast::STATEMENT_TYPE_SELECT: {
+                        // 处理 SELECT 的表信息
+                        ptr.process_statements();
+                        if (ptr.statement_node_count()) {
+                            sqltoaster::mapping_t statements;
+                            statements.setattr("statements", ptr.statements);
+                            get_table(statements, res_lst);
+                        }
+                        break;
+                    }
+                    case sqltoast::STATEMENT_TYPE_INSERT: {
+                        const auto &insert_stmt = static_cast<const sqltoast::insert_statement_t &>(*stmt);
+                        // 提取 INSERT 的目标表
+                        res_lst.push_back(std::string(insert_stmt.table_name.start, insert_stmt.table_name.end));
+                        break;
+                    }
+                    case sqltoast::STATEMENT_TYPE_UPDATE: {
+                        const auto &update_stmt = static_cast<const sqltoast::update_statement_t &>(*stmt);
+                        // 提取 UPDATE 的目标表
+                        res_lst.push_back(std::string(update_stmt.table_name.start, update_stmt.table_name.end));
+                        break;
+                    }
+                    case sqltoast::STATEMENT_TYPE_DELETE: {
+                        const auto &delete_stmt = static_cast<const sqltoast::delete_statement_t &>(*stmt);
+                        // 提取 DELETE 的目标表
+                        res_lst.push_back(std::string(delete_stmt.table_name.start, delete_stmt.table_name.end));
+                        break;
+                    }
+                    default:
+                        std::cout << "Unsupported statement type: " << stmt->type << std::endl;
+                }
             }
+
         } else if (p.res.code == sqltoast::PARSE_INPUT_ERROR) {
             std::cout << "Input error: " << p.res.error << std::endl;
             return false;

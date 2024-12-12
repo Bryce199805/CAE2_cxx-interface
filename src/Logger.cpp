@@ -172,11 +172,10 @@ bool Logger::__insert(std::string &sql) {
     return true;
 }
 
-bool Logger::insertRecord(std::string &sql, std::string operation, bool exec_result) {
+bool Logger::__insertRecord(std::string &sql, std::string operation, bool exec_result) {
     if (!this->__parseSQL(sql)) {
         return false;
     }
-    std::cout << this->m_db_ << " " << this->m_tb_ << std::endl;
     char sqlStr[1024];
     sprintf(sqlStr, "INSERT INTO LOGS.LOG (user_name, ip_addr, source, operation, schemas, tables, time, result) "
             "VALUES ('%s', '%s', 'c++接口', '%s', tables('%s'), tables('%s'), SYSTIMESTAMP, %d)"
@@ -190,7 +189,7 @@ bool Logger::insertRecord(std::string &sql, std::string operation, bool exec_res
     return true;
 }
 
-bool Logger::insertRecord(std::string &db_name, std::string &table_name, std::string operation, bool exec_result) {
+bool Logger::__insertRecord(std::string &db_name, std::string &table_name, std::string operation, bool exec_result) {
     char sqlStr[1024];
     sprintf(sqlStr, "INSERT INTO LOGS.LOG (user_name, ip_addr, source, operation, schemas, tables, time, result) "
             "VALUES ('%s', '%s', 'c++接口', '%s', tables('%s'), tables('%s'), SYSTIMESTAMP, %d)"

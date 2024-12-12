@@ -10,14 +10,14 @@ int main() {
     CAE obj("../config.yaml", true);
 
     // 查询测试
-    std::string query_sql = "select * from BASIC_SHIP_INFORMATION_DB.SHIP_DATA_INFO where ship_type = '油船'";
-    std::vector<std::vector<DBVariant> > result2;
-    std::vector<int> col_types;
-
-    if (obj.Query(query_sql, result2, col_types)) {
-        // 输出打印测试
-        obj.printResult(result2, col_types);
-    }
+    // std::string query_sql = "select * from BASIC_SHIP_INFORMATION_DB.SHIP_DATA_INFO where ship_type = '油船'";
+    // std::vector<std::vector<DBVariant> > result2;
+    // std::vector<int> col_types;
+    //
+    // if (obj.Query(query_sql, result2, col_types)) {
+    //     // 输出打印测试
+    //     obj.printResult(result2, col_types);
+    // }
 
     // 插入测试
     // std::string insert_sql ="insert into BASIC_SHIP_INFORMATION_DB.SISTER_SHIP_INFO (SHIP_DATA_ID, SISTER_DATA_ID, SHIP_NAME) values (7082006, 7082007, 'test No1')";
