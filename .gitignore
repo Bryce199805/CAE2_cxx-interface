@@ -4,3 +4,9 @@
 /.idea
 
 /.git
+
+/build_CAEFILE
+
+/build_CAEwithoutFILE
+
+/cmake-build-debug-mingw
