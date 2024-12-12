@@ -49,7 +49,10 @@ private:
     DPIRETURN m_rt_; // 函数返回值
 
     std::string m_server_; // serverAddr
-    //todo 定义私有成员：log对象
+
+    std::string m_loguser_;
+    std::string m_logpwd_;
+
     Logger* logger_obj = nullptr;
 
     bool isValidSQLCommand_(const std::string &sql, const std::string type);
@@ -58,9 +61,11 @@ private:
 
     bool initDB_(const std::string &file_path);
 
-    bool initLogger_(std::string& serverAddr, std::string& logger_username, std::string& logger_passwd);
+    bool initLogger_(const std::string &file_path, std::string& serverAddr);
 
     std::string encrypt_(const std::string &data);
+
+    bool enableLog_(const std::string &file_path );
 
     void releaseDB_();
 

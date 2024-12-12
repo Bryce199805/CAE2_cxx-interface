@@ -9,7 +9,7 @@
 
 #include <iostream>
 
-#include <sqltoast/sqltoast.h>
+#include <sqltoast.h>
 
 #include "node.h"
 

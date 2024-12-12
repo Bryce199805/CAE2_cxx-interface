@@ -7,7 +7,7 @@
 #ifndef SQLTOASTER_FILL_H
 #define SQLTOASTER_FILL_H
 
-#include <sqltoast/sqltoast.h>
+#include <sqltoast.h>
 
 #include "printer.h"
 #include "node.h"

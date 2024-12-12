@@ -11,6 +11,7 @@
 #include <Iphlpapi.h>
 #include <iostream>
 #include <ws2tcpip.h>
+#include <sqltoast.h>
 
 class Logger {
 private:
@@ -20,11 +21,12 @@ private:
     dhstmt m_hstmt_;
     DPIRETURN m_rt_;
 
-    std::string m_dbusername;
-    std::string m_fsusername;
-    std::string m_ip;
+    std::string m_dbuser_;
+    std::string m_fsuser_;
+    std::string m_ip_;
     struct in_addr m_addr_;
-    std::string logger_sql;
+    std::string m_logger_sql_;
+    std::vector<std::string> m_res_lst_;
     std::string m_db_;
     std::string m_tb_;
 

@@ -15,7 +15,6 @@ set(HEAD_LIST
         include/CAE.h
         include/DBVariant.h
         include/Logger.h
-        pkg/parse_ip/include/IPHlpApi.h
 )
 
 include_directories(./include)
@@ -33,10 +32,17 @@ include_directories(${CMAKE_SOURCE_DIR}/pkg/openssl/include)
 link_directories(${CMAKE_SOURCE_DIR}/pkg/openssl/lib)
 
 
-
 # parse_ip env
 include_directories(pkg/parse_ip/include)
 link_directories(pkg/parse_ip/lib)
+
+# parse_sql env
+include_directories(pkg/sqltoast/include)
+link_directories(pkg/sqltoast/lib)
+
+include_directories(pkg/sqltoaster/include)
+link_directories(pkg/sqltoaster/lib)
+
 
 if (USE_FILESYSTEM)
     message(STATUS "File system support enabled")
@@ -96,8 +102,9 @@ if (USE_FILESYSTEM)
             # openssl : confirm if contains libeay32.dll. (err-70089)
             crypto ssl ws2_32 crypt32
             # parse_ip
-            wpcap.lib Packet.lib Ws2_32.lib IPHlpApi.Lib
+            wpcap Packet Ws2_32 IPHlpApi
             # parse_sql
+            sqltoaster sqltoast
     )
 else ()
     message(STATUS "File system support disabled")
@@ -132,7 +139,7 @@ else ()
     )
 
     target_link_libraries(CAE2 PUBLIC dmdpi yaml-cpp)
-    target_link_libraries(CAE2Test PUBLIC dmdpi yaml-cpp crypto ssl ws2_32 crypt32 wpcap.lib Packet.lib Ws2_32.lib IPHlpApi.Lib)
+    target_link_libraries(CAE2Test PUBLIC dmdpi yaml-cpp crypto ssl ws2_32 crypt32 wpcap Packet Ws2_32 IPHlpApi sqltoaster sqltoast )
 endif ()
 
 # 安装目标

@@ -12,7 +12,7 @@
 #include <map>
 #include <memory>
 
-#include <sqltoast/sqltoast.h>
+#include <sqltoast.h>
 
 namespace sqltoaster {
     typedef enum node_type {
