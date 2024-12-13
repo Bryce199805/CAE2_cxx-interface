@@ -11,7 +11,6 @@ int main() {
 
     // 查询测试
     // std::string query_sql = "select * from BASIC_SHIP_INFORMATION_DB.SHIP_DATA_INFO where ship_type = '油船'";
-    // // std::string query_sql = "select LOG.* from LOG where exists (select 1 from table(LOG.TABLES) tn where tn.column_value in ('SHIP_INFO'))";
     // std::vector<std::vector<DBVariant> > result2;
     // std::vector<int> col_types;
     //
