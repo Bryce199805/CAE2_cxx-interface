@@ -48,12 +48,6 @@ private:
     dhstmt m_hstmt_; // 语句句柄
     DPIRETURN m_rt_; // 函数返回值
 
-    // todo remove
-    std::string m_server_; // serverAddr
-
-    std::string m_loguser_;
-    std::string m_logpwd_;
-
     Logger* logger_obj = nullptr;
 
     bool isValidSQLCommand_(const std::string &sql, const std::string type);
@@ -67,8 +61,6 @@ private:
         const std::string& db_username, const std::string& cidr, const bool use_log);
 
     std::string encrypt_(const std::string &data);
-
-    bool enableLog_(const std::string &file_path );
 
     void releaseDB_();
 

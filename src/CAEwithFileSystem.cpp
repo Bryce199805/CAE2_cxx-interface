@@ -9,7 +9,6 @@
 // ============================== constructor ==============================
 
 CAE::CAE(const std::string &file_path, bool withFile = true) {
-
     // 读取yaml文件
     YAML::Node data_config = YAML::LoadFile(file_path);
     if (!data_config) {
@@ -39,7 +38,7 @@ CAE::CAE(const std::string &file_path, bool withFile = true) {
     } else {
         this->initDB_(db_server, db_username, db_passwd);
     }
-    if (this->enableLog_(file_path)) {
+    if (use_log) {
         this->initLogger_(db_server, log_username, log_passwd, db_username, cidr, use_log);
     }
 }
@@ -95,23 +94,24 @@ void CAE::parseDBPath_(std::string path) {
 }
 
 bool CAE::checkFilePath_(const std::string &dbName, const std::string &tableName, const std::string &col) {
-    if(this->m_FileMap_.find(dbName)==this->m_FileMap_.end()) {
+    if (this->m_FileMap_.find(dbName) == this->m_FileMap_.end()) {
         return false;
     }
-    if(this->m_FileMap_.find(dbName)->second.find(tableName)==this->m_FileMap_.find(dbName)->second.end()) {
+    if (this->m_FileMap_.find(dbName)->second.find(tableName) == this->m_FileMap_.find(dbName)->second.end()) {
         return false;
     }
-    if(this->m_FileMap_.find(dbName)->second.find(tableName)->second.find(col)==this->m_FileMap_.find(dbName)->second.find(tableName)->second.end()) {
+    if (this->m_FileMap_.find(dbName)->second.find(tableName)->second.find(col) == this->m_FileMap_.find(dbName)->second
+        .find(tableName)->second.end()) {
         return false;
     }
     return true;
 }
 
 bool CAE::checkFilePath_(const std::string &dbName, const std::string &tableName) {
-    if(this->m_FileMap_.find(dbName)==this->m_FileMap_.end()) {
+    if (this->m_FileMap_.find(dbName) == this->m_FileMap_.end()) {
         return false;
     }
-    if(this->m_FileMap_.find(dbName)->second.find(tableName)==this->m_FileMap_.find(dbName)->second.end()) {
+    if (this->m_FileMap_.find(dbName)->second.find(tableName) == this->m_FileMap_.find(dbName)->second.end()) {
         return false;
     }
     return true;
@@ -146,7 +146,7 @@ std::string CAE::getTableID_(std::string &dbName, std::string &tableName) {
 std::string CAE::transDBName2BucketName_(std::string dbName) {
     std::transform(dbName.begin(), dbName.end(), dbName.begin(), tolower);
     std::replace(dbName.begin(), dbName.end(), '_', '-');
-//    std::cout << dbName << std::endl;
+    //    std::cout << dbName << std::endl;
     return dbName;
 }
 
@@ -164,6 +164,7 @@ void CAE::releaseFileSystem_() {
     this->m_client_ = nullptr;
     std::cout << "========== file system :disconnect from server success! ==========" << std::endl;
 }
+
 // ============================== public function ==============================
 
 bool CAE::UploadFile(std::string dbName, std::string tableName, const std::string &id, const std::string &col,
@@ -241,18 +242,21 @@ bool CAE::UploadFile(std::string dbName, std::string tableName, const std::strin
         this->Update(this->m_sql_);
     } else {
         std::cout << "Unable to upload file:" << resp.Error().String() << std::endl;
-        logger_obj->__insertRecord(dbName, tableName, "上传文件", false);
+        if (logger_obj->m_use_log) {
+            logger_obj->insertRecord(dbName, tableName, "上传文件", false);
+        }
         return false;
     }
 
-    logger_obj->__insertRecord(dbName, tableName, "上传文件", true);
+    if (logger_obj->m_use_log) {
+        logger_obj->insertRecord(dbName, tableName, "上传文件", true);
+    }
 
     return true;
 }
 
 bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &id, const std::string &col,
                   std::string local_path) {
-
     this->upperName_(dbName, tableName);
 
     if (!this->checkFilePath_(dbName, tableName, col)) {
@@ -314,10 +318,13 @@ bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &
         std::cerr << "Unable to download object:" << resp.Error().String() << std::endl;
     } else {
         std::filesystem::rename("./temp", path);
-        logger_obj->__insertRecord(dbName, tableName, "下载文件", false);
+        if (logger_obj->m_use_log) {
+            logger_obj->insertRecord(dbName, tableName, "下载文件", false);
+        }
     }
-
-    logger_obj->__insertRecord(dbName, tableName, "下载文件", true);
+    if (logger_obj->m_use_log) {
+        logger_obj->insertRecord(dbName, tableName, "下载文件", true);
+    }
 
     return true;
 }
@@ -325,7 +332,6 @@ bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &
 
 bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &id, const std::string &col,
                   std::vector<unsigned char> &object_data) {
-
     this->upperName_(dbName, tableName);
 
     if (!this->checkFilePath_(dbName, tableName, col)) {
@@ -369,17 +375,20 @@ bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &
 
     if (!resp) {
         std::cout << "Unable to get data:" << resp.Error().String() << std::endl;
-        logger_obj->__insertRecord(dbName, tableName, "下载文件", false);
+        if (logger_obj->m_use_log) {
+            logger_obj->insertRecord(dbName, tableName, "下载文件", false);
+        }
         return false;
     }
 
-    logger_obj->__insertRecord(dbName, tableName, "下载文件", true);
+    if (logger_obj->m_use_log) {
+        logger_obj->insertRecord(dbName, tableName, "下载文件", true);
+    }
 
     return true;
 }
 
 bool CAE::DeleteFile(std::string dbName, std::string tableName, const std::string &id, const std::string &col) {
-
     this->upperName_(dbName, tableName);
 
     if (!this->checkFilePath_(dbName, tableName, col)) {
@@ -425,13 +434,14 @@ bool CAE::DeleteFile(std::string dbName, std::string tableName, const std::strin
         this->Update(this->m_sql_);
     } else {
         std::cout << "Unable to delete file:" << resp.Error().String() << std::endl;
-        logger_obj->__insertRecord(dbName, tableName, "删除文件", false);
-
+        if (logger_obj->m_use_log) {
+            logger_obj->insertRecord(dbName, tableName, "删除文件", false);
+        }
         return false;
     }
-
-    logger_obj->__insertRecord(dbName, tableName, "删除文件", true);
-
+    if (logger_obj->m_use_log) {
+        logger_obj->insertRecord(dbName, tableName, "删除文件", true);
+    }
     return true;
 }
 
@@ -479,9 +489,9 @@ bool CAE::DeleteRecord(std::string dbName, std::string tableName, const std::str
 
     if (is_empty) {
         std::cout << "Folder is empty, nothing to delete." << std::endl;
-
-        logger_obj->__insertRecord(dbName, tableName, "删除", false);
-
+        if (logger_obj->m_use_log) {
+            logger_obj->insertRecord(dbName, tableName, "删除", false);
+        }
         return false;
     } else {
         this->m_id_ = this->getTableID_(dbName, tableName);
@@ -493,8 +503,9 @@ bool CAE::DeleteRecord(std::string dbName, std::string tableName, const std::str
         this->m_sql_ = sqlStr;
         this->Delete(this->m_sql_);
     }
-
-    logger_obj->__insertRecord(dbName, tableName, "删除", true);
+    if (logger_obj->m_use_log) {
+        logger_obj->insertRecord(dbName, tableName, "删除", true);
+    }
 
     return true;
 }

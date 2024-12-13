@@ -13,7 +13,6 @@ CAE::CAE(const std::string &file_path) {
         std::cout << "Open config File:" << file_path << " failed.";
         exit(1);
     }
-
     std::string db_server = data_config["database"]["server"].as<std::string>();
     std::string db_username = data_config["database"]["username"].as<std::string>();
     std::string db_passwd = this->encrypt_(data_config["database"]["passwd"].as<std::string>());
@@ -25,11 +24,9 @@ CAE::CAE(const std::string &file_path) {
 
     this->initDB_(db_server, db_username, db_passwd);
     // 初始化log对象
-    // todo remove enableLog
-    if (this->enableLog_(file_path)) {
+    if (use_log) {
         this->initLogger_(db_server, log_username, log_passwd, db_username, cidr, use_log);
     }
-    this->logger_obj->m_use_log;
 }
 
 CAE::~CAE() {
@@ -43,8 +40,7 @@ CAE::~CAE() {
 
 // private function
 
-bool CAE::initDB_(std::string& db_server, std::string& db_username, std::string& db_passwd) {
-
+bool CAE::initDB_(std::string &db_server, std::string &db_username, std::string &db_passwd) {
     // 申请环境句柄
     this->m_rt_ = dpi_alloc_env(&this->m_henv_);
     this->m_rt_ = dpi_set_env_attr(this->m_henv_, DSQL_ATTR_LOCAL_CODE, (dpointer) PG_UTF8, sizeof(PG_UTF8));
@@ -70,8 +66,8 @@ bool CAE::initDB_(std::string& db_server, std::string& db_username, std::string&
     return true;
 }
 
-bool CAE::initLogger_(std::string& db_server, std::string& log_username, std::string& log_passwd,
-        const std::string& db_username, const std::string& cidr, const bool use_log) {
+bool CAE::initLogger_(std::string &db_server, std::string &log_username, std::string &log_passwd,
+                      const std::string &db_username, const std::string &cidr, const bool use_log) {
     this->logger_obj = new Logger(db_server, log_username, log_passwd, db_username, cidr, use_log);
     return true;
 }
@@ -145,19 +141,6 @@ std::string CAE::encrypt_(const std::string &data) {
     return hex_result.str();
 }
 
-bool CAE::enableLog_(const std::string &file_path) {
-    // 读取yaml文件
-    YAML::Node data_config = YAML::LoadFile(file_path);
-    if (!data_config) {
-        std::cout << "Open config File:" << file_path << " failed.";
-        exit(1);
-    }
-    if (data_config["log"]["enable"].as<bool>()) {
-        return true;
-    }
-    return false;
-}
-
 // public function
 
 bool CAE::Query(std::string &sql_str, std::vector<std::vector<std::string> > &res) {
@@ -183,8 +166,9 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<std::string> > &re
         this->dpiErrorMsgPrint_(DSQL_HANDLE_STMT, this->m_hstmt_);
         this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
-        logger_obj->__insertRecord(sql_str, "查询", false);
-
+        if (logger_obj->m_use_log) {
+            logger_obj->insertRecord(sql_str, "查询", false);
+        }
         return false;
     }
 
@@ -230,8 +214,9 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<std::string> > &re
         }
         res.push_back(temp);
     }
-
-    logger_obj->__insertRecord(sql_str, "查询", true);
+    if (logger_obj->m_use_log) {
+        logger_obj->insertRecord(sql_str, "查询", true);
+    }
 
     // 释放语句句柄
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
@@ -263,7 +248,9 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res)
         this->dpiErrorMsgPrint_(DSQL_HANDLE_STMT, this->m_hstmt_);
         this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
-        logger_obj->__insertRecord(sql_str, "查询", false);
+        if (logger_obj->m_use_log) {
+            logger_obj->insertRecord(sql_str, "查询", false);
+        }
 
         return false;
     }
@@ -333,8 +320,9 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res)
         res.push_back(temp);
     }
 
-    logger_obj->__insertRecord(sql_str, "查询", true);
-
+    if (logger_obj->m_use_log) {
+        logger_obj->insertRecord(sql_str, "查询", true);
+    }
     // 释放语句句柄
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
@@ -365,8 +353,9 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res,
         this->dpiErrorMsgPrint_(DSQL_HANDLE_STMT, this->m_hstmt_);
         this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
-        logger_obj->__insertRecord(sql_str, "查询", false);
-
+        if (logger_obj->m_use_log) {
+            logger_obj->insertRecord(sql_str, "查询", false);
+        }
         return false;
     }
 
@@ -438,9 +427,9 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res,
         }
         res.push_back(temp);
     }
-
-    logger_obj->__insertRecord(sql_str, "查询", true);
-
+    if (logger_obj->m_use_log) {
+        logger_obj->insertRecord(sql_str, "查询", true);
+    }
     // 释放语句句柄
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
@@ -470,12 +459,16 @@ bool CAE::Delete(std::string &sql_str) {
         this->dpiErrorMsgPrint_(DSQL_HANDLE_STMT, this->m_hstmt_);
         this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
-        logger_obj->__insertRecord(sql_str, "删除", false);
+        if (logger_obj->m_use_log) {
+            logger_obj->insertRecord(sql_str, "删除", false);
+        }
 
         return false;
     }
 
-    logger_obj->__insertRecord(sql_str, "删除", true);
+    if (logger_obj->m_use_log) {
+        logger_obj->insertRecord(sql_str, "删除", true);
+    }
     // 释放语句句柄
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
     //    std::cout << "delete success!" << std::endl;
@@ -504,13 +497,15 @@ bool CAE::Update(std::string &sql_str) {
         this->dpiErrorMsgPrint_(DSQL_HANDLE_STMT, this->m_hstmt_);
         this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
-        logger_obj->__insertRecord(sql_str, "修改", false);
+        if (logger_obj->m_use_log) {
+            logger_obj->insertRecord(sql_str, "修改", false);
+        }
 
         return false;
     }
-
-    logger_obj->__insertRecord(sql_str, "修改", true);
-
+    if (logger_obj->m_use_log) {
+        logger_obj->insertRecord(sql_str, "修改", true);
+    }
     // 释放语句句柄
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
     //    std::cout << "update success!" << std::endl;
@@ -538,14 +533,16 @@ bool CAE::Insert(std::string &sql_str) {
         std::cout << "insert error!" << std::endl;
         this->dpiErrorMsgPrint_(DSQL_HANDLE_STMT, this->m_hstmt_);
         this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
-
-        logger_obj->__insertRecord(sql_str, "插入", false);
+        if (logger_obj->m_use_log) {
+            logger_obj->insertRecord(sql_str, "插入", false);
+        }
 
         return false;
     }
 
-    logger_obj->__insertRecord(sql_str, "插入", true);
-
+    if (logger_obj->m_use_log) {
+        logger_obj->insertRecord(sql_str, "插入", true);
+    }
     // 释放语句句柄
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
     //    std::cout << "insert success!" << std::endl;

@@ -4,12 +4,12 @@
 
 #include "Logger.h"
 
-Logger::Logger(std::string& db_server, std::string& log_username, std::string& log_passwd,
-        const std::string& db_username, const std::string& cidr, const bool use_log) {
+#include "getTBName.h"
 
-
-    // todo add getIP
-
+Logger::Logger(std::string &db_server, std::string &log_username, std::string &log_passwd,
+               const std::string &db_username, const std::string &cidr, const bool use_log) {
+    std::string ip;
+    this->__getIP(cidr, ip);
     this->__m_username = db_username;
     this->m_use_log = use_log;
 
@@ -20,9 +20,9 @@ Logger::Logger(std::string& db_server, std::string& log_username, std::string& l
     this->__m_rt = dpi_alloc_con(this->__m_henv, &this->__m_hcon);
     // 连接数据库
     this->__m_rt = dpi_login(this->__m_hcon,
-                            reinterpret_cast<sdbyte *>(db_server.data()),
-                            reinterpret_cast<sdbyte *>(log_username.data()),
-                            reinterpret_cast<sdbyte *>(log_passwd.data())
+                             reinterpret_cast<sdbyte *>(db_server.data()),
+                             reinterpret_cast<sdbyte *>(log_username.data()),
+                             reinterpret_cast<sdbyte *>(log_passwd.data())
     );
     // 测试
     if (!DSQL_SUCCEEDED(this->__m_rt)) {
@@ -44,12 +44,12 @@ void Logger::__dpiErrorMsgPrint(sdint2 hndl_type, dhandle hndl) {
 }
 
 uint32_t Logger::__ip2Int(std::string ip) {
-    if (inet_pton(AF_INET, ip.c_str(), &this->m_addr_) != 1) {
+    if (inet_pton(AF_INET, ip.c_str(), &this->__m_addr_) != 1) {
         std::cerr << "Invalid IP address: " << ip << std::endl;
         return 0;
     }
     // 转换为主机字节序
-    return ntohl(this->m_addr_.s_addr);
+    return ntohl(this->__m_addr_.s_addr);
 }
 
 bool Logger::__ip_in_cidr(std::string ip, std::string cidr) {
@@ -69,17 +69,7 @@ bool Logger::__ip_in_cidr(std::string ip, std::string cidr) {
     return (ip_value & ip_mask) == (cidr_ip_value & ip_mask);
 }
 
-bool Logger::__getIP(const std::string &file_path) {
-    // 读取yaml文件
-    YAML::Node data_config = YAML::LoadFile(file_path);
-    if (!data_config) {
-        std::cout << "Open config File:" << file_path << " failed.";
-        exit(0);
-    }
-    // 提取配置项
-    std::string cidr = data_config["log"]["cidr"].as<std::string>();
-    std::string ip;
-
+bool Logger::__getIP(const std::string &cidr, std::string &ip) {
     //PIP_ADAPTER_INFO结构体指针存储本机网卡信息
     PIP_ADAPTER_INFO pIpAdapterInfo = new IP_ADAPTER_INFO();
     //得到结构体大小,用于GetAdaptersInfo参数
@@ -105,7 +95,7 @@ bool Logger::__getIP(const std::string &file_path) {
             do {
                 ip = pIpAddrString->IpAddress.String;
                 if (this->__ip_in_cidr(ip, cidr)) {
-                    this->m_ip_ = ip;
+                    this->__m_ip_ = ip;
                     // std::cout << this->m_ip << std::endl;
                     return true;
                 }
@@ -121,28 +111,25 @@ bool Logger::__getIP(const std::string &file_path) {
     return false;
 }
 
-bool Logger::__parseSQL(const std::string sql) {
-    if (!sqltoaster::getTBName(sql, this->m_res_lst_)) {
+bool Logger::__parseSQL(const std::string sql, std::string &db, std::string &table) {
+    if (!sqltoaster::getTBName(sql, this->__m_res_lst_)) {
         return false;
     }
 
-    this->m_db_.clear();
-    this->m_tb_.clear();
+    this->__m_db_.clear();
+    this->__m_tb_.clear();
 
-    std::string db;
-    std::string table;
-
-    for (size_t i = 0; i < this->m_res_lst_.size(); ++i) {
-        size_t dot_pos = this->m_res_lst_[i].find('.');
+    for (size_t i = 0; i < this->__m_res_lst_.size(); ++i) {
+        size_t dot_pos = this->__m_res_lst_[i].find('.');
         if (dot_pos != std::string::npos) {
-            db = this->m_res_lst_[i].substr(0, dot_pos);
-            table = this->m_res_lst_[i].substr(dot_pos + 1);
-            if (!m_db_.empty()) {
-                m_db_ += "','";
-                m_tb_ += "','";
+            db = this->__m_res_lst_[i].substr(0, dot_pos);
+            table = this->__m_res_lst_[i].substr(dot_pos + 1);
+            if (!__m_db_.empty()) {
+                __m_db_ += "','";
+                __m_tb_ += "','";
             }
-            m_db_ += db;
-            m_tb_ += table;
+            __m_db_ += db;
+            __m_tb_ += table;
         }
     }
     return true;
@@ -168,32 +155,35 @@ bool Logger::__insert(std::string &sql) {
     return true;
 }
 
-bool Logger::__insertRecord(std::string &sql, std::string operation, bool exec_result) {
-    if (!this->__parseSQL(sql)) {
+bool Logger::insertRecord(std::string &sql, std::string operation, bool exec_result) {
+    std::string db;
+    std::string table;
+    if (!this->__parseSQL(sql, db, table)) {
         return false;
     }
     char sqlStr[1024];
     sprintf(sqlStr, "INSERT INTO LOGS.LOG (user_name, ip_addr, source, operation, schemas, tables, time, result) "
             "VALUES ('%s', '%s', 'c++接口', '%s', tables('%s'), tables('%s'), SYSTIMESTAMP, %d)"
-            , this->__m_username.c_str(), this->m_ip_.c_str(), operation.c_str(), this->m_db_.c_str(),
-            this->m_tb_.c_str(), exec_result);
+            , this->__m_username.c_str(), this->__m_ip_.c_str(), operation.c_str(), this->__m_db_.c_str(),
+            this->__m_tb_.c_str(), exec_result);
 
-    this->m_logger_sql_ = sqlStr;
-    if (!this->__insert(m_logger_sql_)) {
+    this->__m_logger_sql_ = sqlStr;
+    if (!this->__insert(__m_logger_sql_)) {
         std::cout << "insert error." << std::endl;
     }
     return true;
 }
 
-bool Logger::__insertRecord(std::string &db_name, std::string &table_name, std::string operation, bool exec_result) {
+bool Logger::insertRecord(std::string &db_name, std::string &table_name, std::string operation, bool exec_result) {
     char sqlStr[1024];
+
     sprintf(sqlStr, "INSERT INTO LOGS.LOG (user_name, ip_addr, source, operation, schemas, tables, time, result) "
             "VALUES ('%s', '%s', 'c++接口', '%s', tables('%s'), tables('%s'), SYSTIMESTAMP, %d)"
-            , this->__m_username.c_str(), this->m_ip_.c_str(), operation.c_str(), db_name.c_str(),
+            , this->__m_username.c_str(), this->__m_ip_.c_str(), operation.c_str(), db_name.c_str(),
             table_name.c_str(), exec_result);
-    this->m_logger_sql_ = sqlStr;
+    this->__m_logger_sql_ = sqlStr;
 
-    if (!this->__insert(m_logger_sql_)) {
+    if (!this->__insert(__m_logger_sql_)) {
         std::cout << "insert error." << std::endl;
     }
     return true;
