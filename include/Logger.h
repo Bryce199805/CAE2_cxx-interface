@@ -16,26 +16,33 @@
 class Logger {
 private:
     // DAMENG 初始化参数
-    dhenv m_henv_;
-    dhcon m_hcon_;
-    dhstmt m_hstmt_;
-    DPIRETURN m_rt_;
+    dhenv __m_henv;
+    dhcon __m_hcon;
+    dhstmt __m_hstmt;
+    DPIRETURN __m_rt;
 
-    std::string m_dbuser_;
-    std::string m_fsuser_;
+    std::string __m_username;
+
+    // todo 不应被CAE类访问的类成员变量 用双下划线__标识
+
     std::string m_ip_;
     struct in_addr m_addr_;
+
     std::string m_logger_sql_;
     std::vector<std::string> m_res_lst_;
+
     std::string m_db_;
     std::string m_tb_;
 
-    // 所有参数可根据具体需求调整
+    bool m_use_log = true;
 
-    Logger(std::string& serverAddr, std::string& username, std::string& passwd);
+    // 所有参数可根据具体需求调整
+    // todo 确定cidr是否需要const
+    Logger(
+        std::string& db_server, std::string& log_username, std::string& log_passwd,
+        const std::string& db_username, const std::string& cidr, const bool use_log);
 
     void __dpiErrorMsgPrint(sdint2 hndl_type, dhandle hndl);
-
 
     uint32_t __ip2Int(std::string ip);
 
@@ -44,14 +51,11 @@ private:
     // 初始化时调用一次 保存到m_ip中
     bool __getIP(const std::string &file_path);
 
-
-    // 初始化时调用一次 保存到m_username中
-    bool __getUserName(const std::string &file_path);
-
     bool __parseSQL(const std::string sql);
 
     bool __insert(std::string& sql);
 
+    // todo 去掉双下划线
     bool __insertRecord(std::string& sql, std::string operation, bool exec_result);
 
     bool __insertRecord(std::string& db_name, std::string& table_name, std::string operation, bool exec_result);

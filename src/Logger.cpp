@@ -4,23 +4,29 @@
 
 #include "Logger.h"
 
-#include "get_tbname.h"
+Logger::Logger(std::string& db_server, std::string& log_username, std::string& log_passwd,
+        const std::string& db_username, const std::string& cidr, const bool use_log) {
 
-Logger::Logger(std::string &serverAddr, std::string &username, std::string &passwd) {
+
+    // todo add getIP
+
+    this->__m_username = db_username;
+    this->m_use_log = use_log;
+
     // 申请环境句柄
-    this->m_rt_ = dpi_alloc_env(&this->m_henv_);
-    this->m_rt_ = dpi_set_env_attr(this->m_henv_, DSQL_ATTR_LOCAL_CODE, (dpointer) PG_UTF8, sizeof(PG_UTF8));
+    this->__m_rt = dpi_alloc_env(&this->__m_henv);
+    this->__m_rt = dpi_set_env_attr(this->__m_henv, DSQL_ATTR_LOCAL_CODE, (dpointer) PG_UTF8, sizeof(PG_UTF8));
     // 申请连接句柄
-    this->m_rt_ = dpi_alloc_con(this->m_henv_, &this->m_hcon_);
+    this->__m_rt = dpi_alloc_con(this->__m_henv, &this->__m_hcon);
     // 连接数据库
-    this->m_rt_ = dpi_login(this->m_hcon_,
-                            reinterpret_cast<sdbyte *>(serverAddr.data()),
-                            reinterpret_cast<sdbyte *>(username.data()),
-                            reinterpret_cast<sdbyte *>(passwd.data())
+    this->__m_rt = dpi_login(this->__m_hcon,
+                            reinterpret_cast<sdbyte *>(db_server.data()),
+                            reinterpret_cast<sdbyte *>(log_username.data()),
+                            reinterpret_cast<sdbyte *>(log_passwd.data())
     );
     // 测试
-    if (!DSQL_SUCCEEDED(this->m_rt_)) {
-        this->__dpiErrorMsgPrint(DSQL_HANDLE_DBC, this->m_hcon_);
+    if (!DSQL_SUCCEEDED(this->__m_rt)) {
+        this->__dpiErrorMsgPrint(DSQL_HANDLE_DBC, this->__m_hcon);
         exit(-1);
     }
 
@@ -115,27 +121,17 @@ bool Logger::__getIP(const std::string &file_path) {
     return false;
 }
 
-bool Logger::__getUserName(const std::string &file_path) {
-    // 读取yaml文件
-    YAML::Node data_config = YAML::LoadFile(file_path);
-    if (!data_config) {
-        std::cout << "Open config File:" << file_path << " failed.";
-        exit(0);
-    }
-    // 提取配置项
-    this->m_dbuser_ = data_config["database"]["username"].as<std::string>();
-    this->m_fsuser_ = data_config["fileSystem"]["username"].as<std::string>();
-    return true;
-}
-
 bool Logger::__parseSQL(const std::string sql) {
     if (!sqltoaster::getTBName(sql, this->m_res_lst_)) {
         return false;
     }
+
     this->m_db_.clear();
     this->m_tb_.clear();
+
     std::string db;
     std::string table;
+
     for (size_t i = 0; i < this->m_res_lst_.size(); ++i) {
         size_t dot_pos = this->m_res_lst_[i].find('.');
         if (dot_pos != std::string::npos) {
@@ -156,19 +152,19 @@ bool Logger::__insert(std::string &sql) {
     // ========== sql语句准备与执行 ==========
     sdbyte *_sql = reinterpret_cast<sdbyte *>(sql.data());
     // 申请语句句柄
-    this->m_rt_ = dpi_alloc_stmt(this->m_hcon_, &this->m_hstmt_);
+    this->__m_rt = dpi_alloc_stmt(this->__m_hcon, &this->__m_hstmt);
     // 执行sql语句
-    this->m_rt_ = dpi_exec_direct(this->m_hstmt_, _sql);
+    this->__m_rt = dpi_exec_direct(this->__m_hstmt, _sql);
 
-    if (!DSQL_SUCCEEDED(this->m_rt_)) {
+    if (!DSQL_SUCCEEDED(this->__m_rt)) {
         std::cout << "[Logger ERROR]: record insert error!" << std::endl;
-        this->__dpiErrorMsgPrint(DSQL_HANDLE_STMT, this->m_hstmt_);
-        this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
+        this->__dpiErrorMsgPrint(DSQL_HANDLE_STMT, this->__m_hstmt);
+        this->__m_rt = dpi_free_stmt(this->__m_hstmt);
         return false;
     }
 
     // 释放语句句柄
-    this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
+    this->__m_rt = dpi_free_stmt(this->__m_hstmt);
     return true;
 }
 
@@ -179,7 +175,7 @@ bool Logger::__insertRecord(std::string &sql, std::string operation, bool exec_r
     char sqlStr[1024];
     sprintf(sqlStr, "INSERT INTO LOGS.LOG (user_name, ip_addr, source, operation, schemas, tables, time, result) "
             "VALUES ('%s', '%s', 'c++接口', '%s', tables('%s'), tables('%s'), SYSTIMESTAMP, %d)"
-            , this->m_dbuser_.c_str(), this->m_ip_.c_str(), operation.c_str(), this->m_db_.c_str(),
+            , this->__m_username.c_str(), this->m_ip_.c_str(), operation.c_str(), this->m_db_.c_str(),
             this->m_tb_.c_str(), exec_result);
 
     this->m_logger_sql_ = sqlStr;
@@ -193,7 +189,7 @@ bool Logger::__insertRecord(std::string &db_name, std::string &table_name, std::
     char sqlStr[1024];
     sprintf(sqlStr, "INSERT INTO LOGS.LOG (user_name, ip_addr, source, operation, schemas, tables, time, result) "
             "VALUES ('%s', '%s', 'c++接口', '%s', tables('%s'), tables('%s'), SYSTIMESTAMP, %d)"
-            , this->m_fsuser_.c_str(), this->m_ip_.c_str(), operation.c_str(), db_name.c_str(),
+            , this->__m_username.c_str(), this->m_ip_.c_str(), operation.c_str(), db_name.c_str(),
             table_name.c_str(), exec_result);
     this->m_logger_sql_ = sqlStr;
 
@@ -204,16 +200,16 @@ bool Logger::__insertRecord(std::string &db_name, std::string &table_name, std::
 }
 
 Logger::~Logger() {
-    this->m_rt_ = dpi_logout(this->m_hcon_);
+    this->__m_rt = dpi_logout(this->__m_hcon);
 
-    if (!DSQL_SUCCEEDED(this->m_rt_)) {
-        this->__dpiErrorMsgPrint(DSQL_HANDLE_DBC, this->m_hcon_);
+    if (!DSQL_SUCCEEDED(this->__m_rt)) {
+        this->__dpiErrorMsgPrint(DSQL_HANDLE_DBC, this->__m_hcon);
         exit(-1);
     }
     printf("========== Logger: disconnect from server success! ==========\n");
 
     // 释放连接句柄和环境句柄 语句句柄每次执行已释放
-    this->m_rt_ = dpi_free_con(this->m_hcon_);
-    this->m_rt_ = dpi_free_env(this->m_henv_);
-    this->m_hcon_ = this->m_henv_ = this->m_hstmt_ = nullptr;
+    this->__m_rt = dpi_free_con(this->__m_hcon);
+    this->__m_rt = dpi_free_env(this->__m_henv);
+    this->__m_hcon = this->__m_henv = this->__m_hstmt = nullptr;
 }

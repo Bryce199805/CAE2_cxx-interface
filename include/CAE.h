@@ -48,6 +48,7 @@ private:
     dhstmt m_hstmt_; // 语句句柄
     DPIRETURN m_rt_; // 函数返回值
 
+    // todo remove
     std::string m_server_; // serverAddr
 
     std::string m_loguser_;
@@ -59,9 +60,11 @@ private:
 
     void dpiErrorMsgPrint_(sdint2 hndl_type, dhandle hndl);
 
-    bool initDB_(const std::string &file_path);
+    bool initDB_(std::string& db_server, std::string& db_username, std::string& db_passwd);
 
-    bool initLogger_(const std::string &file_path, std::string& serverAddr);
+    bool initLogger_(
+        std::string& db_server, std::string& log_username, std::string& log_passwd,
+        const std::string& db_username, const std::string& cidr, const bool use_log);
 
     std::string encrypt_(const std::string &data);
 
@@ -91,7 +94,7 @@ private:
 
 
     // init file system.
-    bool initFileSystem_(const std::string &file_path);
+    bool initFileSystem_(const std::string &fs_server, const std::string& fs_username, const std::string& fs_passwd);
 
     // check if the path contains file.
     bool checkFilePath_(const std::string &dbName, const std::string &tableName, const std::string &col);

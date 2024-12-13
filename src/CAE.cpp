@@ -7,11 +7,29 @@
 // constructor
 
 CAE::CAE(const std::string &file_path) {
-    this->initDB_(file_path);
-    // 初始化log对象
-    if (this->enableLog_(file_path)) {
-        this->initLogger_(file_path, this->m_server_);
+    // 读取yaml文件
+    YAML::Node data_config = YAML::LoadFile(file_path);
+    if (!data_config) {
+        std::cout << "Open config File:" << file_path << " failed.";
+        exit(1);
     }
+
+    std::string db_server = data_config["database"]["server"].as<std::string>();
+    std::string db_username = data_config["database"]["username"].as<std::string>();
+    std::string db_passwd = this->encrypt_(data_config["database"]["passwd"].as<std::string>());
+
+    std::string log_username = data_config["log"]["username"].as<std::string>();
+    std::string log_passwd = this->encrypt_(data_config["log"]["passwd"].as<std::string>());
+    std::string cidr = data_config["log"]["cidr"].as<std::string>();
+    bool use_log = data_config["log"]["enable"].as<bool>();
+
+    this->initDB_(db_server, db_username, db_passwd);
+    // 初始化log对象
+    // todo remove enableLog
+    if (this->enableLog_(file_path)) {
+        this->initLogger_(db_server, log_username, log_passwd, db_username, cidr, use_log);
+    }
+    this->logger_obj->m_use_log;
 }
 
 CAE::~CAE() {
@@ -25,13 +43,7 @@ CAE::~CAE() {
 
 // private function
 
-bool CAE::initDB_(const std::string &file_path) {
-    // 读取yaml文件
-    YAML::Node data_config = YAML::LoadFile(file_path);
-    if (!data_config) {
-        std::cout << "Open config File:" << file_path << " failed.";
-        exit(1);
-    }
+bool CAE::initDB_(std::string& db_server, std::string& db_username, std::string& db_passwd) {
 
     // 申请环境句柄
     this->m_rt_ = dpi_alloc_env(&this->m_henv_);
@@ -40,14 +52,12 @@ bool CAE::initDB_(const std::string &file_path) {
     this->m_rt_ = dpi_alloc_con(this->m_henv_, &this->m_hcon_);
 
     // get connect parameters
-    std::string serverAddr = data_config["database"]["server"].as<std::string>();
-    std::string username = data_config["database"]["username"].as<std::string>();
-    std::string passwd = this->encrypt_(data_config["database"]["passwd"].as<std::string>());
+
     // 连接数据库
     this->m_rt_ = dpi_login(this->m_hcon_,
-                            reinterpret_cast<sdbyte *>(serverAddr.data()),
-                            reinterpret_cast<sdbyte *>(username.data()),
-                            reinterpret_cast<sdbyte *>(passwd.data()));
+                            reinterpret_cast<sdbyte *>(db_server.data()),
+                            reinterpret_cast<sdbyte *>(db_username.data()),
+                            reinterpret_cast<sdbyte *>(db_passwd.data()));
 
     // 测试
     if (!DSQL_SUCCEEDED(this->m_rt_)) {
@@ -57,30 +67,14 @@ bool CAE::initDB_(const std::string &file_path) {
 
     printf("========== dpi: connect to server success! ==========\n");
 
-    // 返回serverIP 用于日志记录
-    this->m_server_ = serverAddr;
     return true;
 }
 
-bool CAE::initLogger_(const std::string &file_path, std::string &serverAddr) {
-    // 读取yaml文件
-    YAML::Node data_config = YAML::LoadFile(file_path);
-    if (!data_config) {
-        std::cout << "Open config File:" << file_path << " failed.";
-        exit(1);
-    }
-    this->m_loguser_ = data_config["log"]["username"].as<std::string>();
-    this->m_logpwd_ = data_config["log"]["passwd"].as<std::string>();
-
-    this->logger_obj = new Logger(serverAddr, this->m_loguser_, this->m_logpwd_);
-
-    if (!this->logger_obj->__getIP(file_path)) {
-        std::cout << "ip false" << std::endl;
-    }
-    this->logger_obj->__getUserName(file_path);
+bool CAE::initLogger_(std::string& db_server, std::string& log_username, std::string& log_passwd,
+        const std::string& db_username, const std::string& cidr, const bool use_log) {
+    this->logger_obj = new Logger(db_server, log_username, log_passwd, db_username, cidr, use_log);
     return true;
 }
-
 
 void CAE::releaseDB_() {
     this->m_rt_ = dpi_logout(this->m_hcon_);

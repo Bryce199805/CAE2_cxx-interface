@@ -9,34 +9,48 @@
 // ============================== constructor ==============================
 
 CAE::CAE(const std::string &file_path, bool withFile = true) {
+
+    // 读取yaml文件
+    YAML::Node data_config = YAML::LoadFile(file_path);
+    if (!data_config) {
+        std::cout << "Open config File:" << file_path << " failed.";
+        exit(1);
+    }
+
+    // DM config
+    std::string db_server = data_config["database"]["server"].as<std::string>();
+    std::string db_username = data_config["database"]["username"].as<std::string>();
+    std::string db_passwd = this->encrypt_(data_config["database"]["passwd"].as<std::string>());
+
+    // file system config
+    std::string fs_server = data_config["fileSystem"]["endpoint"].as<std::string>();
+    std::string fs_username = data_config["fileSystem"]["username"].as<std::string>();
+    std::string fs_passwd = this->encrypt_(data_config["fileSystem"]["passwd"].as<std::string>());
+
+    // log config
+    std::string log_username = data_config["log"]["username"].as<std::string>();
+    std::string log_passwd = this->encrypt_(data_config["log"]["passwd"].as<std::string>());
+    std::string cidr = data_config["log"]["cidr"].as<std::string>();
+    bool use_log = data_config["log"]["enable"].as<bool>();
+
     if (withFile) {
-        this->initDB_(file_path);
-        this->initFileSystem_(file_path);
+        this->initDB_(db_server, db_username, db_passwd);
+        this->initFileSystem_(fs_server, fs_username, fs_passwd);
     } else {
-        this->initDB_(file_path);
+        this->initDB_(db_server, db_username, db_passwd);
     }
     if (this->enableLog_(file_path)) {
-        this->initLogger_(file_path, this->m_server_);
+        this->initLogger_(db_server, log_username, log_passwd, db_username, cidr, use_log);
     }
 }
 
 // ============================== private function ==============================
 
-bool CAE::initFileSystem_(const std::string &file_path) {
-    // 读取yaml文件
-    YAML::Node data_config = YAML::LoadFile(file_path);
-    if (!data_config) {
-        std::cout << "Open config File:" << file_path << " failed.";
-        exit(0);
-    }
-    // 提取配置项
-    std::string endpoint = data_config["fileSystem"]["endpoint"].as<std::string>();
-    std::string username = data_config["fileSystem"]["username"].as<std::string>();
-    std::string passwd = this->encrypt_(data_config["fileSystem"]["passwd"].as<std::string>());
+bool CAE::initFileSystem_(const std::string &fs_server, const std::string& fs_username, const std::string& fs_passwd) {
 
     // 注意：使用SSE-C加密需开启HTTPS服务，否则报错，开启后，关闭baseurl的验证并使用https连接
-    this->base_url = new minio::s3::BaseUrl(endpoint, false);
-    this->provider = new minio::creds::StaticProvider(username, passwd);
+    this->base_url = new minio::s3::BaseUrl(fs_server, false);
+    this->provider = new minio::creds::StaticProvider(fs_username, fs_passwd);
     this->m_client_ = new minio::s3::Client(*base_url, provider);
     // 测试连接
     try {
