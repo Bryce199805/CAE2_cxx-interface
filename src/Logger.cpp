@@ -8,29 +8,33 @@
 
 Logger::Logger(std::string &db_server, std::string &log_username, std::string &log_passwd,
                const std::string &db_username, const std::string &cidr, const bool use_log) {
-    std::string ip;
-    this->__getIP(cidr, ip);
-    this->__m_username = db_username;
+
     this->m_use_log = use_log;
 
-    // 申请环境句柄
-    this->__m_rt = dpi_alloc_env(&this->__m_henv);
-    this->__m_rt = dpi_set_env_attr(this->__m_henv, DSQL_ATTR_LOCAL_CODE, (dpointer) PG_UTF8, sizeof(PG_UTF8));
-    // 申请连接句柄
-    this->__m_rt = dpi_alloc_con(this->__m_henv, &this->__m_hcon);
-    // 连接数据库
-    this->__m_rt = dpi_login(this->__m_hcon,
-                             reinterpret_cast<sdbyte *>(db_server.data()),
-                             reinterpret_cast<sdbyte *>(log_username.data()),
-                             reinterpret_cast<sdbyte *>(log_passwd.data())
-    );
-    // 测试
-    if (!DSQL_SUCCEEDED(this->__m_rt)) {
-        this->__dpiErrorMsgPrint(DSQL_HANDLE_DBC, this->__m_hcon);
-        exit(-1);
-    }
+    if (this->m_use_log) {
+        std::string ip; // todo 这里声明一个 ip 作为形参传入有什么用？
+        this->__getIP(cidr, ip);
+        this->__m_username = db_username;
 
-    printf("========== Logger: init done! ==========\n");
+        // 申请环境句柄
+        this->__m_rt = dpi_alloc_env(&this->__m_henv);
+        this->__m_rt = dpi_set_env_attr(this->__m_henv, DSQL_ATTR_LOCAL_CODE, (dpointer) PG_UTF8, sizeof(PG_UTF8));
+        // 申请连接句柄
+        this->__m_rt = dpi_alloc_con(this->__m_henv, &this->__m_hcon);
+        // 连接数据库
+        this->__m_rt = dpi_login(this->__m_hcon,
+                                 reinterpret_cast<sdbyte *>(db_server.data()),
+                                 reinterpret_cast<sdbyte *>(log_username.data()),
+                                 reinterpret_cast<sdbyte *>(log_passwd.data())
+        );
+        // 测试
+        if (!DSQL_SUCCEEDED(this->__m_rt)) {
+            this->__dpiErrorMsgPrint(DSQL_HANDLE_DBC, this->__m_hcon);
+            exit(-1);
+        }
+
+        printf("========== Logger: init done! ==========\n");
+    }
 }
 
 void Logger::__dpiErrorMsgPrint(sdint2 hndl_type, dhandle hndl) {
@@ -70,6 +74,8 @@ bool Logger::__ip_in_cidr(std::string ip, std::string cidr) {
 }
 
 bool Logger::__getIP(const std::string &cidr, std::string &ip) {
+    // todo 这个ip似乎局部变量就可以了，为什么要做成形参传入？
+    // todo 如果CIDR不匹配拿不到IP地址，报错并退出程序
     //PIP_ADAPTER_INFO结构体指针存储本机网卡信息
     PIP_ADAPTER_INFO pIpAdapterInfo = new IP_ADAPTER_INFO();
     //得到结构体大小,用于GetAdaptersInfo参数
@@ -190,16 +196,18 @@ bool Logger::insertRecord(std::string &db_name, std::string &table_name, std::st
 }
 
 Logger::~Logger() {
-    this->__m_rt = dpi_logout(this->__m_hcon);
+    if (this->m_use_log) {
+        this->__m_rt = dpi_logout(this->__m_hcon);
 
-    if (!DSQL_SUCCEEDED(this->__m_rt)) {
-        this->__dpiErrorMsgPrint(DSQL_HANDLE_DBC, this->__m_hcon);
-        exit(-1);
+        if (!DSQL_SUCCEEDED(this->__m_rt)) {
+            this->__dpiErrorMsgPrint(DSQL_HANDLE_DBC, this->__m_hcon);
+            exit(-1);
+        }
+        printf("========== Logger: disconnect from server success! ==========\n");
+
+        // 释放连接句柄和环境句柄 语句句柄每次执行已释放
+        this->__m_rt = dpi_free_con(this->__m_hcon);
+        this->__m_rt = dpi_free_env(this->__m_henv);
+        this->__m_hcon = this->__m_henv = this->__m_hstmt = nullptr;
     }
-    printf("========== Logger: disconnect from server success! ==========\n");
-
-    // 释放连接句柄和环境句柄 语句句柄每次执行已释放
-    this->__m_rt = dpi_free_con(this->__m_hcon);
-    this->__m_rt = dpi_free_env(this->__m_henv);
-    this->__m_hcon = this->__m_henv = this->__m_hstmt = nullptr;
 }
