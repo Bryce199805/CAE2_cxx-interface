@@ -23,10 +23,10 @@ CAE::CAE(const std::string &file_path) {
     bool use_log = data_config["log"]["enable"].as<bool>();
 
     this->initDB_(db_server, db_username, db_passwd);
+
     // 初始化log对象
-    if (use_log) {
-        this->initLogger_(db_server, log_username, log_passwd, db_username, cidr, use_log);
-    }
+    this->initLogger_(db_server, log_username, log_passwd, db_username, cidr, use_log);
+
 }
 
 CAE::~CAE() {

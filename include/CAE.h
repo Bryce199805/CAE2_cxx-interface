@@ -98,8 +98,7 @@ private:
     bool checkFileExist_(std::string path);
 
     // transform the local path to file path.
-    void local2FilePath_(std::string dbName, std::string tableName, const std::string &id,
-                         std::string &local_path);
+    void local2FilePath_(std::string dbName, std::string tableName, const std::string &id, std::string &local_path);
 
     // parse the file path in DM.
     void parseDBPath_(std::string path);
