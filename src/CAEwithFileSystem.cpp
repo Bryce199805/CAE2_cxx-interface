@@ -38,9 +38,10 @@ CAE::CAE(const std::string &file_path, bool withFile = true) {
     } else {
         this->initDB_(db_server, db_username, db_passwd);
     }
-    if (use_log) {
-        this->initLogger_(db_server, log_username, log_passwd, db_username, cidr, use_log);
-    }
+
+    // todo log设为false时，同样需要初始化logger，需要logger对象的 this.m_use_log 成员变量
+    // todo 已修改 自己记得测试！
+    this->initLogger_(db_server, log_username, log_passwd, db_username, cidr, use_log);
 }
 
 // ============================== private function ==============================
