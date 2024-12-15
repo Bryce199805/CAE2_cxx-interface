@@ -9,8 +9,6 @@
 int main() {
     CAE obj("../config.yaml", true);
 
-    // todo 记录表名和库名的成员变量清空有问题
-
     // 查询测试
     // std::string query_sql = "select * from BASIC_SHIP_INFORMATION_DB.SHIP_DATA_INFO where ship_type = '油船'";
     // std::vector<std::vector<DBVariant> > result2;
@@ -47,33 +45,31 @@ int main() {
     //     std::cout << "Upload file done." << std::endl;
     // }
     // if (obj.UploadFile("hull_model_and_information_db", "hull_parameter_info", "SampleShip_JBC0000", "HULL_3D_MODEL",
-    //                    "../doc/sharks.png")) {
+    //                    "../doc/鲨鱼.png")) {
     //     std::cout << "Upload file done." << std::endl;
     // }
     // // 下载文件 指定路径，不带文件名
-    // todo 下载文件为什么会记录两次类型为下载文件的记录？ 下面的下载字符流的是正常的 这里的调用了下面的方法？
-    // if (obj.GetFile("hull_model_and_information_db", "HULL_PARAMETER_INFO", "SampleShip_JBC0001",
+    // if (obj.GetFile("hull_model_and_information_db", "HULL_PARAMETER_INFO", "SampleShip_JBC0000",
     //                 "TRANSVERSE_AREA_CURVE", ".")) {
     //     std::cout << "Download file done." << std::endl;
     // }
     //
     //下载字符流
     // std::vector<unsigned char> object_data;
-    // if (obj.GetFile("HuLL_MODEL_AND_INFORMATION_Db", "hull_parameter_info", "SampleShip_JBC0001", "HULL_3D_MODEL",
+    // if (obj.GetFile("HuLL_MODEL_AND_INFORMATION_Db", "hull_parameter_info", "SampleShip_JBC0000", "HULL_3D_MODEL",
     //                 object_data)) {
     //     std::cout << "Download data stream done." << std::endl;
     //     std::cout << "object_data size: " << object_data.size() << std::endl;
     // }
     //
     // // 删除文件
-    // if (obj.DeleteFile("HULL_MODEL_AND_INFORMATION_DB", "hull_parameter_info", "SampleShip_JBC0001",
+    // if (obj.DeleteFile("HULL_MODEL_AND_INFORMATION_DB", "hull_parameter_info", "SampleShip_JBC0000",
     //                    "TRANSVERSE_AREA_CURVE")) {
     //     std::cout << "Delete file done." << std::endl;
     // }
     //
     // //删除记录
-    // todo 这个也会记录两次删除  似乎有必要设置一个类成员变量来控制开启日志时相关方法调用其他查询方法的输出
-    // if (obj.DeleteRecord("hull_model_and_information_db", "hull_parameter_info", "SampleShip_JBC0001")) {
+    // if (obj.DeleteRecord("hull_model_and_information_db", "hull_parameter_info", "SampleShip_JBC0000")) {
     //     std::cout << "Delete record done." << std::endl;
     // }
 

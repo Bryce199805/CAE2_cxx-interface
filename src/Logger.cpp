@@ -8,12 +8,10 @@
 
 Logger::Logger(std::string &db_server, std::string &log_username, std::string &log_passwd,
                const std::string &db_username, const std::string &cidr, const bool use_log) {
-
     this->m_use_log = use_log;
 
     if (this->m_use_log) {
-        std::string ip; // todo 这里声明一个 ip 作为形参传入有什么用？
-        this->__getIP(cidr, ip);
+        this->__getIP(cidr);
         this->__m_username = db_username;
 
         // 申请环境句柄
@@ -73,9 +71,9 @@ bool Logger::__ip_in_cidr(std::string ip, std::string cidr) {
     return (ip_value & ip_mask) == (cidr_ip_value & ip_mask);
 }
 
-bool Logger::__getIP(const std::string &cidr, std::string &ip) {
-    // todo 这个ip似乎局部变量就可以了，为什么要做成形参传入？
-    // todo 如果CIDR不匹配拿不到IP地址，报错并退出程序
+bool Logger::__getIP(const std::string &cidr) {
+    std::string ip;
+    bool get = false;
     //PIP_ADAPTER_INFO结构体指针存储本机网卡信息
     PIP_ADAPTER_INFO pIpAdapterInfo = new IP_ADAPTER_INFO();
     //得到结构体大小,用于GetAdaptersInfo参数
@@ -102,8 +100,8 @@ bool Logger::__getIP(const std::string &cidr, std::string &ip) {
                 ip = pIpAddrString->IpAddress.String;
                 if (this->__ip_in_cidr(ip, cidr)) {
                     this->__m_ip_ = ip;
+                    get = true;
                     // std::cout << this->m_ip << std::endl;
-                    return true;
                 }
                 pIpAddrString = pIpAddrString->Next;
             } while (pIpAddrString);
@@ -114,28 +112,43 @@ bool Logger::__getIP(const std::string &cidr, std::string &ip) {
     if (pIpAdapterInfo) {
         delete pIpAdapterInfo;
     }
-    return false;
+    if (!get) {
+        std::cout << "Error: can not get ip." << std::endl;
+        exit(0);
+    }
+    return true;
 }
 
-bool Logger::__parseSQL(const std::string sql, std::string &db, std::string &table) {
+bool Logger::__parseSQL(const std::string sql) {
     if (!sqltoaster::getTBName(sql, this->__m_res_lst_)) {
         return false;
     }
-
     this->__m_db_.clear();
     this->__m_tb_.clear();
 
-    for (size_t i = 0; i < this->__m_res_lst_.size(); ++i) {
-        size_t dot_pos = this->__m_res_lst_[i].find('.');
+    std::unordered_set<std::string> db_set; // 用于存储唯一的库名
+    std::unordered_set<std::string> tb_set; // 用于存储唯一的表名
+
+    for (const auto &item: this->__m_res_lst_) {
+        size_t dot_pos = item.find('.');
         if (dot_pos != std::string::npos) {
-            db = this->__m_res_lst_[i].substr(0, dot_pos);
-            table = this->__m_res_lst_[i].substr(dot_pos + 1);
-            if (!__m_db_.empty()) {
-                __m_db_ += "','";
-                __m_tb_ += "','";
+            std::string db = item.substr(0, dot_pos);
+            std::string table = item.substr(dot_pos + 1);
+            // 检查库名和表名是否重复
+            if (db_set.find(db) == db_set.end()) {
+                if (!this->__m_db_.empty()) {
+                    this->__m_db_ += "','";
+                }
+                this->__m_db_ += db;
+                db_set.insert(db); // 添加到集合
             }
-            __m_db_ += db;
-            __m_tb_ += table;
+            if (tb_set.find(table) == tb_set.end()) {
+                if (!this->__m_tb_.empty()) {
+                    this->__m_tb_ += "','";
+                }
+                this->__m_tb_ += table;
+                tb_set.insert(table); // 添加到集合
+            }
         }
     }
     return true;
@@ -161,10 +174,9 @@ bool Logger::__insert(std::string &sql) {
     return true;
 }
 
+
 bool Logger::insertRecord(std::string &sql, std::string operation, bool exec_result) {
-    std::string db;
-    std::string table;
-    if (!this->__parseSQL(sql, db, table)) {
+    if (!this->__parseSQL(sql)) {
         return false;
     }
     char sqlStr[1024];

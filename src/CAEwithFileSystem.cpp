@@ -39,15 +39,12 @@ CAE::CAE(const std::string &file_path, bool withFile = true) {
         this->initDB_(db_server, db_username, db_passwd);
     }
 
-    // todo log设为false时，同样需要初始化logger，需要logger对象的 this.m_use_log 成员变量
-    // todo 已修改 自己记得测试！
     this->initLogger_(db_server, log_username, log_passwd, db_username, cidr, use_log);
 }
 
 // ============================== private function ==============================
 
-bool CAE::initFileSystem_(const std::string &fs_server, const std::string& fs_username, const std::string& fs_passwd) {
-
+bool CAE::initFileSystem_(const std::string &fs_server, const std::string &fs_username, const std::string &fs_passwd) {
     // 注意：使用SSE-C加密需开启HTTPS服务，否则报错，开启后，关闭baseurl的验证并使用https连接
     this->base_url = new minio::s3::BaseUrl(fs_server, false);
     this->provider = new minio::creds::StaticProvider(fs_username, fs_passwd);
@@ -197,6 +194,7 @@ bool CAE::UploadFile(std::string dbName, std::string tableName, const std::strin
             col.c_str(), dbName.c_str(), tableName.c_str(), this->m_id_.c_str(), id.c_str());
 
     this->m_sql_ = sqlStr;
+    logger_obj->m_useQuery = false;
     this->Query(this->m_sql_, this->m_res_);
 
     //check the record exist or not;
@@ -253,6 +251,8 @@ bool CAE::UploadFile(std::string dbName, std::string tableName, const std::strin
         logger_obj->insertRecord(dbName, tableName, "上传文件", true);
     }
 
+    logger_obj->m_useQuery = true;
+
     return true;
 }
 
@@ -272,6 +272,7 @@ bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &
             col.c_str(), dbName.c_str(), tableName.c_str(), this->m_id_.c_str(), id.c_str());
 
     this->m_sql_ = sqlStr;
+    logger_obj->m_useQuery = false;
     this->Query(this->m_sql_, this->m_res_);
 
     if (this->m_res_.size() == 0) {
@@ -317,16 +318,16 @@ bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &
 
     if (!resp) {
         std::cerr << "Unable to download object:" << resp.Error().String() << std::endl;
-    } else {
-        std::filesystem::rename("./temp", path);
         if (logger_obj->m_use_log) {
             logger_obj->insertRecord(dbName, tableName, "下载文件", false);
         }
+    } else {
+        std::filesystem::rename("./temp", path);
+        if (logger_obj->m_use_log) {
+            logger_obj->insertRecord(dbName, tableName, "下载文件", true);
+        }
     }
-    if (logger_obj->m_use_log) {
-        logger_obj->insertRecord(dbName, tableName, "下载文件", true);
-    }
-
+    logger_obj->m_useQuery = true;
     return true;
 }
 
@@ -347,6 +348,7 @@ bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &
             col.c_str(), dbName.c_str(), tableName.c_str(), this->m_id_.c_str(), id.c_str());
 
     this->m_sql_ = sqlStr;
+    logger_obj->m_useQuery = false;
     this->Query(this->m_sql_, this->m_res_);
 
     if (this->m_res_.size() == 0) {
@@ -385,7 +387,7 @@ bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &
     if (logger_obj->m_use_log) {
         logger_obj->insertRecord(dbName, tableName, "下载文件", true);
     }
-
+    logger_obj->m_useQuery = true;
     return true;
 }
 
@@ -404,6 +406,7 @@ bool CAE::DeleteFile(std::string dbName, std::string tableName, const std::strin
             col.c_str(), dbName.c_str(), tableName.c_str(), this->m_id_.c_str(), id.c_str());
 
     this->m_sql_ = sqlStr;
+    logger_obj->m_useQuery = false;
     this->Query(this->m_sql_, this->m_res_);
 
     if (this->m_res_.size() == 0) {
@@ -443,6 +446,7 @@ bool CAE::DeleteFile(std::string dbName, std::string tableName, const std::strin
     if (logger_obj->m_use_log) {
         logger_obj->insertRecord(dbName, tableName, "删除文件", true);
     }
+    logger_obj->m_useQuery = true;
     return true;
 }
 
@@ -460,6 +464,7 @@ bool CAE::DeleteRecord(std::string dbName, std::string tableName, const std::str
             dbName.c_str(), tableName.c_str(), this->m_id_.c_str(), id.c_str());
 
     this->m_sql_ = sqlStr;
+    logger_obj->m_useQuery = false;
     this->Query(this->m_sql_, this->m_res_);
 
     if (this->m_res_.size() == 0) {
@@ -478,7 +483,6 @@ bool CAE::DeleteRecord(std::string dbName, std::string tableName, const std::str
         minio::s3::Item item = *result;
         if (item) {
             is_empty = false;
-            std::cout << "---------- Delete File ----------" << std::endl;
             minio::s3::RemoveObjectArgs delete_args;
             delete_args.bucket = this->transDBName2BucketName_(dbName);
             delete_args.object = item.name;
@@ -507,7 +511,7 @@ bool CAE::DeleteRecord(std::string dbName, std::string tableName, const std::str
     if (logger_obj->m_use_log) {
         logger_obj->insertRecord(dbName, tableName, "删除", true);
     }
-
+    logger_obj->m_useQuery = true;
     return true;
 }
 

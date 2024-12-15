@@ -35,6 +35,7 @@ private:
     std::string __m_tb_; // 拼接表名
 
     bool m_use_log = true;
+    bool m_useQuery = true;
 
     // 所有参数可根据具体需求调整
     Logger( std::string& db_server, std::string& log_username, std::string& log_passwd,
@@ -47,9 +48,9 @@ private:
     bool __ip_in_cidr(std::string ip, std::string cidr);
 
     // 初始化时调用一次 保存到m_ip中
-    bool __getIP(const std::string &cidr, std::string &ip);
+    bool __getIP(const std::string &cidr);
 
-    bool __parseSQL(const std::string sql, std::string &db, std::string &table);
+    bool __parseSQL(const std::string sql);
 
     bool __insert(std::string& sql);
 
