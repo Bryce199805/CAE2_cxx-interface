@@ -40,9 +40,6 @@ link_directories(pkg/parse_ip/lib)
 include_directories(pkg/sqltoast/include)
 link_directories(pkg/sqltoast/lib)
 
-include_directories(pkg/sqltoaster/include)
-link_directories(pkg/sqltoaster/lib)
-
 
 if (USE_FILESYSTEM)
     message(STATUS "File system support enabled")
