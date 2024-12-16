@@ -104,7 +104,7 @@ if (USE_FILESYSTEM)
             # parse_ip
             wpcap Packet Ws2_32 IPHlpApi
             # parse_sql
-            sqltoaster sqltoast
+            sqltoast
     )
 else ()
     message(STATUS "File system support disabled")
@@ -139,7 +139,7 @@ else ()
     )
 
     target_link_libraries(CAE2 PUBLIC dmdpi yaml-cpp)
-    target_link_libraries(CAE2Test PUBLIC dmdpi yaml-cpp crypto ssl ws2_32 crypt32 wpcap Packet Ws2_32 IPHlpApi sqltoaster sqltoast )
+    target_link_libraries(CAE2Test PUBLIC dmdpi yaml-cpp crypto ssl ws2_32 crypt32 wpcap Packet Ws2_32 IPHlpApi sqltoast )
 endif ()
 
 # 安装目标

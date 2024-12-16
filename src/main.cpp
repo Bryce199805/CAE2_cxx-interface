@@ -63,15 +63,15 @@ int main() {
      }
 
     // 删除文件
-    if (obj.DeleteFile("HULL_MODEL_AND_INFORMATION_DB", "hull_parameter_info", "SampleShip_JBC0000",
-                       "TRANSVERSE_AREA_CURVE")) {
-        std::cout << "Delete file done." << std::endl;
-    }
+    // if (obj.DeleteFile("HULL_MODEL_AND_INFORMATION_DB", "hull_parameter_info", "SampleShip_JBC0000",
+    //                    "TRANSVERSE_AREA_CURVE")) {
+    //     std::cout << "Delete file done." << std::endl;
+    // }
 
     //删除记录
-    if (obj.DeleteRecord("hull_model_and_information_db", "hull_parameter_info", "SampleShip_JBC0000")) {
-        std::cout << "Delete record done." << std::endl;
-    }
+    // if (obj.DeleteRecord("hull_model_and_information_db", "hull_parameter_info", "SampleShip_JBC0000")) {
+    //     std::cout << "Delete record done." << std::endl;
+    // }
 
     return 0;
 }
