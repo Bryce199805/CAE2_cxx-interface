@@ -120,12 +120,12 @@ bool Logger::__getIP(const std::string &cidr) {
 }
 
 bool Logger::__parseSQL(const std::string sql) {
+    this->__m_res_lst_.clear();
     if (!sqltoaster::getTBName(sql, this->__m_res_lst_)) {
         return false;
     }
     this->__m_db_.clear();
     this->__m_tb_.clear();
-
     std::unordered_set<std::string> db_set; // 用于存储唯一的库名
     std::unordered_set<std::string> tb_set; // 用于存储唯一的表名
 
