@@ -31,7 +31,6 @@ link_directories(${CMAKE_SOURCE_DIR}/pkg/yaml-cxx/bin)
 include_directories(${CMAKE_SOURCE_DIR}/pkg/openssl/include)
 link_directories(${CMAKE_SOURCE_DIR}/pkg/openssl/lib)
 
-
 # parse_ip env
 include_directories(pkg/parse_ip/include)
 link_directories(pkg/parse_ip/lib)
@@ -60,6 +59,7 @@ if (USE_FILESYSTEM)
             WORKING_DIRECTORY ${OBJ_TEMP_DIR}
             COMMAND ar -x ${CMAKE_SOURCE_DIR}/pkg/openssl/lib/libssl.a
             COMMAND ar -x ${CMAKE_SOURCE_DIR}/pkg/openssl/lib/libcrypto.a
+#            COMMAND ar -x ${CMAKE_SOURCE_DIR}/pkg/sqltoast/lib/libsqltoast.a
             COMMAND ar -x ${CMAKE_SOURCE_DIR}/pkg/minio/lib/libcurl.a
             COMMAND ar -x ${CMAKE_SOURCE_DIR}/pkg/minio/lib/libcurlpp.a
             COMMAND ar -x ${CMAKE_SOURCE_DIR}/pkg/minio/lib/libini.a
@@ -99,7 +99,7 @@ if (USE_FILESYSTEM)
             # openssl : confirm if contains libeay32.dll. (err-70089)
             crypto ssl ws2_32 crypt32
             # parse_ip
-            wpcap Packet Ws2_32 IPHlpApi
+            wpcap Packet IPHlpApi
             # parse_sql
             sqltoast
     )
@@ -161,12 +161,18 @@ install(DIRECTORY pkg/openssl/lib/ DESTINATION lib
 )
 install (DIRECTORY pkg/openssl/include/ DESTINATION include)
 
+install(DIRECTORY pkg/parse_ip/lib/ DESTINATION lib
+        FILES_MATCHING PATTERN "*.dll"  # 只匹配 .so 文件
+)
+install(DIRECTORY pkg/parse_ip/include/ DESTINATION include)
+
+install(DIRECTORY pkg/sqltoast/lib/ DESTINATION lib)
+install(DIRECTORY pkg/sqltoast/include/ DESTINATION include)
+
 if (USE_FILESYSTEM)
-    #    install(DIRECTORY pkg/minio/lib/ DESTINATION lib)
     install(DIRECTORY pkg/minio/include/ DESTINATION include)
-#    install(DIRECTORY pkg/minio/src/ DESTINATION src)
-    # 安装文件系统相关依赖
     install(FILES ./config.yaml RENAME interface-config.yaml DESTINATION .)
+
 else ()
     install(FILES ./config_withoutFileSystem.yaml RENAME interface-config.yaml DESTINATION .)
 endif ()
