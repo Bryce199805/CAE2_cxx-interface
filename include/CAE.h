@@ -71,6 +71,7 @@ private:
     minio::s3::BaseUrl* base_url = nullptr;
     minio::creds::StaticProvider* provider = nullptr;
     minio::s3::Client* m_client_ = nullptr;
+
     std::vector<std::vector<std::string>> m_res_; //查询结果
 
     std::string m_bucket_; //桶名
@@ -79,10 +80,6 @@ private:
     std::string m_sql_; //sql语句
     std::string m_id_; //表中文件ID
     std::string m_path_; //查询到的文件路径
-
-    std::vector<std::vector<DBVariant>> m_result_;
-    std::vector<int> m_col_types_;
-
 
     // init file system.
     bool initFileSystem_(const std::string &fs_server, const std::string& fs_username, const std::string& fs_passwd);

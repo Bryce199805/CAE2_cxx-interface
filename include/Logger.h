@@ -35,7 +35,7 @@ private:
     std::string __m_tb_; // 拼接表名
 
     bool m_use_log = true;
-    bool m_useQuery = true;
+    bool __m_use_query = true;
 
     // 所有参数可根据具体需求调整
     Logger( std::string& db_server, std::string& log_username, std::string& log_passwd,

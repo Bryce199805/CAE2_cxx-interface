@@ -173,7 +173,7 @@ bool CAE::UploadFile(std::string dbName, std::string tableName, const std::strin
     // 3. record not exist. map映射对应不上->  return
 
     //check the parameters of the function;
-
+    this->m_res_.clear();
     this->upperName_(dbName, tableName);
     // std::cout << dbName << " " << tableName << std::endl;
     if (!this->checkFilePath_(dbName, tableName, col)) {
@@ -194,7 +194,7 @@ bool CAE::UploadFile(std::string dbName, std::string tableName, const std::strin
             col.c_str(), dbName.c_str(), tableName.c_str(), this->m_id_.c_str(), id.c_str());
 
     this->m_sql_ = sqlStr;
-    logger_obj->m_useQuery = false;
+    logger_obj->__m_use_query = false;
     this->Query(this->m_sql_, this->m_res_);
 
     //check the record exist or not;
@@ -251,13 +251,15 @@ bool CAE::UploadFile(std::string dbName, std::string tableName, const std::strin
         logger_obj->insertRecord(dbName, tableName, "上传文件", true);
     }
 
-    logger_obj->m_useQuery = true;
+    logger_obj->__m_use_query = true;
 
     return true;
 }
 
 bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &id, const std::string &col,
                   std::string local_path) {
+    this->m_res_.clear();
+
     this->upperName_(dbName, tableName);
 
     if (!this->checkFilePath_(dbName, tableName, col)) {
@@ -272,7 +274,7 @@ bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &
             col.c_str(), dbName.c_str(), tableName.c_str(), this->m_id_.c_str(), id.c_str());
 
     this->m_sql_ = sqlStr;
-    logger_obj->m_useQuery = false;
+    logger_obj->__m_use_query = false;
     this->Query(this->m_sql_, this->m_res_);
 
     if (this->m_res_.size() == 0) {
@@ -327,13 +329,15 @@ bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &
             logger_obj->insertRecord(dbName, tableName, "下载文件", true);
         }
     }
-    logger_obj->m_useQuery = true;
+    logger_obj->__m_use_query = true;
     return true;
 }
 
 
 bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &id, const std::string &col,
                   std::vector<unsigned char> &object_data) {
+    this->m_res_.clear();
+
     this->upperName_(dbName, tableName);
 
     if (!this->checkFilePath_(dbName, tableName, col)) {
@@ -348,7 +352,7 @@ bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &
             col.c_str(), dbName.c_str(), tableName.c_str(), this->m_id_.c_str(), id.c_str());
 
     this->m_sql_ = sqlStr;
-    logger_obj->m_useQuery = false;
+    logger_obj->__m_use_query = false;
     this->Query(this->m_sql_, this->m_res_);
 
     if (this->m_res_.size() == 0) {
@@ -387,11 +391,13 @@ bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &
     if (logger_obj->m_use_log) {
         logger_obj->insertRecord(dbName, tableName, "下载文件", true);
     }
-    logger_obj->m_useQuery = true;
+    logger_obj->__m_use_query = true;
     return true;
 }
 
 bool CAE::DeleteFile(std::string dbName, std::string tableName, const std::string &id, const std::string &col) {
+
+    this->m_res_.clear();
     this->upperName_(dbName, tableName);
 
     if (!this->checkFilePath_(dbName, tableName, col)) {
@@ -406,7 +412,7 @@ bool CAE::DeleteFile(std::string dbName, std::string tableName, const std::strin
             col.c_str(), dbName.c_str(), tableName.c_str(), this->m_id_.c_str(), id.c_str());
 
     this->m_sql_ = sqlStr;
-    logger_obj->m_useQuery = false;
+    logger_obj->__m_use_query = false;
     this->Query(this->m_sql_, this->m_res_);
 
     if (this->m_res_.size() == 0) {
@@ -446,11 +452,12 @@ bool CAE::DeleteFile(std::string dbName, std::string tableName, const std::strin
     if (logger_obj->m_use_log) {
         logger_obj->insertRecord(dbName, tableName, "删除文件", true);
     }
-    logger_obj->m_useQuery = true;
+    logger_obj->__m_use_query = true;
     return true;
 }
 
 bool CAE::DeleteRecord(std::string dbName, std::string tableName, const std::string &id) {
+    this->m_res_.clear();
     this->upperName_(dbName, tableName);
     if (!this->checkFilePath_(dbName, tableName)) {
         std::cout << "Noting to do. There is no file." << std::endl;
@@ -464,7 +471,7 @@ bool CAE::DeleteRecord(std::string dbName, std::string tableName, const std::str
             dbName.c_str(), tableName.c_str(), this->m_id_.c_str(), id.c_str());
 
     this->m_sql_ = sqlStr;
-    logger_obj->m_useQuery = false;
+    logger_obj->__m_use_query = false;
     this->Query(this->m_sql_, this->m_res_);
 
     if (this->m_res_.size() == 0) {
@@ -511,7 +518,7 @@ bool CAE::DeleteRecord(std::string dbName, std::string tableName, const std::str
     if (logger_obj->m_use_log) {
         logger_obj->insertRecord(dbName, tableName, "删除", true);
     }
-    logger_obj->m_useQuery = true;
+    logger_obj->__m_use_query = true;
     return true;
 }
 

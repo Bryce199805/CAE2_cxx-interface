@@ -166,7 +166,7 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<std::string> > &re
         this->dpiErrorMsgPrint_(DSQL_HANDLE_STMT, this->m_hstmt_);
         this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
-        if (logger_obj->m_use_log && logger_obj->m_useQuery) {
+        if (logger_obj->m_use_log && logger_obj->__m_use_query) {
             logger_obj->insertRecord(sql_str, "查询", false);
         }
         return false;
@@ -214,7 +214,7 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<std::string> > &re
         }
         res.push_back(temp);
     }
-    if (logger_obj->m_use_log && logger_obj->m_useQuery) {
+    if (logger_obj->m_use_log && logger_obj->__m_use_query) {
         logger_obj->insertRecord(sql_str, "查询", true);
     }
 
@@ -248,7 +248,7 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res)
         this->dpiErrorMsgPrint_(DSQL_HANDLE_STMT, this->m_hstmt_);
         this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
-        if (logger_obj->m_use_log && logger_obj->m_useQuery) {
+        if (logger_obj->m_use_log && logger_obj->__m_use_query) {
             logger_obj->insertRecord(sql_str, "查询", false);
         }
 
@@ -320,7 +320,7 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res)
         res.push_back(temp);
     }
 
-    if (logger_obj->m_use_log && logger_obj->m_useQuery) {
+    if (logger_obj->m_use_log && logger_obj->__m_use_query) {
         logger_obj->insertRecord(sql_str, "查询", true);
     }
     // 释放语句句柄
@@ -353,7 +353,7 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res,
         this->dpiErrorMsgPrint_(DSQL_HANDLE_STMT, this->m_hstmt_);
         this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
-        if (logger_obj->m_use_log && logger_obj->m_useQuery) {
+        if (logger_obj->m_use_log && logger_obj->__m_use_query) {
             logger_obj->insertRecord(sql_str, "查询", false);
         }
         return false;
@@ -427,7 +427,7 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res,
         }
         res.push_back(temp);
     }
-    if (logger_obj->m_use_log && logger_obj->m_useQuery) {
+    if (logger_obj->m_use_log && logger_obj->__m_use_query) {
         logger_obj->insertRecord(sql_str, "查询", true);
     }
     // 释放语句句柄
@@ -459,14 +459,14 @@ bool CAE::Delete(std::string &sql_str) {
         this->dpiErrorMsgPrint_(DSQL_HANDLE_STMT, this->m_hstmt_);
         this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
-        if (logger_obj->m_use_log && logger_obj->m_useQuery) {
+        if (logger_obj->m_use_log && logger_obj->__m_use_query) {
             logger_obj->insertRecord(sql_str, "删除", false);
         }
 
         return false;
     }
 
-    if (logger_obj->m_use_log && logger_obj->m_useQuery) {
+    if (logger_obj->m_use_log && logger_obj->__m_use_query) {
         logger_obj->insertRecord(sql_str, "删除", true);
     }
     // 释放语句句柄
@@ -497,13 +497,13 @@ bool CAE::Update(std::string &sql_str) {
         this->dpiErrorMsgPrint_(DSQL_HANDLE_STMT, this->m_hstmt_);
         this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
-        if (logger_obj->m_use_log && logger_obj->m_useQuery) {
+        if (logger_obj->m_use_log && logger_obj->__m_use_query) {
             logger_obj->insertRecord(sql_str, "修改", false);
         }
 
         return false;
     }
-    if (logger_obj->m_use_log && logger_obj->m_useQuery) {
+    if (logger_obj->m_use_log && logger_obj->__m_use_query) {
         logger_obj->insertRecord(sql_str, "修改", true);
     }
     // 释放语句句柄
@@ -533,14 +533,14 @@ bool CAE::Insert(std::string &sql_str) {
         std::cout << "insert error!" << std::endl;
         this->dpiErrorMsgPrint_(DSQL_HANDLE_STMT, this->m_hstmt_);
         this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
-        if (logger_obj->m_use_log && logger_obj->m_useQuery) {
+        if (logger_obj->m_use_log && logger_obj->__m_use_query) {
             logger_obj->insertRecord(sql_str, "插入", false);
         }
 
         return false;
     }
 
-    if (logger_obj->m_use_log && logger_obj->m_useQuery) {
+    if (logger_obj->m_use_log && logger_obj->__m_use_query) {
         logger_obj->insertRecord(sql_str, "插入", true);
     }
     // 释放语句句柄
