@@ -22,17 +22,16 @@
 #include <openssl/sha.h>
 
 #include "Logger.h"
+#include <unordered_set>
 
 
 #ifdef USE_FILESYSTEM
 
 #include <complex>
-#include <unordered_set>
 #include "miniocpp/client.h"
 #include <filesystem>
 #include <fstream>
 #include <windows.h>
-#include <unordered_set>
 
 #endif
 
