@@ -186,7 +186,6 @@ bool Logger::insertRecord(std::string &sql, std::string operation, bool exec_res
             "VALUES ('%s', '%s', 'C++数据接口', '%s', USER_MANAGEMENT_DB.TABLES('%s'), USER_MANAGEMENT_DB.TABLES('%s'), SYSTIMESTAMP, %d)"
             , this->__m_username.c_str(), this->__m_ip_.c_str(), operation.c_str(), this->__m_db_.c_str(),
             this->__m_tb_.c_str(), exec_result);
-
     this->__m_logger_sql_ = sqlStr;
     // std::cout << this->__m_logger_sql_ << std::endl;
     if (!this->__insert(__m_logger_sql_)) {

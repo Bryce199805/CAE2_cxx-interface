@@ -14,18 +14,18 @@ CAE::CAE(const std::string &file_path) {
         exit(1);
     }
     std::string db_server = data_config["database"]["server"].as<std::string>();
-    std::string db_username = data_config["database"]["username"].as<std::string>();
-    std::string db_passwd = this->encrypt_(data_config["database"]["passwd"].as<std::string>());
+    std::string username = data_config["database"]["username"].as<std::string>();
+    std::string passwd = this->encrypt_(data_config["database"]["passwd"].as<std::string>());
 
     std::string log_username = data_config["log"]["username"].as<std::string>();
     std::string log_passwd = this->encrypt_(data_config["log"]["passwd"].as<std::string>());
     std::string cidr = data_config["log"]["cidr"].as<std::string>();
     bool use_log = data_config["log"]["enable"].as<bool>();
 
-    this->initDB_(db_server, db_username, db_passwd);
+    this->initDB_(db_server, username, passwd);
 
     // 初始化log对象
-    this->initLogger_(db_server, log_username, log_passwd, db_username, cidr, use_log);
+    this->initLogger_(db_server, log_username, log_passwd, username, cidr, use_log);
 
     std::cout << "----------------------------------------------------------------------" << std::endl;
 }

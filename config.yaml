@@ -1,15 +1,30 @@
+#database:
+#  server: "192.168.8.201:5236"
+#  username: "CMDADM"
+#  passwd: "SYSDBA"
+#
+#fileSystem:
+#  endpoint: "192.168.8.201:9000"
+#  username: "CAEadmin"
+#  passwd: "fileadmin"
+#
+#log:
+#  username: "LOG"
+#  passwd: "logmanager"
+#  cidr: "192.168.8.0/24"
+#  enable: true
 database:
-  server: "192.168.8.201:5236"
-  username: "CMDADM"
-  passwd: "SYSDBA"
+  server: "222.27.255.211:15236"
+  username: "708_USER"
+  passwd: "708_user"
 
 fileSystem:
-  endpoint: "192.168.8.201:9000"
-  username: "CAEadmin"
-  passwd: "fileadmin"
+  endpoint: "222.27.255.211:19000"
+  username: "708_USER"
+  passwd: "708_user"
 
 log:
-  username: "LOG"
-  passwd: "logmanager"
-  cidr: "192.168.8.0/24"
+  username: "logusers"
+  passwd: "SYSDBA1234"
+  cidr: "169.254.189.90/16"
   enable: true
