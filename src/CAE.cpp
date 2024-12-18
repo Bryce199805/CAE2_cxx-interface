@@ -10,7 +10,7 @@ CAE::CAE(const std::string &file_path) {
     // 读取yaml文件
     YAML::Node data_config = YAML::LoadFile(file_path);
     if (!data_config) {
-        std::cout << "Open config File:" << file_path << " failed.";
+        std::cout << this->m_error_msg_ << "Open config File:" << file_path << " failed.";
         exit(1);
     }
     std::string db_server = data_config["database"]["server"].as<std::string>();
@@ -27,14 +27,18 @@ CAE::CAE(const std::string &file_path) {
     // 初始化log对象
     this->initLogger_(db_server, log_username, log_passwd, db_username, cidr, use_log);
 
+    std::cout << "----------------------------------------------------------------------" << std::endl;
 }
 
 CAE::~CAE() {
     this->releaseDB_();
-    this->releaseLogger_();
+
 #ifdef USE_FILESYSTEM
     this->releaseFileSystem_();
 #endif
+
+    this->releaseLogger_();
+    std::cout << this->m_system_msg_ << "Disconnect from server success!" << std::endl;
 }
 
 
@@ -61,8 +65,6 @@ bool CAE::initDB_(std::string &db_server, std::string &db_username, std::string 
         exit(-1);
     }
 
-    printf("========== dpi: connect to server success! ==========\n");
-
     return true;
 }
 
@@ -79,7 +81,6 @@ void CAE::releaseDB_() {
         this->dpiErrorMsgPrint_(DSQL_HANDLE_DBC, this->m_hcon_);
         exit(-1);
     }
-    printf("========== dpi: disconnect from server success! ==========\n");
 
     // 释放连接句柄和环境句柄
     this->m_rt_ = dpi_free_con(this->m_hcon_);
@@ -115,7 +116,7 @@ void CAE::dpiErrorMsgPrint_(sdint2 hndl_type, dhandle hndl) {
 
     /* 获取错误信息集合 */
     dpi_get_diag_rec(hndl_type, hndl, 1, &err_code, err_msg, sizeof(err_msg), &msg_len);
-    std::cout << "err_msg = " << err_msg << ", err_code = " << err_code << std::endl;
+    std::cout << this->m_error_msg_ << err_msg << ", ERROR_CODE = " << err_code << std::endl;
 }
 
 std::string CAE::encrypt_(const std::string &data) {
@@ -148,7 +149,7 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<std::string> > &re
     // ========== 初始化判断 ==========
     // 判断sql是否以select开头
     if (!this->isValidSQLCommand_(sql_str, "select")) {
-        std::cout << "illegal statement." << std::endl;
+        std::cout << this->m_error_msg_ << "Illegal statement." << std::endl;
         return false;
     }
 
@@ -162,7 +163,6 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<std::string> > &re
 
     // 判断查询结果
     if (!DSQL_SUCCEEDED(this->m_rt_)) {
-        std::cout << "query error!" << std::endl;
         this->dpiErrorMsgPrint_(DSQL_HANDLE_STMT, this->m_hstmt_);
         this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
@@ -230,7 +230,7 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res)
     // ========== 初始化判断 ==========
     // 判断sql是否以select开头
     if (!this->isValidSQLCommand_(sql_str, "select")) {
-        std::cout << "illegal statement." << std::endl;
+        std::cout << this->m_error_msg_ << "Illegal statement." << std::endl;
         return false;
     }
 
@@ -244,7 +244,6 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res)
 
     // 判断查询结果
     if (!DSQL_SUCCEEDED(this->m_rt_)) {
-        std::cout << "query error!" << std::endl;
         this->dpiErrorMsgPrint_(DSQL_HANDLE_STMT, this->m_hstmt_);
         this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
@@ -326,7 +325,9 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res)
     // 释放语句句柄
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
-    //    std::cout << "query success!" << std::endl;
+    if (this->m_show_msg_) {
+        std::cout << m_success_msg_ << "Query Success!" << std::endl;
+    }
     return true;
 }
 
@@ -335,7 +336,7 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res,
     // ========== 初始化判断 ==========
     // 判断sql是否以select开头
     if (!this->isValidSQLCommand_(sql_str, "select")) {
-        std::cout << "illegal statement." << std::endl;
+        std::cout << this->m_error_msg_ << "Illegal statement." << std::endl;
         return false;
     }
 
@@ -349,7 +350,6 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res,
 
     // 判断查询结果
     if (!DSQL_SUCCEEDED(this->m_rt_)) {
-        std::cout << "query error!" << std::endl;
         this->dpiErrorMsgPrint_(DSQL_HANDLE_STMT, this->m_hstmt_);
         this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
@@ -433,7 +433,9 @@ bool CAE::Query(std::string &sql_str, std::vector<std::vector<DBVariant> > &res,
     // 释放语句句柄
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
-    //    std::cout << "query success!" << std::endl;
+    if (this->m_show_msg_) {
+        std::cout << this->m_success_msg_ << "Query Success!" << std::endl;
+    }
     return true;
 }
 
@@ -442,7 +444,7 @@ bool CAE::Delete(std::string &sql_str) {
     // ========== 初始化判断 ==========
     // 判断sql是否以delete开头
     if (!this->isValidSQLCommand_(sql_str, "delete")) {
-        std::cout << "illegal statement." << std::endl;
+        std::cout << this->m_error_msg_ << "Illegal statement." << std::endl;
         return false;
     }
 
@@ -455,7 +457,6 @@ bool CAE::Delete(std::string &sql_str) {
 
 
     if (!DSQL_SUCCEEDED(this->m_rt_)) {
-        std::cout << "delete error!" << std::endl;
         this->dpiErrorMsgPrint_(DSQL_HANDLE_STMT, this->m_hstmt_);
         this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
@@ -471,16 +472,17 @@ bool CAE::Delete(std::string &sql_str) {
     }
     // 释放语句句柄
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
-    //    std::cout << "delete success!" << std::endl;
+    if (this->m_show_msg_) {
+        std::cout << this->m_success_msg_ << "Delete success!" << std::endl;
+    }
     return true;
 }
 
 bool CAE::Update(std::string &sql_str) {
-    //    std::cout << "---------- Update ----------" << std::endl;
     // ========== 初始化判断 ==========
     // 判断sql是否以update开头
     if (!this->isValidSQLCommand_(sql_str, "update")) {
-        std::cout << "illegal statement." << std::endl;
+        std::cout << this->m_error_msg_ << "Illegal statement." << std::endl;
         return false;
     }
 
@@ -493,7 +495,6 @@ bool CAE::Update(std::string &sql_str) {
 
 
     if (!DSQL_SUCCEEDED(this->m_rt_)) {
-        std::cout << "update error!" << std::endl;
         this->dpiErrorMsgPrint_(DSQL_HANDLE_STMT, this->m_hstmt_);
         this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
 
@@ -508,16 +509,17 @@ bool CAE::Update(std::string &sql_str) {
     }
     // 释放语句句柄
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
-    //    std::cout << "update success!" << std::endl;
+    if (this->m_show_msg_) {
+        std::cout << this->m_success_msg_ <<  "Update success!" << std::endl;
+    }
     return true;
 }
 
 bool CAE::Insert(std::string &sql_str) {
-    //    std::cout << "---------- Insert ----------" << std::endl;
     // ========== 初始化判断 ==========
     // 判断sql是否以insert开头
     if (!this->isValidSQLCommand_(sql_str, "insert")) {
-        std::cout << "illegal statement." << std::endl;
+        std::cout << this->m_error_msg_ << "Illegal statement." << std::endl;
         return false;
     }
 
@@ -530,13 +532,11 @@ bool CAE::Insert(std::string &sql_str) {
 
 
     if (!DSQL_SUCCEEDED(this->m_rt_)) {
-        std::cout << "insert error!" << std::endl;
         this->dpiErrorMsgPrint_(DSQL_HANDLE_STMT, this->m_hstmt_);
         this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
         if (logger_obj->m_use_log && logger_obj->m_use_query) {
             logger_obj->insertRecord(sql_str, "插入", false);
         }
-
         return false;
     }
 
@@ -545,7 +545,9 @@ bool CAE::Insert(std::string &sql_str) {
     }
     // 释放语句句柄
     this->m_rt_ = dpi_free_stmt(this->m_hstmt_);
-    //    std::cout << "insert success!" << std::endl;
+    if (this->m_show_msg_) {
+        std::cout << this->m_success_msg_ << "Insert success!" << std::endl;
+    }
     return true;
 }
 
@@ -575,7 +577,7 @@ void CAE::printResult(std::vector<std::vector<DBVariant> > &res, std::vector<int
                     std::cout << row[i].asTypeDouble() << " ";
                     break;
                 default:
-                    std::cout << "unknow Type." << " ";
+                    std::cout << this->m_system_msg_ <<  "Unknown Type." << " ";
             }
         }
         std::cout << std::endl;

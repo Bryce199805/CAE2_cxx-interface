@@ -23,6 +23,10 @@ private:
 
     std::string __m_username;
 
+    // 输出控制
+    const std::string __m_system_msg = "\033[33m\033[1m[Logger Message]: \033[0m";
+    const std::string __m_error_msg = "\033[31m\033[1m[Logger Error]: \033[0m";
+
     // 不应被CAE类访问的类成员变量 用双下划线__标识
 
     std::string __m_ip_; // ip

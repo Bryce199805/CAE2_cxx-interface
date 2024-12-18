@@ -12,7 +12,7 @@ CAE::CAE(const std::string &file_path, bool withFile = true) {
     // 读取yaml文件
     YAML::Node data_config = YAML::LoadFile(file_path);
     if (!data_config) {
-        std::cout << "Open config File:" << file_path << " failed.";
+        std::cout << this->m_error_msg_ << "Open config File:" << file_path << " failed.";
         exit(1);
     }
 
@@ -39,7 +39,12 @@ CAE::CAE(const std::string &file_path, bool withFile = true) {
         this->initDB_(db_server, db_username, db_passwd);
     }
 
+    std::cout << this->m_system_msg_ << "Connect to server success!" << std::endl;
+
     this->initLogger_(db_server, log_username, log_passwd, db_username, cidr, use_log);
+
+    std::cout << "----------------------------------------------------------------------" << std::endl;
+
 }
 
 // ============================== private function ==============================
@@ -54,13 +59,13 @@ bool CAE::initFileSystem_(const std::string &fs_server, const std::string &fs_us
         minio::s3::ListBucketsArgs args;
         minio::s3::ListBucketsResponse result = this->m_client_->ListBuckets(args);
         if (result) {
-            std::cout << "========== file system :connect to server success! ==========" << std::endl;
+            return true;
         }
     } catch (const minio::error::Error &e) {
-        std::cout << "Error: " << e << std::endl;
+        std::cout << this->m_error_msg_ << e << std::endl;
         exit(0);
     }
-    return true;
+    // return true;
 }
 
 
@@ -68,19 +73,19 @@ void CAE::parseDBPath_(std::string path) {
     // 查找第一个斜杠，提取bucket部分
     size_t firstSlash = path.find('/');
     if (firstSlash == std::string::npos) {
-        std::cout << "Invalid path format" << std::endl;
+        std::cout << this->m_error_msg_ << "Invalid path format" << std::endl;
         return;
     }
     // 查找第二个斜杠
     size_t secondSlash = path.find('/', firstSlash + 1);
     if (secondSlash == std::string::npos) {
-        std::cout << "Invalid path format" << std::endl;
+        std::cout << this->m_error_msg_ << "Invalid path format" << std::endl;
         return;
     }
     // 查找最后一个斜杠，提取object部分
     size_t lastSlash = path.rfind('/');
     if (lastSlash == std::string::npos || lastSlash == firstSlash) {
-        std::cout << "Invalid path format" << std::endl;
+        std::cout << this->m_error_msg_ << "Invalid path format" << std::endl;
         return;
     }
     // 提取第一个斜杠和第二个斜杠之间的部分
@@ -160,13 +165,11 @@ void CAE::releaseFileSystem_() {
     this->provider = nullptr;
     delete this->m_client_;
     this->m_client_ = nullptr;
-    std::cout << "========== file system :disconnect from server success! ==========" << std::endl;
 }
 
 // ============================== public function ==============================
 
-bool CAE::UploadFile(std::string dbName, std::string tableName, const std::string &id, const std::string &col,
-                     std::string local_path) {
+bool CAE::UploadFile(std::string dbName, std::string tableName, const std::string &id, const std::string &col, std::string local_path) {
     // sql query minio path
     // 1. record exist. col not null ->  minio path
     // 2, record exist. col null ->  make path
@@ -177,13 +180,13 @@ bool CAE::UploadFile(std::string dbName, std::string tableName, const std::strin
     this->upperName_(dbName, tableName);
     // std::cout << dbName << " " << tableName << std::endl;
     if (!this->checkFilePath_(dbName, tableName, col)) {
-        std::cout << "Error: check your dbname/tablename/colname." << std::endl;
+        std::cout << this->m_error_msg_ << "Check your dbname/tablename/colname." << std::endl;
         return false;
     }
 
     //check the local file path.
     if (!std::filesystem::exists(local_path)) {
-        std::cerr << "Error: The file does not exist at " << local_path << std::endl;
+        std::cerr << this->m_error_msg_ << "The file does not exist at " << local_path << std::endl;
         return false;
     }
 
@@ -194,13 +197,17 @@ bool CAE::UploadFile(std::string dbName, std::string tableName, const std::strin
             col.c_str(), dbName.c_str(), tableName.c_str(), this->m_id_.c_str(), id.c_str());
 
     this->m_sql_ = sqlStr;
-    logger_obj->__m_use_query = false;
+    logger_obj->m_use_query = false;
+    this->m_show_msg_ = false;
+
     this->Query(this->m_sql_, this->m_res_);
 
     //check the record exist or not;
     if (this->m_res_.size() == 0) {
         //The record does not exist.
-        std::cout << "Error: The record does not exist." << std::endl;
+        std::cout << this->m_error_msg_ << "The record does not exist." << std::endl;
+        logger_obj->m_use_query = true;
+        this->m_show_msg_ = true;
         return false;
     }
 
@@ -240,10 +247,13 @@ bool CAE::UploadFile(std::string dbName, std::string tableName, const std::strin
         this->m_sql_ = sqlStr;
         this->Update(this->m_sql_);
     } else {
-        std::cout << "Unable to upload file:" << resp.Error().String() << std::endl;
+        std::cout << this->m_error_msg_ << "Unable to upload file." << std::endl << resp.Error().String() << std::endl;
+
         if (logger_obj->m_use_log) {
             logger_obj->insertRecord(dbName, tableName, "上传文件", false);
         }
+        logger_obj->m_use_query = true;
+        this->m_show_msg_ = true;
         return false;
     }
 
@@ -251,19 +261,20 @@ bool CAE::UploadFile(std::string dbName, std::string tableName, const std::strin
         logger_obj->insertRecord(dbName, tableName, "上传文件", true);
     }
 
-    logger_obj->__m_use_query = true;
+    logger_obj->m_use_query = true;
+    this->m_show_msg_ = true;
 
+    std::cout << this->m_success_msg_ << "File is successfully uploaded." << std::endl;
     return true;
 }
 
-bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &id, const std::string &col,
-                  std::string local_path) {
+bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &id, const std::string &col, std::string local_path) {
     this->m_res_.clear();
 
     this->upperName_(dbName, tableName);
 
     if (!this->checkFilePath_(dbName, tableName, col)) {
-        std::cout << "Error: check your dbname/tablename/colname." << std::endl;
+        std::cout << this->m_error_msg_ << "Check your dbname/tableName/colName." << std::endl;
         return false;
     }
 
@@ -274,17 +285,23 @@ bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &
             col.c_str(), dbName.c_str(), tableName.c_str(), this->m_id_.c_str(), id.c_str());
 
     this->m_sql_ = sqlStr;
-    logger_obj->__m_use_query = false;
+    logger_obj->m_use_query = false;
+    this->m_show_msg_ = false;
+
     this->Query(this->m_sql_, this->m_res_);
 
     if (this->m_res_.size() == 0) {
-        std::cout << "Error: The record does not exist." << std::endl;
+        std::cout << this->m_error_msg_ << "The record does not exist." << std::endl;
+        logger_obj->m_use_query = true;
+        this->m_show_msg_ = true;
         return false;
     }
 
     this->m_path_ = this->m_res_[0][0];
     if (!this->checkFileExist_(this->m_path_)) {
-        std::cout << "This file is not exist." << std::endl;
+        std::cout << this->m_error_msg_ << "This file is not exist." << std::endl;
+        logger_obj->m_use_query = true;
+        this->m_show_msg_ = true;
         return false;
     }
 
@@ -306,11 +323,11 @@ bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &
         std::ofstream outFile("./temp", std::ios::binary); // 以二进制模式打开文件
 
         if (outFile.is_open()) {
-            // 将 stringstream 中的内容写入到文件
+            // 将 string stream 中的内容写入到文件
             outFile << object_data.str(); // 通过 str() 获取 stringstream 的内容
             outFile.close(); // 关闭文件
         } else {
-            std::cerr << "operate file error." << std::endl;
+            std::cerr << "Operate file error." << std::endl;
         }
         return true;
     };
@@ -319,7 +336,7 @@ bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &
     minio::s3::GetObjectResponse resp = this->m_client_->GetObject(args);
 
     if (!resp) {
-        std::cerr << "Unable to download object:" << resp.Error().String() << std::endl;
+        std::cerr << this->m_error_msg_ << "Unable to download object." << std::endl << resp.Error().String() << std::endl;
         if (logger_obj->m_use_log) {
             logger_obj->insertRecord(dbName, tableName, "下载文件", false);
         }
@@ -329,19 +346,21 @@ bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &
             logger_obj->insertRecord(dbName, tableName, "下载文件", true);
         }
     }
-    logger_obj->__m_use_query = true;
+
+    logger_obj->m_use_query = true;
+    this->m_show_msg_ = true;
+    std::cout << this->m_success_msg_ << "File successfully downloaded to " << path << std::endl;
     return true;
 }
 
 
-bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &id, const std::string &col,
-                  std::vector<unsigned char> &object_data) {
+bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &id, const std::string &col, std::vector<unsigned char> &object_data) {
     this->m_res_.clear();
 
     this->upperName_(dbName, tableName);
 
     if (!this->checkFilePath_(dbName, tableName, col)) {
-        std::cout << "Error: check your dbname/tablename/colname." << std::endl;
+        std::cout << this->m_error_msg_ << "Check your dbname/tableName/colName." << std::endl;
         return false;
     }
 
@@ -352,17 +371,23 @@ bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &
             col.c_str(), dbName.c_str(), tableName.c_str(), this->m_id_.c_str(), id.c_str());
 
     this->m_sql_ = sqlStr;
-    logger_obj->__m_use_query = false;
+    logger_obj->m_use_query = false;
+    this->m_show_msg_ = false;
+
     this->Query(this->m_sql_, this->m_res_);
 
     if (this->m_res_.size() == 0) {
-        std::cout << "Error: The record does not exist." << std::endl;
+        std::cout << this->m_error_msg_ << "The record does not exist." << std::endl;
+        logger_obj->m_use_query = true;
+        this->m_show_msg_ = true;
         return false;
     }
 
     this->m_path_ = this->m_res_[0][0];
     if (!this->checkFileExist_(this->m_path_)) {
-        std::cout << "This file is not exist." << std::endl;
+        std::cout << this->m_error_msg_ << "This file is not exist." << std::endl;
+        logger_obj->m_use_query = true;
+        this->m_show_msg_ = true;
         return false;
     }
 
@@ -381,17 +406,20 @@ bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &
     minio::s3::GetObjectResponse resp = this->m_client_->GetObject(args);
 
     if (!resp) {
-        std::cout << "Unable to get data:" << resp.Error().String() << std::endl;
+        std::cout << this->m_error_msg_ << "Unable to get data." <<std::endl << resp.Error().String() << std::endl;
         if (logger_obj->m_use_log) {
             logger_obj->insertRecord(dbName, tableName, "下载文件", false);
         }
+        logger_obj->m_use_query = true;
+        this->m_show_msg_ = true;
         return false;
     }
 
     if (logger_obj->m_use_log) {
         logger_obj->insertRecord(dbName, tableName, "下载文件", true);
     }
-    logger_obj->__m_use_query = true;
+    logger_obj->m_use_query = true;
+    this->m_show_msg_ = true;
     return true;
 }
 
@@ -401,7 +429,7 @@ bool CAE::DeleteFile(std::string dbName, std::string tableName, const std::strin
     this->upperName_(dbName, tableName);
 
     if (!this->checkFilePath_(dbName, tableName, col)) {
-        std::cout << "Error: check your dbname/tablename/colname." << std::endl;
+        std::cout << this->m_error_msg_ << "Check your dbname/tableName/colName." << std::endl;
         return false;
     }
 
@@ -412,23 +440,27 @@ bool CAE::DeleteFile(std::string dbName, std::string tableName, const std::strin
             col.c_str(), dbName.c_str(), tableName.c_str(), this->m_id_.c_str(), id.c_str());
 
     this->m_sql_ = sqlStr;
-    logger_obj->__m_use_query = false;
+    logger_obj->m_use_query = false;
+    this->m_show_msg_ = false;
+
     this->Query(this->m_sql_, this->m_res_);
 
     if (this->m_res_.size() == 0) {
-        std::cout << "Error: The record does not exist." << std::endl;
+        std::cout << this->m_error_msg_ << "The record does not exist." << std::endl;
+        logger_obj->m_use_query = true;
+        this->m_show_msg_ = true;
         return false;
     }
 
     this->m_path_ = this->m_res_[0][0];
     if (!this->checkFileExist_(this->m_path_)) {
-        std::cout << "This file is not exist." << std::endl;
+        std::cout << this->m_error_msg_ << "This file is not exist." << std::endl;
+        logger_obj->m_use_query = true;
+        this->m_show_msg_ = true;
         return false;
     }
 
     this->parseDBPath_(this->m_path_);
-
-    std::cout << "---------- Delete File ----------" << std::endl;
 
     minio::s3::RemoveObjectArgs args;
     args.bucket = this->m_bucket_;
@@ -443,24 +475,30 @@ bool CAE::DeleteFile(std::string dbName, std::string tableName, const std::strin
         this->m_sql_ = sqlStr;
         this->Update(this->m_sql_);
     } else {
-        std::cout << "Unable to delete file:" << resp.Error().String() << std::endl;
+        std::cout << this->m_error_msg_ << "Unable to delete file." << std::endl << resp.Error().String() << std::endl;
         if (logger_obj->m_use_log) {
             logger_obj->insertRecord(dbName, tableName, "删除文件", false);
         }
+        logger_obj->m_use_query = true;
+        this->m_show_msg_ = true;
         return false;
     }
     if (logger_obj->m_use_log) {
         logger_obj->insertRecord(dbName, tableName, "删除文件", true);
     }
-    logger_obj->__m_use_query = true;
+    logger_obj->m_use_query = true;
+    this->m_show_msg_ = true;
+
+    std::cout << this->m_success_msg_ << "File is successfully deleted." << std::endl;
     return true;
 }
 
 bool CAE::DeleteRecord(std::string dbName, std::string tableName, const std::string &id) {
     this->m_res_.clear();
     this->upperName_(dbName, tableName);
+
     if (!this->checkFilePath_(dbName, tableName)) {
-        std::cout << "Noting to do. There is no file." << std::endl;
+        std::cout << this->m_system_msg_ << "Noting to do. There is no file." << std::endl;
         return false;
     }
 
@@ -471,11 +509,13 @@ bool CAE::DeleteRecord(std::string dbName, std::string tableName, const std::str
             dbName.c_str(), tableName.c_str(), this->m_id_.c_str(), id.c_str());
 
     this->m_sql_ = sqlStr;
-    logger_obj->__m_use_query = false;
+    logger_obj->m_use_query = false;
+    this->m_show_msg_ = false;
+
     this->Query(this->m_sql_, this->m_res_);
 
     if (this->m_res_.size() == 0) {
-        std::cout << "Error: check your dbname/tablename/colname." << std::endl;
+        std::cout << this->m_error_msg_ << "Check your dbname/tableName/colName." << std::endl;
         return false;
     }
 
@@ -500,10 +540,12 @@ bool CAE::DeleteRecord(std::string dbName, std::string tableName, const std::str
     }
 
     if (is_empty) {
-        std::cout << "Folder is empty, nothing to delete." << std::endl;
+        std::cout << this->m_system_msg_ << "Folder is empty, nothing to delete." << std::endl;
         if (logger_obj->m_use_log) {
             logger_obj->insertRecord(dbName, tableName, "删除", false);
         }
+        logger_obj->m_use_query = true;
+        this->m_show_msg_ = true;
         return false;
     } else {
         this->m_id_ = this->getTableID_(dbName, tableName);
@@ -515,10 +557,14 @@ bool CAE::DeleteRecord(std::string dbName, std::string tableName, const std::str
         this->m_sql_ = sqlStr;
         this->Delete(this->m_sql_);
     }
+
     if (logger_obj->m_use_log) {
         logger_obj->insertRecord(dbName, tableName, "删除", true);
     }
-    logger_obj->__m_use_query = true;
+    logger_obj->m_use_query = true;
+    this->m_show_msg_ = true;
+
+    std::cout << this->m_success_msg_ << "Record is successfully deleted." << std::endl;
     return true;
 }
 

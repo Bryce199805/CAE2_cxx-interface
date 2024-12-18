@@ -47,6 +47,12 @@ private:
     dhstmt m_hstmt_; // 语句句柄
     DPIRETURN m_rt_; // 函数返回值
 
+    // 输出控制
+    bool m_show_msg_ = true;
+    const std::string m_system_msg_ = "\033[33m\033[1m[DB Message]: \033[0m";   // 黄色 加粗
+    const std::string m_error_msg_ = "\033[31m\033[1m[DB Error]: \033[0m";      // 红色 加粗
+    const std::string m_success_msg_ = "\033[32m\033[1m[DB Message]: \033[0m";  // 绿色 加粗
+
     Logger* logger_obj = nullptr;
 
     bool isValidSQLCommand_(const std::string &sql, const std::string type);

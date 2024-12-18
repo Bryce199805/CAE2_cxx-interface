@@ -31,7 +31,10 @@ Logger::Logger(std::string &db_server, std::string &log_username, std::string &l
             exit(-1);
         }
 
-        printf("========== Logger: init done! ==========\n");
+        std::cout << this->__m_system_msg << "Connect to server success!"<<std::endl;
+    }
+    else {
+        std::cout << this->__m_system_msg << "Logger disable." << std::endl;
     }
 }
 
@@ -42,7 +45,7 @@ void Logger::__dpiErrorMsgPrint(sdint2 hndl_type, dhandle hndl) {
 
     /* 获取错误信息集合 */
     dpi_get_diag_rec(hndl_type, hndl, 1, &err_code, err_msg, sizeof(err_msg), &msg_len);
-    std::cout << "[Logger ERROR]: Err_msg = " << err_msg << ", Err_code = " << err_code << std::endl;
+    std::cout << this->__m_error_msg << err_msg << ", Err_code = " << err_code << std::endl;
 }
 
 uint32_t Logger::__ip2Int(std::string ip) {
@@ -113,7 +116,7 @@ bool Logger::__getIP(const std::string &cidr) {
         delete pIpAdapterInfo;
     }
     if (!get) {
-        std::cout << "[Logger ERROR]: can not get ip." << std::endl;
+        std::cout << this->__m_error_msg << "Can not get IP address." << std::endl;
         exit(0);
     }
     return true;
@@ -163,7 +166,6 @@ bool Logger::__insert(std::string &sql) {
     this->__m_rt = dpi_exec_direct(this->__m_hstmt, _sql);
 
     if (!DSQL_SUCCEEDED(this->__m_rt)) {
-        std::cout << "[Logger ERROR]: record insert error!" << std::endl;
         this->__dpiErrorMsgPrint(DSQL_HANDLE_STMT, this->__m_hstmt);
         this->__m_rt = dpi_free_stmt(this->__m_hstmt);
         return false;
@@ -186,8 +188,9 @@ bool Logger::insertRecord(std::string &sql, std::string operation, bool exec_res
             this->__m_tb_.c_str(), exec_result);
 
     this->__m_logger_sql_ = sqlStr;
+    // std::cout << this->__m_logger_sql_ << std::endl;
     if (!this->__insert(__m_logger_sql_)) {
-        std::cout << "insert error." << std::endl;
+        std::cout << this->__m_error_msg << "Insert Error." << std::endl;
     }
     return true;
 }
@@ -202,7 +205,7 @@ bool Logger::insertRecord(std::string &db_name, std::string &table_name, std::st
     this->__m_logger_sql_ = sqlStr;
 
     if (!this->__insert(__m_logger_sql_)) {
-        std::cout << "insert error." << std::endl;
+        std::cout << this->__m_error_msg << "Insert Error." << std::endl;
     }
     return true;
 }
@@ -215,11 +218,13 @@ Logger::~Logger() {
             this->__dpiErrorMsgPrint(DSQL_HANDLE_DBC, this->__m_hcon);
             exit(-1);
         }
-        printf("========== Logger: disconnect from server success! ==========\n");
 
         // 释放连接句柄和环境句柄 语句句柄每次执行已释放
         this->__m_rt = dpi_free_con(this->__m_hcon);
         this->__m_rt = dpi_free_env(this->__m_henv);
         this->__m_hcon = this->__m_henv = this->__m_hstmt = nullptr;
+
+        std::cout << "----------------------------------------------------------------------" << std::endl;
+        std::cout << this->__m_system_msg << "Disconnect from server success!" << std::endl;
     }
 }
