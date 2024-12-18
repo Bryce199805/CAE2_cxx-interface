@@ -516,6 +516,8 @@ bool CAE::DeleteRecord(std::string dbName, std::string tableName, const std::str
 
     if (this->m_res_.size() == 0) {
         std::cout << this->m_error_msg_ << "Check your dbname/tableName/colName." << std::endl;
+        logger_obj->m_use_query = true;
+        this->m_show_msg_ = true;
         return false;
     }
 
