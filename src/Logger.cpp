@@ -183,7 +183,7 @@ bool Logger::insertRecord(std::string &sql, std::string operation, bool exec_res
     }
     char sqlStr[1024];
     sprintf(sqlStr, "INSERT INTO USER_MANAGEMENT_DB.LOG (user_name, ip_addr, source, operation, schemas, tables, time, result) "
-            "VALUES ('%s', '%s', 'C++数据接口', '%s', tables('%s'), tables('%s'), SYSTIMESTAMP, %d)"
+            "VALUES ('%s', '%s', 'C++数据接口', '%s', USER_MANAGEMENT_DB.TABLES('%s'), USER_MANAGEMENT_DB.TABLES('%s'), SYSTIMESTAMP, %d)"
             , this->__m_username.c_str(), this->__m_ip_.c_str(), operation.c_str(), this->__m_db_.c_str(),
             this->__m_tb_.c_str(), exec_result);
 
@@ -199,7 +199,7 @@ bool Logger::insertRecord(std::string &db_name, std::string &table_name, std::st
     char sqlStr[1024];
 
     sprintf(sqlStr, "INSERT INTO USER_MANAGEMENT_DB.LOG (user_name, ip_addr, source, operation, schemas, tables, time, result) "
-            "VALUES ('%s', '%s', 'C++数据接口', '%s', tables('%s'), tables('%s'), SYSTIMESTAMP, %d)"
+            "VALUES ('%s', '%s', 'C++数据接口', '%s', USER_MANAGEMENT_DB.TABLES('%s'), USER_MANAGEMENT_DB.TABLES('%s'), SYSTIMESTAMP, %d)"
             , this->__m_username.c_str(), this->__m_ip_.c_str(), operation.c_str(), db_name.c_str(),
             table_name.c_str(), exec_result);
     this->__m_logger_sql_ = sqlStr;
