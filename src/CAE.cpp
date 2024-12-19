@@ -13,17 +13,26 @@ CAE::CAE(const std::string &file_path) {
         std::cout << this->m_error_msg_ << "Open config File:" << file_path << " failed.";
         exit(1);
     }
-    std::string db_server = data_config["server"]["database-server"].as<std::string>();
-    std::string username = data_config["server"]["username"].as<std::string>();
-    std::string password = this->encrypt_(data_config["server"]["password"].as<std::string>());
 
-    std::string log_username = data_config["log"]["username"].as<std::string>();
-    std::string log_password = this->encrypt_(data_config["log"]["password"].as<std::string>());
-    std::string cidr = data_config["log"]["cidr"].as<std::string>();
-    bool use_log = data_config["log"]["enable"].as<bool>();
+    bool use_log;
+    std::string db_server, username, password,log_username, log_password, cidr;
+
+    try {
+        db_server = data_config["server"]["database-server"].as<std::string>();
+        username = data_config["server"]["username"].as<std::string>();
+        password = this->encrypt_(data_config["server"]["password"].as<std::string>());
+
+        log_username = data_config["log"]["username"].as<std::string>();
+        log_password = this->encrypt_(data_config["log"]["password"].as<std::string>());
+        cidr = data_config["log"]["cidr"].as<std::string>();
+        use_log = data_config["log"]["enable"].as<bool>();
+    }
+    catch (YAML::Exception &e) {
+        std::cout << this->m_error_msg_ << "YAML ERROR:" << e.what() << std::endl;
+        exit(-1);
+    }
 
     this->initDB_(db_server, username, password);
-
     // 初始化log对象
     this->initLogger_(db_server, log_username, log_password, username, cidr, use_log);
 
@@ -145,7 +154,6 @@ std::string CAE::encrypt_(const std::string &data) {
 // public function
 
 bool CAE::Query(std::string &sql_str, std::vector<std::vector<std::string> > &res) {
-    //    std::cout << "---------- Query ----------" << std::endl;
     // ========== 初始化判断 ==========
     // 判断sql是否以select开头
     if (!this->isValidSQLCommand_(sql_str, "select")) {

@@ -16,18 +16,26 @@ CAE::CAE(const std::string &file_path, bool withFile = true) {
         exit(1);
     }
 
-    // init config
-    std::string db_server = data_config["server"]["database-server"].as<std::string>();
-    std::string fs_server = data_config["server"]["file-system-server"].as<std::string>();
-    std::string username = data_config["server"]["username"].as<std::string>();
-    std::string password = this->encrypt_(data_config["server"]["password"].as<std::string>());
+    bool use_log;
+    std::string db_server, fs_server, username, password,log_username, log_password, cidr;
 
-    // log config
-    std::string log_username = data_config["log"]["username"].as<std::string>();
-    std::string log_password = this->encrypt_(data_config["log"]["password"].as<std::string>());
-    std::string cidr = data_config["log"]["cidr"].as<std::string>();
-    bool use_log = data_config["log"]["enable"].as<bool>();
-    // std::cout << db_server << " " << fs_server << " " << username << " " << password << std::endl;
+    try {
+        // init config
+        db_server = data_config["server"]["database-server"].as<std::string>();
+        fs_server = data_config["server"]["file-system-server"].as<std::string>();
+        username = data_config["server"]["username"].as<std::string>();
+        password = this->encrypt_(data_config["server"]["password"].as<std::string>());
+
+        // log config
+        log_username = data_config["log"]["username"].as<std::string>();
+        log_password = this->encrypt_(data_config["log"]["password"].as<std::string>());
+        cidr = data_config["log"]["cidr"].as<std::string>();
+        use_log = data_config["log"]["enable"].as<bool>();
+    }
+    catch (YAML::Exception &e) {
+        std::cout << this->m_error_msg_ << "YAML ERROR:" << e.what() << std::endl;
+        exit(-1);
+    }
 
     if (withFile) {
         this->initDB_(db_server, username, password);
