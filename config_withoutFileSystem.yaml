@@ -1,20 +1,10 @@
-#database:
-#  server: "192.168.8.201:5236"
-#  username: "CMDADM"
-#  passwd: "SYSDBA"
-#
-#log:
-#  username: "LOG"
-#  passwd: "logmanager"
-#  cidr: "192.168.8.0/24"
-#  enable: true
-database:
-  server: "222.27.255.211:15236"
-  username: "708_USER"
-  passwd: "708_user"
+server:
+  username: "BASIC_USER"
+  password: "basic_user"
+  database-server: "192.168.8.201:5236"
 
 log:
-  username: "logusers"
-  passwd: "SYSDBA1234"
-  cidr: "169.254.189.90/16"
+  username: "Admin_LOG"
+  password: "logmanager"
+  cidr: "192.168.8.0/24"
   enable: true
