@@ -127,6 +127,12 @@ bool Logger::__parseSQL(const std::string sql) {
     if (!sqltoaster::getTBName(sql, this->__m_res_lst_)) {
         return false;
     }
+
+    if(this->__m_res_lst_.empty()) {
+        std::cout << this->__m_error_msg << "No tableName/SchemaName found." << std::endl;
+        return false;
+    }
+
     this->__m_db_.clear();
     this->__m_tb_.clear();
     std::unordered_set<std::string> db_set; // 用于存储唯一的库名

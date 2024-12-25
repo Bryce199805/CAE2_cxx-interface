@@ -100,23 +100,30 @@ void CAE::parseDBPath_(std::string path) {
 
 bool CAE::checkFilePath_(const std::string &dbName, const std::string &tableName, const std::string &col) {
     if (this->m_FileMap_.find(dbName) == this->m_FileMap_.end()) {
+        std::cout << this->m_error_msg_ << "请检查库名输入是否正确。" << std::endl;
         return false;
     }
     if (this->m_FileMap_.find(dbName)->second.find(tableName) == this->m_FileMap_.find(dbName)->second.end()) {
+        std::cout << this->m_error_msg_ << "请检查表名输入是否正确。" << std::endl;
         return false;
     }
     if (this->m_FileMap_.find(dbName)->second.find(tableName)->second.find(col)
         == this->m_FileMap_.find(dbName)->second.find(tableName)->second.end()) {
+        std::cout << this->m_error_msg_ << "请检查列名输入是否正确。" << std::endl;
         return false;
     }
+
+
     return true;
 }
 
 bool CAE::checkFilePath_(const std::string &dbName, const std::string &tableName) {
     if (this->m_FileMap_.find(dbName) == this->m_FileMap_.end()) {
+//        std::cout << this->m_error_msg_ << "请检查库名输入是否正确。" << std::endl;
         return false;
     }
     if (this->m_FileMap_.find(dbName)->second.find(tableName) == this->m_FileMap_.find(dbName)->second.end()) {
+//        std::cout << this->m_error_msg_ << "请检查表名输入是否正确。" << std::endl;
         return false;
     }
     return true;
@@ -127,6 +134,21 @@ bool CAE::checkFileExist_(std::string path) {
     size_t start = path.find_first_not_of(" \t\n\r");
     if (start == std::string::npos) {
         // 全是空白字符，空串
+        return false;
+    }
+    return true;
+}
+
+bool CAE::checkExtension_(std::string filename, std::string col) {
+
+    if(this->m_extension_pattern_.find(col) == this->m_extension_pattern_.end()){
+        // no need to check
+        return true;
+    }
+
+    std::regex reg(this->m_extension_pattern_.find(col)->second);
+    if (!std::regex_match(filename, reg)) {
+        std::cout << this->m_error_msg_ << "不支持的文件类型: " << filename << std::endl;
         return false;
     }
     return true;
@@ -160,6 +182,10 @@ void CAE::upperName_(std::string &dbName, std::string &tableName) {
     std::transform(tableName.begin(), tableName.end(), tableName.begin(), ::toupper);
 }
 
+void CAE::upperName_(std::string &str) {
+    std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+}
+
 void CAE::releaseFileSystem_() {
     delete this->base_url;
     this->base_url = nullptr;
@@ -171,7 +197,7 @@ void CAE::releaseFileSystem_() {
 
 // ============================== public function ==============================
 
-bool CAE::UploadFile(std::string dbName, std::string tableName, const std::string &id, const std::string &col, std::string local_path) {
+bool CAE::UploadFile(std::string dbName, std::string tableName, const std::string &id, std::string col, std::string local_path) {
     // sql query minio path
     // 1. record exist. col not null ->  minio path
     // 2, record exist. col null ->  make path
@@ -180,15 +206,21 @@ bool CAE::UploadFile(std::string dbName, std::string tableName, const std::strin
     //check the parameters of the function;
     this->m_res_.clear();
     this->upperName_(dbName, tableName);
+    this->upperName_(col);
     // std::cout << dbName << " " << tableName << std::endl;
     if (!this->checkFilePath_(dbName, tableName, col)) {
-        std::cout << this->m_error_msg_ << "Check your dbname/tablename/colname." << std::endl;
+//        std::cout << this->m_error_msg_ << "Check your dbname/tablename/colname." << std::endl;
         return false;
     }
 
     //check the local file path.
     if (!std::filesystem::exists(local_path)) {
         std::cerr << this->m_error_msg_ << "The file does not exist at " << local_path << std::endl;
+        return false;
+    }
+
+    // check the extension of the file.
+    if (!this->checkExtension_(this->getFileName_(local_path), col)) {
         return false;
     }
 
@@ -275,7 +307,7 @@ bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &
     this->upperName_(dbName, tableName);
 
     if (!this->checkFilePath_(dbName, tableName, col)) {
-        std::cout << this->m_error_msg_ << "Check your dbname/tableName/colName." << std::endl;
+//        std::cout << this->m_error_msg_ << "Check your dbname/tableName/colName." << std::endl;
         return false;
     }
 
@@ -368,7 +400,7 @@ bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &
     this->upperName_(dbName, tableName);
 
     if (!this->checkFilePath_(dbName, tableName, col)) {
-        std::cout << this->m_error_msg_ << "Check your dbname/tableName/colName." << std::endl;
+//        std::cout << this->m_error_msg_ << "Check your dbname/tableName/colName." << std::endl;
         return false;
     }
 
@@ -435,7 +467,7 @@ bool CAE::DeleteFile(std::string dbName, std::string tableName, const std::strin
     this->upperName_(dbName, tableName);
 
     if (!this->checkFilePath_(dbName, tableName, col)) {
-        std::cout << this->m_error_msg_ << "Check your dbname/tableName/colName." << std::endl;
+//        std::cout << this->m_error_msg_ << "Check your dbname/tableName/colName." << std::endl;
         return false;
     }
 

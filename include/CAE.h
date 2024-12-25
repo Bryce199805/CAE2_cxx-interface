@@ -32,6 +32,7 @@
 #include <filesystem>
 #include <fstream>
 #include <windows.h>
+#include <regex>
 
 #endif
 
@@ -99,6 +100,9 @@ private:
     // check if the path is null.
     bool checkFileExist_(std::string path);
 
+    // check the extension of the file.
+    bool checkExtension_(std::string filename, std::string col);
+
     // transform the local path to file path.
     void local2FilePath_(std::string dbName, std::string tableName, const std::string &id, std::string &local_path);
 
@@ -117,25 +121,51 @@ private:
     // transform the dbName, tableName to upper.
     void upperName_(std::string &dbName, std::string &tableName);
 
+    void upperName_(std::string &str);
+
     // release the file system.
     void releaseFileSystem_();
 
 
     // Map 2 Define
     // key: dbName -> tableName -> colName check for file path
-    const std::unordered_map<std::string, std::unordered_map<std::string, std::unordered_set<std::string> > > m_FileMap_
+//    const std::unordered_map<std::string, std::unordered_map<std::string, std::unordered_map<std::string, std::unordered_set<std::string>>>> m_FileMap_
+//            = {
+//                    {
+//                            "HULL_MODEL_AND_INFORMATION_DB", {
+//                            {
+//                                "HULL_PARAMETER_INFO", {
+//                                    {"TRANSVERSE_AREA_CURVE", {"png","jpg","jpeg"}, },
+//                                    {"HULL_3D_MODEL",{"stp","stl","igs","step","iges"}, },
+//                                    {"OFFSETS_TABLE", {"*"}}
+//                                }
+//                            }
+//                    }
+//                    }
+//            };
+
+    const std::unordered_map<std::string, std::unordered_map<std::string, std::unordered_set<std::string>>> m_FileMap_
             = {
                     {
                             "HULL_MODEL_AND_INFORMATION_DB", {
-                            {"HULL_PARAMETER_INFO", {"TRANSVERSE_AREA_CURVE", "HULL_3D_MODEL", "OFFSETS_TABLE"}}
+                            {
+                                    "HULL_PARAMETER_INFO", {"TRANSVERSE_AREA_CURVE", "HULL_3D_MODEL", "OFFSETS_TABLE"}
+                            }
                     }
                     }
             };
     // key:dbName -> tableName -> id check for id
     const std::unordered_map<std::string, std::unordered_map<std::string, std::string> > m_KeyMap_ = {
             {
-                    "HULL_MODEL_AND_INFORMATION_DB", {{"HULL_PARAMETER_INFO", "HULL_ID"}}
+                    "HULL_MODEL_AND_INFORMATION_DB", {
+                        {"HULL_PARAMETER_INFO", "HULL_ID"}
+                    }
             }
+    };
+
+    const std::unordered_map<std::string, std::string> m_extension_pattern_ = {
+            {"TRANSVERSE_AREA_CURVE", R"([^.]*\.(png|jpg|jpeg)$)"},
+            {"HULL_3D_MODEL", R"([^.]*\.(stp|stl|igs|step|iges)$)"}
     };
 
 #endif
@@ -168,7 +198,7 @@ public:
 
     // bool QuerywithFile(std::string sqlstr);
     bool UploadFile(std::string dbName, std::string tableName, const std::string &id,
-                    const std::string &col, std::string local_path);
+                    std::string col, std::string local_path);
 
     bool GetFile(std::string dbName, std::string tableName, const std::string &id, const std::string &col,
                  std::string local_path);
