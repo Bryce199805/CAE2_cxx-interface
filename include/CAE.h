@@ -33,6 +33,7 @@
 #include <fstream>
 #include <windows.h>
 #include <regex>
+#include <thread>
 
 #endif
 
@@ -80,6 +81,8 @@ private:
     minio::s3::Client* m_client_ = nullptr;
 
     std::vector<std::vector<std::string>> m_res_; //查询结果
+    std::vector<std::shared_ptr<std::thread>> m_threads_; //线程池
+    std::vector<std::string> m_temp_path_;
 
     std::string m_bucket_; //桶名
     std::string m_prefix_; //前缀名
@@ -109,6 +112,8 @@ private:
     // parse the file path in DM.
     void parseDBPath_(std::string path);
 
+    void to_stl_(std::string path, std::string ext, std::string bucket, std::string object);
+
     // get the name of local file.
     std::string getFileName_(std::string path);
 
@@ -119,9 +124,9 @@ private:
     std::string transDBName2BucketName_(std::string dbName);
 
     // transform the dbName, tableName to upper.
-    void upperName_(std::string &dbName, std::string &tableName);
-
     void upperName_(std::string &str);
+
+    void lowerName_(std::string &str);
 
     // release the file system.
     void releaseFileSystem_();

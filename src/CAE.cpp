@@ -43,6 +43,17 @@ CAE::~CAE() {
     this->releaseDB_();
 
 #ifdef USE_FILESYSTEM
+    // 等待所有线程结束
+    for(auto& thread : this->m_threads_) {
+        if (thread->joinable()){
+            thread->join();
+        }
+    }
+
+    for(auto &temp_path : this->m_temp_path_){
+        std::filesystem::remove_all(temp_path);
+    }
+
     this->releaseFileSystem_();
 #endif
 
