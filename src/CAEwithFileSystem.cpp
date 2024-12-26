@@ -69,7 +69,6 @@ bool CAE::initFileSystem_(const std::string &fs_server, const std::string &fs_us
     return true;
 }
 
-
 void CAE::parseDBPath_(std::string path) {
     // 查找第一个斜杠，提取bucket部分
     size_t firstSlash = path.find('/');
@@ -96,6 +95,61 @@ void CAE::parseDBPath_(std::string path) {
     // 介于第二个斜杠和最后一个斜杠之间的部分
     this->m_prefix_ = path.substr(secondSlash + 1, lastSlash - secondSlash - 1);
     this->m_object_ = path.substr(lastSlash + 1);
+}
+
+void CAE::to_stl_(std::string path, std::string ext, std::string bucket, std::string object) {
+//    path = std::filesystem::absolute(path).string();
+    size_t dot_pos = path.find_last_of('.');
+    size_t slash_pos = path.find_last_of('/');
+    std::string file_name = path.substr(slash_pos + 1, dot_pos - slash_pos) + "stl";
+
+    auto now = std::chrono::system_clock::now();
+    auto duration = now.time_since_epoch();
+    auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+
+    std::ostringstream oss;
+    oss << path.substr(0, slash_pos) << "/temp_" << millis <<"/";
+    std::string temp_path = oss.str();
+
+    std::filesystem::create_directories(temp_path);
+    this->m_temp_path_.push_back(temp_path);
+
+    int res = -1;
+    if (ext == "igs") {
+        std::string command = "Iges2Stl.exe " + path + " " + temp_path+file_name;
+        res = system(command.c_str());
+    }
+    else if (ext == "stp") {
+        std::string command = "Stp2Stl.exe " + path + " " + temp_path+file_name;
+        res = system(command.c_str());
+    }
+
+    if (res != 0) {
+        std::cout << this->m_system_msg_ << "stl转换失败" << std::endl;
+        return;
+    }
+
+    // 上传stl文件
+    //文件读取
+    std::filesystem::path zh_path(temp_path+file_name);
+    std::ifstream file(zh_path, std::ios::binary);
+
+    //获取文件大小
+    file.seekg(0, std::ios::end);
+    std::streamsize file_size = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    minio::s3::PutObjectArgs args(file, file_size, 0);
+    //上传路径：bucket/path/path/filename, prefix=path/path/
+    //bucket:this->bucket object:prefix/this->object filename:this->object
+    args.bucket = bucket;
+    args.object = object + file_name;
+    minio::s3::PutObjectResponse resp = this->m_client_->PutObject(args);
+
+    if(!resp){
+        std::cout << this->m_system_msg_ << "上传stl文件失败" << std::endl;
+    }
+
 }
 
 bool CAE::checkFilePath_(const std::string &dbName, const std::string &tableName, const std::string &col) {
@@ -177,13 +231,12 @@ std::string CAE::transDBName2BucketName_(std::string dbName) {
     return dbName;
 }
 
-void CAE::upperName_(std::string &dbName, std::string &tableName) {
-    std::transform(dbName.begin(), dbName.end(), dbName.begin(), ::toupper);
-    std::transform(tableName.begin(), tableName.end(), tableName.begin(), ::toupper);
-}
-
 void CAE::upperName_(std::string &str) {
     std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+}
+
+void CAE::lowerName_(std::string &str) {
+    std::transform(str.begin(), str.end(), str.begin(), ::tolower);
 }
 
 void CAE::releaseFileSystem_() {
@@ -205,7 +258,8 @@ bool CAE::UploadFile(std::string dbName, std::string tableName, const std::strin
 
     //check the parameters of the function;
     this->m_res_.clear();
-    this->upperName_(dbName, tableName);
+    this->upperName_(dbName);
+    this->upperName_(tableName);
     this->upperName_(col);
     // std::cout << dbName << " " << tableName << std::endl;
     if (!this->checkFilePath_(dbName, tableName, col)) {
@@ -219,9 +273,18 @@ bool CAE::UploadFile(std::string dbName, std::string tableName, const std::strin
         return false;
     }
 
+    std::string filename = this->getFileName_(local_path);
+    std::string ext;
     // check the extension of the file.
-    if (!this->checkExtension_(this->getFileName_(local_path), col)) {
+    if (!this->checkExtension_(filename, col)) {
         return false;
+    }
+    else {
+        auto dot_pos = filename.find_last_of('.');
+        if (dot_pos != std::string::npos) {
+            ext = filename.substr(dot_pos + 1);
+            this->lowerName_(ext);
+        }
     }
 
     this->m_id_ = this->getTableID_(dbName, tableName);
@@ -254,6 +317,17 @@ bool CAE::UploadFile(std::string dbName, std::string tableName, const std::strin
         //file exist.
         this->parseDBPath_(this->m_path_);
         this->m_object_ = this->getFileName_(local_path);
+    }
+
+    if (ext == "igs" || ext == "iges") {
+        this->m_threads_.push_back(std::make_shared<std::thread>(
+                &CAE::to_stl_,
+                this, local_path, "igs", this->m_bucket_, this->m_prefix_ + "/"));
+    }
+    else if (ext == "stp" || ext == "step") {
+        this->m_threads_.push_back(std::make_shared<std::thread>(
+                &CAE::to_stl_,
+                this, local_path, "stp", this->m_bucket_, this->m_prefix_ + "/"));
     }
 
     //文件读取
@@ -304,7 +378,8 @@ bool CAE::UploadFile(std::string dbName, std::string tableName, const std::strin
 bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &id, const std::string &col, std::string local_path) {
     this->m_res_.clear();
 
-    this->upperName_(dbName, tableName);
+    this->upperName_(dbName);
+    this->upperName_(tableName);
 
     if (!this->checkFilePath_(dbName, tableName, col)) {
 //        std::cout << this->m_error_msg_ << "Check your dbname/tableName/colName." << std::endl;
@@ -393,11 +468,11 @@ bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &
     }
 }
 
-
 bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &id, const std::string &col, std::vector<unsigned char> &object_data) {
     this->m_res_.clear();
 
-    this->upperName_(dbName, tableName);
+    this->upperName_(dbName);
+    this->upperName_(tableName);
 
     if (!this->checkFilePath_(dbName, tableName, col)) {
 //        std::cout << this->m_error_msg_ << "Check your dbname/tableName/colName." << std::endl;
@@ -464,7 +539,8 @@ bool CAE::GetFile(std::string dbName, std::string tableName, const std::string &
 
 bool CAE::DeleteFile(std::string dbName, std::string tableName, const std::string &id, const std::string &col) {
     this->m_res_.clear();
-    this->upperName_(dbName, tableName);
+    this->upperName_(dbName);
+    this->upperName_(tableName);
 
     if (!this->checkFilePath_(dbName, tableName, col)) {
 //        std::cout << this->m_error_msg_ << "Check your dbname/tableName/colName." << std::endl;
@@ -532,7 +608,8 @@ bool CAE::DeleteFile(std::string dbName, std::string tableName, const std::strin
 
 bool CAE::DeleteRecord(std::string dbName, std::string tableName, const std::string &id) {
     this->m_res_.clear();
-    this->upperName_(dbName, tableName);
+    this->upperName_(dbName);
+    this->upperName_(tableName);
 
     if (!this->checkFilePath_(dbName, tableName)) {
         std::cout << this->m_system_msg_ << "Noting to do. There is no file." << std::endl;
