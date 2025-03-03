@@ -5,18 +5,26 @@ C++数据接口为用户提供直接操作达梦数据库的相关API接口，�
 ## 目录说明
 - **lib**  包含数据接口所打包的库文件以及相关依赖
 - **include** 数据接口作用到的相关头文件
-- **config_withoutFileSystem.yaml**  数据库配置参数文件
+- **interface-config.yaml**  数据库配置参数文件
 
 ## 环境配置
-- 中文编码请设置为gb18030
+- 中文编码请设置为UTF-8
 - 将lib目录添加到环境变量中
-- 将config_withoutFileSystem.yaml中配置信息修改为本机对应的信息
+- interface-config.yaml中配置信息修改为本机对应的信息
+- 若文件操作出现乱码，则Windows中文编码需要设置为UTF-8
 ```yaml
-## config_withoutFileSystem.yaml
-database:
-  server: "192.168.8.201:5236"  # 数据库服务地址 ip:port
-  username: "SYSDBA"            # 数据库用户名
-  passwd: "SYSDBA"              # 数据库密码
+## interface-config.yaml
+server:
+  username: "708_USER"
+  password: "708_user"
+  database-server: "192.168.8.201:5236"
+  file-system-server: "192.168.8.201:9000"
+
+log:
+  username: "Admin_LOG"
+  password: "logmanager"
+  cidr: "192.168.8.0/24"
+  enable: true
 ```
 ## API 用户手册
 
@@ -368,9 +376,7 @@ if(obj.Query(sql_str, res)){
 }
 ```
 
-### class CAEwithFileSystem
 
-`CAEwithFileSystem`类封装了对文件系统操作的基本上传、下载、删除方法
 
 #### UploadFile
 
@@ -408,7 +414,7 @@ if (obj.UploadFile("hull_model_and_information_db", "hull_parameter_info", "Samp
   - `local_path`: 下载文件的本地路径，`std::string`类型值传递
 - 返回值类型：`bool`
 
-```java
+```c++
 CAE obj("../config.yaml", true);
 //下载文件
 if (obj.GetFile("hull_model_and_information_db", "HULL_PARAMETER_INFO", "SampleShip_KCS0000",
@@ -429,7 +435,7 @@ if (obj.GetFile("hull_model_and_information_db", "HULL_PARAMETER_INFO", "SampleS
   - `object_data`: 用户声明的`vector`容器，类型为`unsigned char`，用于存放下载的文件字符流，引用传递
 - 返回值类型：`bool`
 
-```java
+```c++
 CAE obj("../config.yaml", true);
 //以字符流形式下载文件
 std::vector<unsigned char> object_data;
@@ -452,7 +458,7 @@ if (obj.GetFile("HuLL_MODEL_AND_INFORMATION_Db", "hull_parameter_info", "SampleS
   - `col`: 存储文件的表的字段，`const std::string`类型引用传递
 - 返回值类型：`bool`
 
-```java
+```c++
 CAE obj("../config.yaml", true);
 //删除文件
 if (obj.DeleteFile("HULL_MODEL_AND_INFORMATION_DB", "hull_parameter_info", "SampleShip_KCS0000",
@@ -473,7 +479,7 @@ if (obj.DeleteFile("HULL_MODEL_AND_INFORMATION_DB", "hull_parameter_info", "Samp
   - `id`: 存储文件的表的ID，`const std::string`类型引用传递
 - 返回值类型：`bool`
 
-```java
+```c++
 CAE obj("../config.yaml", true);
 //删除记录
 if (obj.DeleteRecord("hull_model_and_information_db", "hull_parameter_info", "SampleShip_KCS0000")) {
@@ -494,13 +500,23 @@ cmake_minimum_required(VERSION 3.28)
 project(test)
 
 set(CMAKE_CXX_STANDARD 17)
-
 # CAE setting import 
-include_directories(D:/libcae/include)
-link_directories(D:/libcae/lib)
+
+include_directories(D:/libCAEFILE/include)
+link_directories(D:/libCAEFILE/lib)
 
 add_executable(test main.cpp)
-target_link_libraries(test dmdpi yaml-cpp libCAE2.a)
+
+target_compile_definitions(test PRIVATE USE_FILESYSTEM)
+
+target_link_libraries(test
+        dmdpi yaml-cpp  # 动态库
+        libCAE2ALL.a  # 主静态库
+        bcrypt # 系统库 文件系统
+        ws2_32 crypt32 # 系统库
+        wpcap Packet IPHlpApi # ws2_32
+        sqltoast.a
+)
 ```
 
 ### 程序样例
